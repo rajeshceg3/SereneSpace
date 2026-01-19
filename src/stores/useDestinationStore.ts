@@ -13,14 +13,17 @@ interface DestinationState {
   destinations: Destination[];
   activeDestination: string | null;
   activeDestinationDetails: Destination | null; // To hold the full object
+  isUiVisible: boolean;
   fetchDestinations: () => Promise<void>;
   setActiveDestination: (id: string | null) => void;
+  setUiVisible: (visible: boolean) => void;
 }
 
 export const useDestinationStore = create<DestinationState>((set, get) => ({
   destinations: [],
   activeDestination: null,
   activeDestinationDetails: null,
+  isUiVisible: false,
 
   // Fetches destination data from the public JSON file
   fetchDestinations: async () => {
@@ -40,7 +43,12 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   setActiveDestination: (id) => {
     const { destinations } = get();
     const details = destinations.find((d) => d.id === id) || null;
-    set({ activeDestination: id, activeDestinationDetails: details });
+    set({ activeDestination: id, activeDestinationDetails: details, isUiVisible: !!details });
+  },
+
+  // Controls UI visibility
+  setUiVisible: (visible) => {
+    set({ isUiVisible: visible });
   },
 }));
 
