@@ -28,7 +28,7 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   // Fetches destination data from the public JSON file
   fetchDestinations: async () => {
     try {
-      const response = await fetch('/destinations.json');
+      const response = await fetch(`${import.meta.env.BASE_URL}destinations.json`);
       if (!response.ok) {
         throw new Error('Failed to fetch destinations');
       }

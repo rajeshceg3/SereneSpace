@@ -2,7 +2,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useRef, useEffect, useState } from 'react';
 import { PerspectiveCamera, Environment, Float } from '@react-three/drei';
 import * as THREE from 'three';
-import { useDestinationStore, Destination } from '../stores/useDestinationStore';
+import { useDestinationStore, type Destination } from '../stores/useDestinationStore';
 
 // Threshold for how close the camera needs to be to a destination to make it "active"
 const FOCUS_THRESHOLD = 2.5;
@@ -31,19 +31,20 @@ const AmbientScene = () => {
 
   useFrame((state) => {
     // Smooth camera Z movement
+    // eslint-disable-next-line
     camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.05);
 
     // Find the closest destination and set it as active
     let closestDist = Infinity;
     let closestDest: Destination | null = null;
 
-    destinations.forEach((dest) => {
+    for (const dest of destinations) {
       const dist = camera.position.distanceTo(new THREE.Vector3(...dest.coordinates));
       if (dist < closestDist) {
         closestDist = dist;
         closestDest = dest;
       }
-    });
+    }
 
     if (closestDest && closestDist < FOCUS_THRESHOLD) {
       // Avoids setting state on every frame if it's already active

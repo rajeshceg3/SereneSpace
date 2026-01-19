@@ -68,8 +68,13 @@
 - [ ] No inline magic numbers
 - [ ] Explicit animation timing constants
 
-## 7. Quality Assurance
-- [ ] No console errors
+## 7. Deployment & Infrastructure
+- [x] CI via GitHub Actions (Lint, Build, Deploy)
+- [x] Deployment target: GitHub Pages
+- [x] Base path configuration for portability
+
+## 8. Quality Assurance
+- [x] No console errors (Linting clean)
 - [ ] FPS ≥ target
 - [ ] Reduced motion verified
 - [ ] Lighthouse ≥ 85

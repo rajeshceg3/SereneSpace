@@ -6,19 +6,15 @@ import { useDestinationStore } from './stores/useDestinationStore';
 
 function App() {
   const [visible, setVisible] = useState(false);
-  const [hasWebGL, setHasWebGL] = useState(true);
+  const [hasWebGL] = useState(() => {
+    const canvas = document.createElement('canvas');
+    return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+  });
   const fetchDestinations = useDestinationStore((state) => state.fetchDestinations);
 
   useEffect(() => {
     // Fetch destinations when the app mounts
     fetchDestinations();
-
-    // Check WebGL support
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    if (!gl) {
-      setHasWebGL(false);
-    }
 
     // Start fade in after mount
     const timer = setTimeout(() => {
