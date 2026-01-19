@@ -1,0 +1,23 @@
+[
+  {
+    "id": "kyoto",
+    "name": "Kyoto",
+    "coordinates": [0, 0, 0],
+    "ambientColor": "#ff0000",
+    "description": "Ancient temples, sublime gardens, and traditional teahouses."
+  },
+  {
+    "id": "reykjavik",
+    "name": "Reykjavik",
+    "coordinates": [0, 0, -10],
+    "ambientColor": "#00ff00",
+    "description": "A city of striking contrasts, where Viking history meets contemporary art."
+  },
+  {
+    "id": "patagonia",
+    "name": "Patagonia",
+    "coordinates": [0, 0, -20],
+    "ambientColor": "#0000ff",
+    "description": "A vast, remote region of dramatic mountain peaks and glacial lakes."
+  }
+]

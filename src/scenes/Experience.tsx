@@ -1,17 +1,44 @@
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useRef, useEffect, useState } from 'react';
 import { PerspectiveCamera, Environment, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
+interface Destination {
+  id: string;
+  name: string;
+  coordinates: [number, number, number];
+  ambientColor: string;
+  description: string;
+}
+
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+  const [targetZ, setTargetZ] = useState(5);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  useEffect(() => {
+    setDestinations(destinationsData);
+
+    const handleWheel = (event: WheelEvent) => {
+      setTargetZ((prev) => Math.max(-25, Math.min(5, prev - event.deltaY * 0.01)));
+    };
+
+    window.addEventListener('wheel', handleWheel);
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
 
   useFrame((state) => {
     if (prefersReducedMotion) return;
 
     const t = state.clock.getElapsedTime();
+
+    // Smooth camera z movement
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.05);
 
     // Slow object rotation
     if (groupRef.current) {
@@ -43,26 +70,14 @@ const AmbientScene = () => {
       <pointLight position={[10, 10, 10]} intensity={1} />
 
       <group ref={groupRef}>
-        <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-          <mesh position={[-1, 0, 0]}>
-            <sphereGeometry args={[0.5, 32, 32]} />
-            <meshStandardMaterial color="#88ccff" roughness={0.1} metalness={0.1} />
-          </mesh>
-        </Float>
-
-        <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
-          <mesh position={[1, 0.5, -1]}>
-            <boxGeometry args={[0.7, 0.7, 0.7]} />
-            <meshStandardMaterial color="#ffcc88" roughness={0.1} metalness={0.1} />
-          </mesh>
-        </Float>
-
-        <Float speed={3} rotationIntensity={1} floatIntensity={1}>
-           <mesh position={[0, -1, 0.5]}>
-            <dodecahedronGeometry args={[0.4]} />
-            <meshStandardMaterial color="#cc88ff" roughness={0.1} metalness={0.1} />
-          </mesh>
-        </Float>
+        {destinations.map((destination) => (
+          <Float key={destination.id} speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+            <mesh position={destination.coordinates}>
+              <sphereGeometry args={[0.5, 32, 32]} />
+              <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.1} />
+            </mesh>
+          </Float>
+        ))}
       </group>
 
       <Environment preset="city" />
