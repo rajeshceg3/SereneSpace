@@ -3,25 +3,26 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { DestinationDetails } from './components/DestinationDetails';
 import { useDestinationStore } from './stores/useDestinationStore';
+import { Loading } from './components/Loading';
+import { ErrorFallback } from './components/ErrorFallback';
 
 function App() {
+  const { isLoading, error } = useDestinationStore();
   const [visible, setVisible] = useState(false);
   const [hasWebGL] = useState(() => {
     const canvas = document.createElement('canvas');
     return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
   });
-  const fetchDestinations = useDestinationStore((state) => state.fetchDestinations);
 
   useEffect(() => {
-    // Fetch destinations when the app mounts
-    fetchDestinations();
-
-    // Start fade in after mount
-    const timer = setTimeout(() => {
-      setVisible(true);
-    }, 100); // Small delay to ensure render
-    return () => clearTimeout(timer);
-  }, [fetchDestinations]);
+    // Fade in effect after loading is complete
+    if (!isLoading && !error) {
+      const timer = setTimeout(() => {
+        setVisible(true);
+      }, 100); // Small delay for render
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, error]);
 
   if (!hasWebGL) {
     return (
@@ -29,6 +30,14 @@ function App() {
         <p>Your device does not support WebGL. Please try a different device.</p>
       </div>
     );
+  }
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return <ErrorFallback message={error} />;
   }
 
   return (
@@ -39,7 +48,7 @@ function App() {
           height: '100%',
           opacity: visible ? 1 : 0,
           transition: 'opacity 1s ease-in-out',
-          backgroundColor: '#000'
+          backgroundColor: '#000',
         }}
       >
         <Experience />
