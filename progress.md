@@ -29,7 +29,7 @@
 - [x] User pauses → detail layer fades in
 - [x] Logic: Only one destination active at a time
 - [x] Logic: UI auto-hides after 2s inactivity
-- [ ] Error Handling: Asset load failure → graceful placeholder
+- [x] Error Handling: Asset load failure → graceful placeholder
 
 #### Feature 3: Invisible Navigation Layer
 - [ ] No persistent navbar

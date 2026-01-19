@@ -14,6 +14,8 @@ interface DestinationState {
   activeDestination: string | null;
   activeDestinationDetails: Destination | null; // To hold the full object
   isUiVisible: boolean;
+  isLoading: boolean;
+  error: string | null;
   fetchDestinations: () => Promise<void>;
   setActiveDestination: (id: string | null) => void;
   setUiVisible: (visible: boolean) => void;
@@ -24,18 +26,22 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   activeDestination: null,
   activeDestinationDetails: null,
   isUiVisible: false,
+  isLoading: true,
+  error: null,
 
   // Fetches destination data from the public JSON file
   fetchDestinations: async () => {
+    set({ isLoading: true, error: null });
     try {
       const response = await fetch(`${import.meta.env.BASE_URL}destinations.json`);
       if (!response.ok) {
-        throw new Error('Failed to fetch destinations');
+        throw new Error('Network response was not ok');
       }
       const data: Destination[] = await response.json();
-      set({ destinations: data });
+      set({ destinations: data, isLoading: false });
     } catch (error) {
       console.error('Error loading destinations:', error);
+      set({ error: 'Failed to load destination data.', isLoading: false });
     }
   },
 
