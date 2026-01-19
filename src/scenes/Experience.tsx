@@ -2,26 +2,23 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useRef, useEffect, useState } from 'react';
 import { PerspectiveCamera, Environment, Float } from '@react-three/drei';
 import * as THREE from 'three';
+import { useDestinationStore, Destination } from '../stores/useDestinationStore';
 
-interface Destination {
-  id: string;
-  name: string;
-  coordinates: [number, number, number];
-  ambientColor: string;
-  description: string;
-}
+// Threshold for how close the camera needs to be to a destination to make it "active"
+const FOCUS_THRESHOLD = 2.5;
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null);
   const { camera } = useThree();
   const [targetZ, setTargetZ] = useState(5);
-  const [destinations, setDestinations] = useState<Destination[]>([]);
+
+  // Get state and actions from the Zustand store
+  const { destinations, setActiveDestination, activeDestination } = useDestinationStore();
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
-    setDestinations(destinationsData);
-
+    // Scroll handling to move the camera
     const handleWheel = (event: WheelEvent) => {
       setTargetZ((prev) => Math.max(-25, Math.min(5, prev - event.deltaY * 0.01)));
     };
@@ -33,12 +30,37 @@ const AmbientScene = () => {
   }, []);
 
   useFrame((state) => {
+    // Smooth camera Z movement
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.05);
+
+    // Find the closest destination and set it as active
+    let closestDist = Infinity;
+    let closestDest: Destination | null = null;
+
+    destinations.forEach((dest) => {
+      const dist = camera.position.distanceTo(new THREE.Vector3(...dest.coordinates));
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestDest = dest;
+      }
+    });
+
+    if (closestDest && closestDist < FOCUS_THRESHOLD) {
+      // Avoids setting state on every frame if it's already active
+      if (activeDestination !== closestDest.id) {
+        setActiveDestination(closestDest.id);
+      }
+    } else {
+      // If nothing is in focus, clear the active destination
+      if (activeDestination !== null) {
+        setActiveDestination(null);
+      }
+    }
+
+    // --- Ambient motion (if not reduced) ---
     if (prefersReducedMotion) return;
 
     const t = state.clock.getElapsedTime();
-
-    // Smooth camera z movement
-    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.05);
 
     // Slow object rotation
     if (groupRef.current) {
@@ -46,15 +68,11 @@ const AmbientScene = () => {
       groupRef.current.rotation.x = Math.sin(t * 0.1) * 0.05;
     }
 
-    // Light shift (simulating by moving a light or changing intensity?
-    // Let's just move the camera slightly for "breathing" effect + parallax)
-
-    // Automatic ambient breathing
+    // Camera breathing effect
     const breathingX = Math.sin(t * 0.2) * 0.2;
     const breathingY = Math.cos(t * 0.2) * 0.2;
 
-    // Mouse parallax (simple version)
-    // state.pointer.x is -1 to 1
+    // Mouse parallax
     const parallaxX = state.pointer.x * 0.5;
     const parallaxY = state.pointer.y * 0.5;
 

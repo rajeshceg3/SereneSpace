@@ -2,12 +2,17 @@ import { Experience } from './scenes/Experience';
 import './App.css';
 import { useEffect, useState } from 'react';
 import { DestinationDetails } from './components/DestinationDetails';
+import { useDestinationStore } from './stores/useDestinationStore';
 
 function App() {
   const [visible, setVisible] = useState(false);
   const [hasWebGL, setHasWebGL] = useState(true);
+  const fetchDestinations = useDestinationStore((state) => state.fetchDestinations);
 
   useEffect(() => {
+    // Fetch destinations when the app mounts
+    fetchDestinations();
+
     // Check WebGL support
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -20,7 +25,7 @@ function App() {
       setVisible(true);
     }, 100); // Small delay to ensure render
     return () => clearTimeout(timer);
-  }, []);
+  }, [fetchDestinations]);
 
   if (!hasWebGL) {
     return (

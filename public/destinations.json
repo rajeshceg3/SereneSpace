@@ -1,23 +1,23 @@
 [
   {
+    "id": "paris",
+    "name": "Paris",
+    "coordinates": [0, 0, 0],
+    "ambientColor": "#FFD700",
+    "description": "The city of light and love. A timeless destination for art, food, and romance."
+  },
+  {
     "id": "kyoto",
     "name": "Kyoto",
-    "coordinates": [0, 0, 0],
-    "ambientColor": "#ff0000",
-    "description": "Ancient temples, sublime gardens, and traditional teahouses."
+    "coordinates": [5, 0, -10],
+    "ambientColor": "#FF69B4",
+    "description": "The cultural heart of Japan, known for its beautiful temples, gardens, and traditional wooden houses."
   },
   {
-    "id": "reykjavik",
-    "name": "Reykjavik",
-    "coordinates": [0, 0, -10],
-    "ambientColor": "#00ff00",
-    "description": "A city of striking contrasts, where Viking history meets contemporary art."
-  },
-  {
-    "id": "patagonia",
-    "name": "Patagonia",
-    "coordinates": [0, 0, -20],
-    "ambientColor": "#0000ff",
-    "description": "A vast, remote region of dramatic mountain peaks and glacial lakes."
+    "id": "iceland",
+    "name": "Iceland",
+    "coordinates": [-5, 0, -20],
+    "ambientColor": "#00FFFF",
+    "description": "A land of fire and ice, with dramatic landscapes of volcanoes, geysers, hot springs, and lava fields."
   }
 ]
