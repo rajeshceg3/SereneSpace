@@ -28,7 +28,7 @@
 - [x] Name appears softly
 - [x] User pauses → detail layer fades in
 - [x] Logic: Only one destination active at a time
-- [ ] Logic: UI auto-hides after 2s inactivity
+- [x] Logic: UI auto-hides after 2s inactivity
 - [ ] Error Handling: Asset load failure → graceful placeholder
 
 #### Feature 3: Invisible Navigation Layer
@@ -51,14 +51,14 @@
 ## 3. Technical Requirements
 - [x] React 18
 - [x] Three.js r160
-- [ ] State: Zustand
+- [x] State: Zustand
 - [x] Styling: CSS + custom shaders
 - [x] Build: Vite
 - [ ] First render ≤ 2.5s
 - [ ] Frame rate ≥ 50 FPS
 
 ## 4. Database Design
-- [ ] Static JSON for Destinations
+- [x] Static JSON for Destinations
 
 ## 5. API Specifications
 - [ ] None for Phase 1
