@@ -22,12 +22,12 @@
 - [x] Edge Cases: WebGL unsupported → fallback static page
 
 #### Feature 2: Spatial Destination Exploration
-- [ ] Destinations as floating 3D objects
-- [ ] Scroll → camera gently advances
-- [ ] Destination comes into focus
-- [ ] Name appears softly
-- [ ] User pauses → detail layer fades in
-- [ ] Logic: Only one destination active at a time
+- [x] Destinations as floating 3D objects
+- [x] Scroll → camera gently advances
+- [x] Destination comes into focus
+- [x] Name appears softly
+- [x] User pauses → detail layer fades in
+- [x] Logic: Only one destination active at a time
 - [ ] Logic: UI auto-hides after 2s inactivity
 - [ ] Error Handling: Asset load failure → graceful placeholder
 

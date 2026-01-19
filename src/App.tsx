@@ -1,6 +1,7 @@
 import { Experience } from './scenes/Experience';
 import './App.css';
 import { useEffect, useState } from 'react';
+import { DestinationDetails } from './components/DestinationDetails';
 
 function App() {
   const [visible, setVisible] = useState(false);
@@ -42,6 +43,7 @@ function App() {
       >
         <Experience />
       </div>
+      <DestinationDetails />
     </>
   );
 }
