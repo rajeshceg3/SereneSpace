@@ -37,15 +37,15 @@
 - [x] Keyboard navigation supported
 
 ### 2.3 UI / UX Requirements
-- [ ] Full-screen canvas
-- [ ] Zero visible borders
+- [x] Full-screen canvas
+- [x] Zero visible borders
 - [ ] Typography overlays only when contextually required
 - [x] Scroll = forward/back
 - [x] Hover = reveal
 - [x] Click = deepen focus
 - [ ] Accessibility: WCAG 2.1 AA
 - [ ] Accessibility: Reduced motion toggle
-- [ ] Accessibility: Keyboard traversal
+- [x] Accessibility: Keyboard traversal
 - [ ] Accessibility: Screen reader fallback descriptions
 
 ## 3. Technical Requirements

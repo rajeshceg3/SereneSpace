@@ -1,6 +1,6 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
-import { PerspectiveCamera, Environment, Float } from '@react-three/drei';
+import { PerspectiveCamera, Environment, Float, Torus } from '@react-three/drei';
 import * as THREE from 'three';
 import { useDestinationStore, type Destination } from '../stores/useDestinationStore';
 
@@ -110,6 +110,11 @@ const AmbientScene = () => {
             >
               <sphereGeometry args={[0.5, 32, 32]} />
               <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.1} />
+              {activeDestination === destination.id && (
+                <Torus args={[0.6, 0.02, 16, 100]} position={[0, 0, 0]}>
+                  <meshBasicMaterial color="white" />
+                </Torus>
+              )}
             </mesh>
           </Float>
         ))}
