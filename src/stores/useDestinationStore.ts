@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { CAMERA_INITIAL_Z, UI_VISIBILITY_DELAY } from '../constants';
 
 // Matches the structure in public/destinations.json
 export interface Destination {
@@ -16,6 +17,7 @@ interface DestinationState {
   activeDestinationDetails: Destination | null; // To hold the full object
   cameraTargetZ: number;
   isUiVisible: boolean;
+  uiVisibilityTimer: NodeJS.Timeout | null;
   isLoading: boolean;
   error: string | null;
   reducedMotion: boolean;
@@ -31,8 +33,9 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   activeDestination: null,
   hoveredDestination: null,
   activeDestinationDetails: null,
-  cameraTargetZ: 5, // Initial camera position
+  cameraTargetZ: CAMERA_INITIAL_Z,
   isUiVisible: false,
+  uiVisibilityTimer: null,
   isLoading: true,
   error: null,
   reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -47,6 +50,11 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
       }
       const data: Destination[] = await response.json();
       set({ destinations: data, isLoading: false });
+
+      // Set the first destination as active by default
+      if (data.length > 0) {
+        get().setActiveDestination(data[0].id);
+      }
     } catch (error) {
       console.error('Error loading destinations:', error);
       set({ error: 'Failed to load destination data.', isLoading: false });
@@ -55,14 +63,33 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
 
   // Sets the active destination by ID and finds the corresponding object
   setActiveDestination: (id) => {
-    const { destinations } = get();
+    const { destinations, uiVisibilityTimer } = get();
+
+    // When a destination changes, always hide the UI first and clear any existing timer
+    if (uiVisibilityTimer) {
+      clearTimeout(uiVisibilityTimer);
+    }
+    set({ isUiVisible: false });
+
     const details = destinations.find((d) => d.id === id) || null;
-    set({ activeDestination: id, activeDestinationDetails: details, isUiVisible: !!details });
+    set({ activeDestination: id, activeDestinationDetails: details });
+
+    // If there's a new active destination, set a timer to show the UI
+    if (details) {
+      const timer = setTimeout(() => {
+        set({ isUiVisible: true });
+      }, UI_VISIBILITY_DELAY);
+      set({ uiVisibilityTimer: timer });
+    }
   },
 
   // Controls UI visibility
   setUiVisible: (visible) => {
-    set({ isUiVisible: visible });
+    const { uiVisibilityTimer } = get();
+    if (uiVisibilityTimer) {
+      clearTimeout(uiVisibilityTimer);
+    }
+    set({ isUiVisible: visible, uiVisibilityTimer: null });
   },
 
   // Sets the hovered destination by ID

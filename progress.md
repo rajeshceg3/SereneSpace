@@ -39,14 +39,14 @@
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
-- [ ] Typography overlays only when contextually required
+- [x] Typography overlays only when contextually required
 - [x] Scroll = forward/back
 - [x] Hover = reveal
 - [x] Click = deepen focus
 - [ ] Accessibility: WCAG 2.1 AA
 - [x] Accessibility: Reduced motion toggle
 - [x] Accessibility: Keyboard traversal
-- [ ] Accessibility: Screen reader fallback descriptions
+- [x] Accessibility: Screen reader fallback descriptions
 
 ## 3. Technical Requirements
 - [x] React 18
