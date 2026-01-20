@@ -1,18 +1,38 @@
 import { Experience } from './scenes/Experience';
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DestinationDetails } from './components/DestinationDetails';
 import { useDestinationStore } from './stores/useDestinationStore';
 import { Loading } from './components/Loading';
 import { ErrorFallback } from './components/ErrorFallback';
 
 function App() {
-  const { isLoading, error } = useDestinationStore();
+  const { isLoading, error, destinations, activeDestination, setActiveDestination } = useDestinationStore();
   const [visible, setVisible] = useState(false);
   const [hasWebGL] = useState(() => {
     const canvas = document.createElement('canvas');
     return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
   });
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (destinations.length === 0) return;
+
+      const currentIndex = destinations.findIndex((d) => d.id === activeDestination);
+
+      let nextIndex = -1;
+      if (event.key === 'ArrowRight') {
+        nextIndex = currentIndex >= 0 ? (currentIndex + 1) % destinations.length : 0;
+      } else if (event.key === 'ArrowLeft') {
+        nextIndex = currentIndex >= 0 ? (currentIndex - 1 + destinations.length) % destinations.length : destinations.length - 1;
+      }
+
+      if (nextIndex !== -1) {
+        setActiveDestination(destinations[nextIndex].id);
+      }
+    },
+    [destinations, activeDestination, setActiveDestination],
+  );
 
   useEffect(() => {
     // Fade in effect after loading is complete
@@ -23,6 +43,14 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [isLoading, error]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
 
   if (!hasWebGL) {
     return (

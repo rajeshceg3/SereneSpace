@@ -29,6 +29,11 @@ const AmbientScene = () => {
     };
   }, []);
 
+  const handleDestinationClick = (destination: Destination) => {
+    // Set the camera target to be slightly in front of the clicked destination
+    setTargetZ(destination.coordinates[2] + 1.5);
+  };
+
   useFrame((state) => {
     // Smooth camera Z movement
     // eslint-disable-next-line
@@ -91,7 +96,7 @@ const AmbientScene = () => {
       <group ref={groupRef}>
         {destinations.map((destination) => (
           <Float key={destination.id} speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-            <mesh position={destination.coordinates}>
+            <mesh position={destination.coordinates} onClick={() => handleDestinationClick(destination)}>
               <sphereGeometry args={[0.5, 32, 32]} />
               <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.1} />
             </mesh>
