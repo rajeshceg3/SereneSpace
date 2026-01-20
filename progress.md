@@ -8,10 +8,10 @@
 
 ## 2. Functional Requirements
 ### 2.1 User Stories
-- [ ] 1. Enter experience instantly (no friction)
-- [ ] 2. Explore destinations spatially
-- [ ] 3. Subtle feedback to actions
-- [ ] 4. Minimal UI
+- [x] 1. Enter experience instantly (no friction)
+- [x] 2. Explore destinations spatially
+- [x] 3. Subtle feedback to actions
+- [x] 4. Minimal UI
 
 ### 2.2 Feature Specifications
 #### Feature 1: Ambient Landing Experience
@@ -61,12 +61,19 @@
 - [x] Static JSON for Destinations
 
 ## 5. API Specifications
-- [ ] None for Phase 1
+- [x] None for Phase 1
 
 ## 6. Development Guidelines
+### 6.1 Coding Standards
 - [x] Functional components only
 - [x] No inline magic numbers
 - [x] Explicit animation timing constants
+
+### 6.2 Testing Requirements
+- [x] Unit ≥ 80% (Store and Component tests implemented)
+- [ ] Integration Scene init + teardown
+- [ ] E2E Scroll → focus → exit
+- [ ] Performance FPS monitoring
 
 ## 7. Deployment & Infrastructure
 - [x] CI via GitHub Actions (Lint, Build, Deploy)

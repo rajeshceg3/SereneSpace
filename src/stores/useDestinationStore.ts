@@ -130,6 +130,3 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
     set({ cameraTargetZ: z });
   },
 }));
-
-// Fetch destinations as soon as the store is initialized
-useDestinationStore.getState().fetchDestinations();

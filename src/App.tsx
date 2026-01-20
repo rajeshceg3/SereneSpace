@@ -9,8 +9,12 @@ import { ErrorFallback } from './components/ErrorFallback';
 import { FADE_IN_DELAY, FADE_IN_DURATION } from './constants';
 
 function App() {
-  const { isLoading, error } = useDestinationStore();
+  const { isLoading, error, fetchDestinations } = useDestinationStore();
   const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    fetchDestinations();
+  }, [fetchDestinations]);
   const [hasWebGL] = useState(() => {
     const canvas = document.createElement('canvas');
     return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
