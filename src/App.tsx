@@ -6,7 +6,6 @@ import { HoverHint } from './components/HoverHint';
 import { useDestinationStore } from './stores/useDestinationStore';
 import { Loading } from './components/Loading';
 import { ErrorFallback } from './components/ErrorFallback';
-import { ReducedMotionToggle } from './components/ReducedMotionToggle';
 
 function App() {
   const { isLoading, error, destinations, activeDestination, setActiveDestination, setCameraTargetZ } =
@@ -89,7 +88,6 @@ function App() {
       </div>
       <DestinationDetails />
       <HoverHint />
-      <ReducedMotionToggle />
     </>
   );
 }

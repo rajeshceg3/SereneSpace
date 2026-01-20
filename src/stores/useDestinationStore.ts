@@ -24,7 +24,6 @@ interface DestinationState {
   setHoveredDestination: (id: string | null) => void;
   setCameraTargetZ: (z: number) => void;
   setUiVisible: (visible: boolean) => void;
-  toggleReducedMotion: () => void;
 }
 
 export const useDestinationStore = create<DestinationState>((set, get) => ({
@@ -75,11 +74,6 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   setCameraTargetZ: (z) => {
     set({ cameraTargetZ: z });
   },
-
-  // Toggles the reduced motion setting
-  toggleReducedMotion: () => {
-    set((state) => ({ reducedMotion: !state.reducedMotion }));
-    },
 }));
 
 // Fetch destinations as soon as the store is initialized
