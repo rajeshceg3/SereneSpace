@@ -33,16 +33,16 @@
 
 #### Feature 3: Invisible Navigation Layer
 - [ ] No persistent navbar
-- [ ] Navigation hints fade in only when needed
-- [ ] Keyboard navigation supported
+- [x] Navigation hints fade in only when needed
+- [x] Keyboard navigation supported
 
 ### 2.3 UI / UX Requirements
 - [ ] Full-screen canvas
 - [ ] Zero visible borders
 - [ ] Typography overlays only when contextually required
-- [ ] Scroll = forward/back
-- [ ] Hover = reveal
-- [ ] Click = deepen focus
+- [x] Scroll = forward/back
+- [x] Hover = reveal
+- [x] Click = deepen focus
 - [ ] Accessibility: WCAG 2.1 AA
 - [ ] Accessibility: Reduced motion toggle
 - [ ] Accessibility: Keyboard traversal

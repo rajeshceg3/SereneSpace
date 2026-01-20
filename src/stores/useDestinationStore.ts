@@ -12,19 +12,25 @@ export interface Destination {
 interface DestinationState {
   destinations: Destination[];
   activeDestination: string | null;
+  hoveredDestination: string | null;
   activeDestinationDetails: Destination | null; // To hold the full object
+  cameraTargetZ: number;
   isUiVisible: boolean;
   isLoading: boolean;
   error: string | null;
   fetchDestinations: () => Promise<void>;
   setActiveDestination: (id: string | null) => void;
+  setHoveredDestination: (id: string | null) => void;
+  setCameraTargetZ: (z: number) => void;
   setUiVisible: (visible: boolean) => void;
 }
 
 export const useDestinationStore = create<DestinationState>((set, get) => ({
   destinations: [],
   activeDestination: null,
+  hoveredDestination: null,
   activeDestinationDetails: null,
+  cameraTargetZ: 5, // Initial camera position
   isUiVisible: false,
   isLoading: true,
   error: null,
@@ -55,6 +61,16 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   // Controls UI visibility
   setUiVisible: (visible) => {
     set({ isUiVisible: visible });
+  },
+
+  // Sets the hovered destination by ID
+  setHoveredDestination: (id) => {
+    set({ hoveredDestination: id });
+  },
+
+  // Sets the camera's target Z position
+  setCameraTargetZ: (z) => {
+    set({ cameraTargetZ: z });
   },
 }));
 
