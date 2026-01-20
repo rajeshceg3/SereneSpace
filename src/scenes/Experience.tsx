@@ -19,9 +19,8 @@ const AmbientScene = () => {
     setHoveredDestination,
     cameraTargetZ,
     setCameraTargetZ,
+    reducedMotion,
   } = useDestinationStore();
-
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
     // Scroll handling to move the camera
@@ -70,7 +69,7 @@ const AmbientScene = () => {
     }
 
     // --- Ambient motion (if not reduced) ---
-    if (prefersReducedMotion) return;
+    if (reducedMotion) return;
 
     const t = state.clock.getElapsedTime();
 
@@ -101,7 +100,7 @@ const AmbientScene = () => {
 
       <group ref={groupRef}>
         {destinations.map((destination) => (
-          <Float key={destination.id} speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+          <Float key={destination.id} speed={reducedMotion ? 0 : 2} rotationIntensity={reducedMotion ? 0 : 0.5} floatIntensity={reducedMotion ? 0 : 0.5}>
             <mesh
               position={destination.coordinates}
               onClick={() => handleDestinationClick(destination)}
