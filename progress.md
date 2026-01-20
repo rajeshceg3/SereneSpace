@@ -65,8 +65,8 @@
 
 ## 6. Development Guidelines
 - [ ] Functional components only
-- [ ] No inline magic numbers
-- [ ] Explicit animation timing constants
+- [x] No inline magic numbers
+- [x] Explicit animation timing constants
 
 ## 7. Deployment & Infrastructure
 - [x] CI via GitHub Actions (Lint, Build, Deploy)
