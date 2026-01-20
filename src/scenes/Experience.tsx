@@ -77,17 +77,30 @@ const AmbientScene = () => {
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1} />
 
+      <ambientLight />
+      <mesh>
+        <boxGeometry />
+        <meshStandardMaterial />
+      </mesh>
       <group ref={groupRef}>
-        {destinations.map((destination) => (
-          <Float
-            key={destination.id}
-            speed={reducedMotion ? 0 : FLOAT_SPEED}
-            rotationIntensity={reducedMotion ? 0 : FLOAT_ROTATION_INTENSITY}
-            floatIntensity={reducedMotion ? 0 : FLOAT_INTENSITY}
-          >
-            <DestinationObject destination={destination} />
-          </Float>
-        ))}
+        {destinations.map((destination) => {
+          const isFloating = !reducedMotion && destination.id === activeDestination;
+          return (
+            <group key={destination.id}>
+              {isFloating ? (
+                <Float
+                  speed={FLOAT_SPEED}
+                  rotationIntensity={FLOAT_ROTATION_INTENSITY}
+                  floatIntensity={FLOAT_INTENSITY}
+                >
+                  <DestinationObject destination={destination} />
+                </Float>
+              ) : (
+                <DestinationObject destination={destination} />
+              )}
+            </group>
+          );
+        })}
       </group>
 
       <Environment preset="city" />

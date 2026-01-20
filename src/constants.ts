@@ -28,3 +28,4 @@ export const SCROLL_SENSITIVITY = 0.01;
 
 // --- UI ---
 export const UI_VISIBILITY_DELAY = 2000; // 2 seconds
+export const PROXIMITY_CHECK_THRESHOLD = 0.1;
