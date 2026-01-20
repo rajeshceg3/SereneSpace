@@ -59,6 +59,7 @@ const AmbientScene = () => {
 
   // Announce the active destination to screen readers
   useEffect(() => {
+    if (!a11y) return;
     if (activeDestination) {
       const destination = destinations.find((d) => d.id === activeDestination);
       if (destination) {

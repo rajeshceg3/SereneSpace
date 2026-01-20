@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { CAMERA_INITIAL_Z, UI_VISIBILITY_DELAY } from '../constants';
+import {
+  CAMERA_INITIAL_Z,
+  NAME_REVEAL_DELAY,
+  DETAILS_REVEAL_DELAY,
+  AUTO_HIDE_DELAY,
+} from '../constants';
 
 // Matches the structure in public/destinations.json
 export interface Destination {
@@ -16,7 +21,9 @@ interface DestinationState {
   hoveredDestination: string | null;
   activeDestinationDetails: Destination | null; // To hold the full object
   cameraTargetZ: number;
-  isUiVisible: boolean;
+  isUiVisible: boolean; // Deprecated, but keeping for compatibility if needed
+  isNameVisible: boolean;
+  isDetailsVisible: boolean;
   uiVisibilityTimer: NodeJS.Timeout | null;
   isLoading: boolean;
   error: string | null;
@@ -35,6 +42,8 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   activeDestinationDetails: null,
   cameraTargetZ: CAMERA_INITIAL_Z,
   isUiVisible: false,
+  isNameVisible: false,
+  isDetailsVisible: false,
   uiVisibilityTimer: null,
   isLoading: true,
   error: null,
@@ -69,31 +78,36 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
     if (uiVisibilityTimer) {
       clearTimeout(uiVisibilityTimer);
     }
-    set({ isUiVisible: false }); // Ensure UI is hidden initially
+    set({ isUiVisible: false, isNameVisible: false, isDetailsVisible: false }); // Ensure UI is hidden initially
 
     const details = destinations.find((d) => d.id === id) || null;
     set({ activeDestination: id, activeDestinationDetails: details });
 
     // If there's a new active destination, start the timer logic
     if (details) {
-      // Timer to DELAY the appearance of the UI
-      const showTimer = setTimeout(() => {
-        // Only show if the destination is still the active one
-        if (get().activeDestination === id) {
-          set({ isUiVisible: true });
+      // 1. Reveal Name
+      const nameTimer = setTimeout(() => {
+        if (get().activeDestination !== id) return;
+        set({ isNameVisible: true, isUiVisible: true }); // Sync old flag too
 
-          // Timer to HIDE the UI after it has been visible
+        // 2. Reveal Details
+        const detailsTimer = setTimeout(() => {
+          if (get().activeDestination !== id) return;
+          set({ isDetailsVisible: true });
+
+          // 3. Auto Hide
           const hideTimer = setTimeout(() => {
-            if (get().activeDestination === id) {
-              set({ isUiVisible: false });
-            }
-          }, UI_VISIBILITY_DELAY); // This is the 2s visible duration
+            if (get().activeDestination !== id) return;
+            set({ isNameVisible: false, isDetailsVisible: false, isUiVisible: false });
+          }, AUTO_HIDE_DELAY);
 
           set({ uiVisibilityTimer: hideTimer });
-        }
-      }, 500); // A 500ms pause before the UI starts fading in
+        }, DETAILS_REVEAL_DELAY - NAME_REVEAL_DELAY);
 
-      set({ uiVisibilityTimer: showTimer });
+        set({ uiVisibilityTimer: detailsTimer });
+      }, NAME_REVEAL_DELAY);
+
+      set({ uiVisibilityTimer: nameTimer });
     }
   },
 

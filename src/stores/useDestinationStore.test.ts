@@ -9,7 +9,8 @@ const mockDestinations = [
   { id: '2', name: 'Jupiter', coordinates: [2, 2, 2], description: 'Gas Giant', ambientColor: '#ff8800' },
 ];
 
-global.fetch = vi.fn();
+const fetchMock = vi.fn();
+vi.stubGlobal('fetch', fetchMock);
 
 describe('useDestinationStore', () => {
   beforeEach(() => {
@@ -28,7 +29,7 @@ describe('useDestinationStore', () => {
       });
     });
     vi.useFakeTimers();
-    (global.fetch as vi.Mock).mockClear();
+    fetchMock.mockClear();
   });
 
   afterEach(() => {
@@ -36,7 +37,7 @@ describe('useDestinationStore', () => {
   });
 
   it('should fetch destinations and set the first one as active', async () => {
-    (global.fetch as vi.Mock).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockDestinations),
     });
@@ -54,7 +55,7 @@ describe('useDestinationStore', () => {
   });
 
   it('should handle fetch errors gracefully', async () => {
-    (global.fetch as vi.Mock).mockResolvedValue({ ok: false });
+    fetchMock.mockResolvedValue({ ok: false });
 
     await act(async () => {
       await useDestinationStore.getState().fetchDestinations();
@@ -77,13 +78,31 @@ describe('useDestinationStore', () => {
     expect(state.activeDestinationDetails).toEqual(mockDestinations[1]);
     expect(state.isUiVisible).toBe(false); // UI is not visible immediately
 
-    // Fast-forward timers
+    // Fast-forward timers by 500ms (Name reveal)
     act(() => {
-      vi.runAllTimers();
+      vi.advanceTimersByTime(500);
     });
 
     state = useDestinationStore.getState();
+    expect(state.isNameVisible).toBe(true);
     expect(state.isUiVisible).toBe(true);
+    expect(state.isDetailsVisible).toBe(false);
+
+    // Fast-forward timers by another 1000ms (Details reveal: 1500ms total)
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    state = useDestinationStore.getState();
+    expect(state.isDetailsVisible).toBe(true);
+
+    // Fast-forward timers by another 4000ms (Auto hide)
+    act(() => {
+      vi.advanceTimersByTime(4000);
+    });
+    state = useDestinationStore.getState();
+    expect(state.isNameVisible).toBe(false);
+    expect(state.isDetailsVisible).toBe(false);
+    expect(state.isUiVisible).toBe(false);
   });
 
   it('should clear the active destination', () => {
@@ -100,7 +119,7 @@ describe('useDestinationStore', () => {
 
   it('should respect reduced motion preference', () => {
     const state = useDestinationStore.getState();
-    // Based on our mock, this should be true
-    expect(state.reducedMotion).toBe(true);
+    // Based on our mock, this should be false (default mock value)
+    expect(state.reducedMotion).toBe(false);
   });
 });

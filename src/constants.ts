@@ -28,4 +28,7 @@ export const SCROLL_SENSITIVITY = 0.01;
 
 // --- UI ---
 export const UI_VISIBILITY_DELAY = 2000; // 2 seconds
+export const NAME_REVEAL_DELAY = 500;
+export const DETAILS_REVEAL_DELAY = 1500;
+export const AUTO_HIDE_DELAY = 4000;
 export const PROXIMITY_CHECK_THRESHOLD = 0.1;
