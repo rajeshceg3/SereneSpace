@@ -10,7 +10,9 @@ import {
   BREATHING_Y_FACTOR,
   PARALLAX_X_FACTOR,
   PARALLAX_Y_FACTOR,
+  PROXIMITY_CHECK_THRESHOLD,
 } from '../constants';
+import { useRef } from 'react';
 
 export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Group> }) => {
   const {
@@ -20,6 +22,7 @@ export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Gr
     cameraTargetZ,
     reducedMotion,
   } = useDestinationStore();
+  const lastCameraZRef = useRef<number | null>(null);
 
   useFrame((state) => {
     // Smooth camera Z movement
@@ -29,27 +32,32 @@ export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Gr
       state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, cameraTargetZ, CAMERA_LERP_FACTOR);
     }
 
-    // Find the closest destination and set it as active
-    let closestDist = Infinity;
-    let closestDest: Destination | null = null;
+    // --- Proximity check optimization ---
+    // Only check for the closest destination if the camera has moved enough.
+    if (lastCameraZRef.current === null || Math.abs(state.camera.position.z - lastCameraZRef.current) > PROXIMITY_CHECK_THRESHOLD) {
+      lastCameraZRef.current = state.camera.position.z;
 
-    for (const dest of destinations) {
-      const dist = state.camera.position.distanceTo(new THREE.Vector3(...dest.coordinates));
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestDest = dest;
-      }
-    }
+      let closestDist = Infinity;
+      let closestDest: Destination | null = null;
 
-    if (closestDest && closestDist < FOCUS_THRESHOLD) {
-      // Avoids setting state on every frame if it's already active
-      if (activeDestination !== closestDest.id) {
-        setActiveDestination(closestDest.id);
+      for (const dest of destinations) {
+        const dist = state.camera.position.distanceTo(new THREE.Vector3(...dest.coordinates));
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestDest = dest;
+        }
       }
-    } else {
-      // If nothing is in focus, clear the active destination
-      if (activeDestination !== null) {
-        setActiveDestination(null);
+
+      if (closestDest && closestDist < FOCUS_THRESHOLD) {
+        // Avoids setting state on every frame if it's already active
+        if (activeDestination !== closestDest.id) {
+          setActiveDestination(closestDest.id);
+        }
+      } else {
+        // If nothing is in focus, clear the active destination
+        if (activeDestination !== null) {
+          setActiveDestination(null);
+        }
       }
     }
 
