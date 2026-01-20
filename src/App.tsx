@@ -2,12 +2,14 @@ import { Experience } from './scenes/Experience';
 import './App.css';
 import { useCallback, useEffect, useState } from 'react';
 import { DestinationDetails } from './components/DestinationDetails';
+import { HoverHint } from './components/HoverHint';
 import { useDestinationStore } from './stores/useDestinationStore';
 import { Loading } from './components/Loading';
 import { ErrorFallback } from './components/ErrorFallback';
 
 function App() {
-  const { isLoading, error, destinations, activeDestination, setActiveDestination } = useDestinationStore();
+  const { isLoading, error, destinations, activeDestination, setActiveDestination, setCameraTargetZ } =
+    useDestinationStore();
   const [visible, setVisible] = useState(false);
   const [hasWebGL] = useState(() => {
     const canvas = document.createElement('canvas');
@@ -28,10 +30,13 @@ function App() {
       }
 
       if (nextIndex !== -1) {
-        setActiveDestination(destinations[nextIndex].id);
+        const nextDestination = destinations[nextIndex];
+        setActiveDestination(nextDestination.id);
+        // Also move the camera to the destination
+        setCameraTargetZ(nextDestination.coordinates[2] + 1.5);
       }
     },
-    [destinations, activeDestination, setActiveDestination],
+    [destinations, activeDestination, setActiveDestination, setCameraTargetZ],
   );
 
   useEffect(() => {
@@ -82,6 +87,7 @@ function App() {
         <Experience />
       </div>
       <DestinationDetails />
+      <HoverHint />
     </>
   );
 }
