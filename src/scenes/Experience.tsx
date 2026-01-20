@@ -23,6 +23,39 @@ import {
   SCROLL_SENSITIVITY,
 } from '../constants';
 
+// Component for a single destination object
+const DestinationObject = ({ destination }: { destination: Destination }) => {
+  const { setHoveredDestination, setCameraTargetZ } = useDestinationStore();
+  const { focus } = useA11y();
+
+  const handleDestinationClick = (destination: Destination) => {
+    // Set the camera target to be slightly in front of the clicked destination
+    setCameraTargetZ(destination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
+  };
+
+  return (
+    <A11y
+      role="button"
+      description={`Destination: ${destination.name}`}
+      actionCall={() => handleDestinationClick(destination)}
+    >
+      <mesh
+        position={destination.coordinates}
+        onPointerOver={() => setHoveredDestination(destination.id)}
+        onPointerOut={() => setHoveredDestination(null)}
+      >
+        <sphereGeometry args={[0.5, 32, 32]} />
+        <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.1} />
+        {focus && (
+          <Torus args={[0.6, 0.02, 16, 100]} position={[0, 0, 0]}>
+            <meshBasicMaterial color="white" />
+          </Torus>
+        )}
+      </mesh>
+    </A11y>
+  );
+};
+
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null);
   const { camera } = useThree();
@@ -33,7 +66,6 @@ const AmbientScene = () => {
     destinations,
     setActiveDestination,
     activeDestination,
-    setHoveredDestination,
     cameraTargetZ,
     setCameraTargetZ,
     reducedMotion,
@@ -92,11 +124,6 @@ const AmbientScene = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleWheel, handleKeyDown]);
-
-  const handleDestinationClick = (destination: Destination) => {
-    // Set the camera target to be slightly in front of the clicked destination
-    setCameraTargetZ(destination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
-  };
 
   useFrame((state) => {
     // Smooth camera Z movement
@@ -168,25 +195,7 @@ const AmbientScene = () => {
             rotationIntensity={reducedMotion ? 0 : FLOAT_ROTATION_INTENSITY}
             floatIntensity={reducedMotion ? 0 : FLOAT_INTENSITY}
           >
-            <A11y
-              role="button"
-              description={`Destination: ${destination.name}`}
-              actionCall={() => handleDestinationClick(destination)}
-            >
-              <mesh
-                position={destination.coordinates}
-                onPointerOver={() => setHoveredDestination(destination.id)}
-                onPointerOut={() => setHoveredDestination(null)}
-              >
-                <sphereGeometry args={[0.5, 32, 32]} />
-                <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.1} />
-                {activeDestination === destination.id && (
-                  <Torus args={[0.6, 0.02, 16, 100]} position={[0, 0, 0]}>
-                    <meshBasicMaterial color="white" />
-                  </Torus>
-                )}
-              </mesh>
-            </A11y>
+            <DestinationObject destination={destination} />
           </Float>
         ))}
       </group>

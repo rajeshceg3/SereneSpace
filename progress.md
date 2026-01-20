@@ -43,7 +43,7 @@
 - [x] Scroll = forward/back
 - [x] Hover = reveal
 - [x] Click = deepen focus
-- [ ] Accessibility: WCAG 2.1 AA
+- [x] Accessibility: WCAG 2.1 AA
 - [x] Accessibility: Reduced motion toggle
 - [x] Accessibility: Keyboard traversal
 - [x] Accessibility: Screen reader fallback descriptions
