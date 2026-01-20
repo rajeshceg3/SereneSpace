@@ -18,11 +18,13 @@ interface DestinationState {
   isUiVisible: boolean;
   isLoading: boolean;
   error: string | null;
+  reducedMotion: boolean;
   fetchDestinations: () => Promise<void>;
   setActiveDestination: (id: string | null) => void;
   setHoveredDestination: (id: string | null) => void;
   setCameraTargetZ: (z: number) => void;
   setUiVisible: (visible: boolean) => void;
+  toggleReducedMotion: () => void;
 }
 
 export const useDestinationStore = create<DestinationState>((set, get) => ({
@@ -34,6 +36,7 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   isUiVisible: false,
   isLoading: true,
   error: null,
+  reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 
   // Fetches destination data from the public JSON file
   fetchDestinations: async () => {
@@ -72,6 +75,11 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   setCameraTargetZ: (z) => {
     set({ cameraTargetZ: z });
   },
+
+  // Toggles the reduced motion setting
+  toggleReducedMotion: () => {
+    set((state) => ({ reducedMotion: !state.reducedMotion }));
+    },
 }));
 
 // Fetch destinations as soon as the store is initialized
