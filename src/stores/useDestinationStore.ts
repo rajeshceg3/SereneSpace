@@ -69,17 +69,31 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
     if (uiVisibilityTimer) {
       clearTimeout(uiVisibilityTimer);
     }
-    set({ isUiVisible: false });
+    set({ isUiVisible: false }); // Ensure UI is hidden initially
 
     const details = destinations.find((d) => d.id === id) || null;
     set({ activeDestination: id, activeDestinationDetails: details });
 
-    // If there's a new active destination, set a timer to show the UI
+    // If there's a new active destination, start the timer logic
     if (details) {
-      const timer = setTimeout(() => {
-        set({ isUiVisible: true });
-      }, UI_VISIBILITY_DELAY);
-      set({ uiVisibilityTimer: timer });
+      // Timer to DELAY the appearance of the UI
+      const showTimer = setTimeout(() => {
+        // Only show if the destination is still the active one
+        if (get().activeDestination === id) {
+          set({ isUiVisible: true });
+
+          // Timer to HIDE the UI after it has been visible
+          const hideTimer = setTimeout(() => {
+            if (get().activeDestination === id) {
+              set({ isUiVisible: false });
+            }
+          }, UI_VISIBILITY_DELAY); // This is the 2s visible duration
+
+          set({ uiVisibilityTimer: hideTimer });
+        }
+      }, 500); // A 500ms pause before the UI starts fading in
+
+      set({ uiVisibilityTimer: showTimer });
     }
   },
 
