@@ -20,9 +20,8 @@ import {
   FLOAT_INTENSITY,
   FLOAT_ROTATION_INTENSITY,
   FLOAT_SPEED,
+  SCROLL_SENSITIVITY,
 } from '../constants';
-
-const SCROLL_SENSITIVITY = 0.01;
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null);
