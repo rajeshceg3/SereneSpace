@@ -35,10 +35,10 @@ const DestinationObject = ({ destination }: { destination: Destination }) => {
         onPointerOver={() => setHoveredDestination(destination.id)}
         onPointerOut={() => setHoveredDestination(null)}
       >
-        <sphereGeometry args={[0.5, 32, 32]} />
+        <sphereGeometry args={[0.5, 16, 16]} />
         <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.1} />
         {focus && (
-          <Torus args={[0.6, 0.02, 16, 100]} position={[0, 0, 0]}>
+          <Torus args={[0.6, 0.02, 16, 32]} position={[0, 0, 0]}>
             <meshBasicMaterial color="white" />
           </Torus>
         )}

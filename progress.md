@@ -54,8 +54,8 @@
 - [x] State: Zustand
 - [x] Styling: CSS + custom shaders
 - [x] Build: Vite
-- [ ] First render ≤ 2.5s
-- [ ] Frame rate ≥ 50 FPS
+- [x] First render ≤ 2.5s
+- [x] Frame rate ≥ 50 FPS
 
 ## 4. Database Design
 - [x] Static JSON for Destinations
@@ -75,6 +75,6 @@
 
 ## 8. Quality Assurance
 - [x] No console errors (Linting clean)
-- [ ] FPS ≥ target
-- [ ] Reduced motion verified
-- [ ] Lighthouse ≥ 85
+- [x] FPS ≥ target
+- [x] Reduced motion verified
+- [x] Lighthouse ≥ 85
