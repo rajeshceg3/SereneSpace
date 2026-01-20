@@ -2,16 +2,18 @@ import { useDestinationStore } from '../stores/useDestinationStore';
 import './DestinationDetails.css';
 
 export const DestinationDetails = () => {
-  const { activeDestinationDetails, isUiVisible } = useDestinationStore();
+  const { activeDestinationDetails, isNameVisible, isDetailsVisible } = useDestinationStore();
+
+  if (!activeDestinationDetails) return null;
 
   return (
-    <div className={`destination-details ${activeDestinationDetails && isUiVisible ? 'visible' : ''}`}>
-      {activeDestinationDetails && (
-        <>
-          <h2>{activeDestinationDetails.name}</h2>
-          <p>{activeDestinationDetails.description}</p>
-        </>
-      )}
+    <div className="destination-ui-container">
+      <h2 className={`destination-name ${isNameVisible ? 'visible' : ''}`}>
+        {activeDestinationDetails.name}
+      </h2>
+      <div className={`destination-details-box ${isDetailsVisible ? 'visible' : ''}`}>
+        <p>{activeDestinationDetails.description}</p>
+      </div>
     </div>
   );
 };

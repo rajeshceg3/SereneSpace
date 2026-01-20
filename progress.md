@@ -25,10 +25,10 @@
 - [x] Destinations as floating 3D objects
 - [x] Scroll → camera gently advances
 - [x] Destination comes into focus
-- [ ] Name appears softly
-- [ ] User pauses → detail layer fades in
+- [x] Name appears softly
+- [x] User pauses → detail layer fades in
 - [x] Logic: Only one destination active at a time
-- [ ] Logic: UI auto-hides after 2s inactivity
+- [x] Logic: UI auto-hides after 2s inactivity
 - [x] Error Handling: Asset load failure → graceful placeholder
 
 #### Feature 3: Invisible Navigation Layer
