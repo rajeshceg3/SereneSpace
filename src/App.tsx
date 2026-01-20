@@ -3,6 +3,7 @@ import './App.css';
 import { useCallback, useEffect, useState } from 'react';
 import { DestinationDetails } from './components/DestinationDetails';
 import { HoverHint } from './components/HoverHint';
+import { ReducedMotionToggle } from './components/ReducedMotionToggle';
 import { useDestinationStore } from './stores/useDestinationStore';
 import { Loading } from './components/Loading';
 import { ErrorFallback } from './components/ErrorFallback';
@@ -88,6 +89,7 @@ function App() {
       </div>
       <DestinationDetails />
       <HoverHint />
+      <ReducedMotionToggle />
     </>
   );
 }

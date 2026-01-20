@@ -44,7 +44,7 @@
 - [x] Hover = reveal
 - [x] Click = deepen focus
 - [ ] Accessibility: WCAG 2.1 AA
-- [ ] Accessibility: Reduced motion toggle
+- [x] Accessibility: Reduced motion toggle
 - [ ] Accessibility: Keyboard traversal
 - [ ] Accessibility: Screen reader fallback descriptions
 
