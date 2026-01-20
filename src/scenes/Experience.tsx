@@ -41,8 +41,12 @@ const AmbientScene = () => {
 
   useFrame((state) => {
     // Smooth camera Z movement
-    // eslint-disable-next-line
-    camera.position.z = THREE.MathUtils.lerp(camera.position.z, cameraTargetZ, 0.05);
+    if (reducedMotion) {
+      camera.position.z = cameraTargetZ;
+    } else {
+      // eslint-disable-next-line
+      camera.position.z = THREE.MathUtils.lerp(camera.position.z, cameraTargetZ, 0.05);
+    }
 
     // Find the closest destination and set it as active
     let closestDist = Infinity;
