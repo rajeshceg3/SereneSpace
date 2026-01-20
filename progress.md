@@ -32,7 +32,7 @@
 - [x] Error Handling: Asset load failure → graceful placeholder
 
 #### Feature 3: Invisible Navigation Layer
-- [ ] No persistent navbar
+- [x] No persistent navbar
 - [x] Navigation hints fade in only when needed
 - [x] Keyboard navigation supported
 
