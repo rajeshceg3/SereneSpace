@@ -1,0 +1,52 @@
+.fallback-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+}
+
+.fallback-card {
+  max-width: 600px;
+  padding: 40px;
+  border-radius: 12px;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+}
+
+.fallback-card h1 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: #eee;
+}
+
+.fallback-card p {
+  font-size: 1.125rem;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+.fallback-message {
+  margin: 32px 0;
+  padding: 24px;
+  background-color: #222;
+  border-radius: 8px;
+  border: 1px solid #444;
+}
+
+.fallback-message h2 {
+  font-size: 1.5rem;
+  color: #ffcdd2; /* Light red for warning */
+  margin-bottom: 12px;
+}
+
+.fallback-footer {
+  margin-top: 32px;
+  font-style: italic;
+  color: #777;
+}
