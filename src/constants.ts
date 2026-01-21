@@ -24,7 +24,7 @@ export const PARALLAX_X_FACTOR = 0.5;
 export const PARALLAX_Y_FACTOR = 0.5;
 
 // --- INTERACTION ---
-export const SCROLL_SENSITIVITY = 0.01;
+export const SCROLL_SENSITIVITY = 0.05;
 
 // --- UI ---
 export const UI_VISIBILITY_DELAY = 2000; // 2 seconds
