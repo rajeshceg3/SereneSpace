@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { DestinationDetails } from '../../components/DestinationDetails';
 import { useDestinationStore } from '../../stores/useDestinationStore';
 import { act } from '@testing-library/react';
