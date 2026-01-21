@@ -26,7 +26,6 @@ describe('HoverHint', () => {
 
   it('should not be visible when no destination is hovered', () => {
     render(<HoverHint />);
-    const hint = screen.queryByText('Mars');
     // It might be in the DOM but hidden or not rendered.
     // Looking at the code:
     // <div className={`hover-hint ${destination ? 'visible' : ''}`}> {destination?.name} </div>

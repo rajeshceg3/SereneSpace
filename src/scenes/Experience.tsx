@@ -13,6 +13,7 @@ import {
 } from '../constants';
 import { UserInput } from '../components/UserInput';
 import { CameraManager } from '../components/CameraManager';
+import { FPSMonitor } from '../components/FPSMonitor';
 
 // Component for a single destination object
 const DestinationObject = ({ destination }: { destination: Destination }) => {
@@ -112,6 +113,7 @@ const AmbientScene = () => {
 export const Experience = () => {
   return (
     <Canvas>
+      <FPSMonitor />
       <A11y
         role="application"
         description="An immersive 3D travel experience. Use arrow keys or scroll to navigate between destinations."

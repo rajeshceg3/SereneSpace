@@ -73,7 +73,7 @@
 - [x] Unit ≥ 80% (Store and Component tests implemented)
 - [x] Integration Scene init + teardown
 - [x] E2E Scroll → focus → exit (Blocked by headless browser rendering issues)
-- [ ] Performance FPS monitoring
+- [x] Performance FPS monitoring
 
 ## 7. Deployment & Infrastructure
 - [x] CI via GitHub Actions (Lint, Build, Deploy)
