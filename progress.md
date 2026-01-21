@@ -71,8 +71,8 @@
 
 ### 6.2 Testing Requirements
 - [x] Unit ≥ 80% (Store and Component tests implemented)
-- [ ] Integration Scene init + teardown
-- [ ] E2E Scroll → focus → exit
+- [x] Integration Scene init + teardown
+- [ ] E2E Scroll → focus → exit (Blocked by headless browser rendering issues)
 - [ ] Performance FPS monitoring
 
 ## 7. Deployment & Infrastructure
@@ -84,4 +84,4 @@
 - [x] No console errors (Linting clean)
 - [x] FPS ≥ target
 - [x] Reduced motion verified
-- [x] Lighthouse ≥ 85
+- [ ] Lighthouse ≥ 85 (Blocked by headless browser rendering issues)
