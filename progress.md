@@ -72,7 +72,7 @@
 ### 6.2 Testing Requirements
 - [x] Unit ≥ 80% (Store and Component tests implemented)
 - [x] Integration Scene init + teardown
-- [x] E2E Scroll → focus → exit (Blocked by headless browser rendering issues)
+- [ ] E2E Scroll → focus → exit (Unblocked but failing due to environmental constraints)
 - [x] Performance FPS monitoring
 
 ## 7. Deployment & Infrastructure

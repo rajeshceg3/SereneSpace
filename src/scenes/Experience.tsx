@@ -79,11 +79,6 @@ const AmbientScene = () => {
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1} />
 
-      <ambientLight />
-      <mesh>
-        <boxGeometry />
-        <meshStandardMaterial />
-      </mesh>
       <group ref={groupRef}>
         {destinations.map((destination) => {
           const isFloating = !reducedMotion && destination.id === activeDestination;

@@ -17,7 +17,11 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         launchOptions: {
-          args: ['--no-sandbox', '--ignore-gpu-blacklist']
+          args: [
+            '--no-sandbox',
+            '--ignore-gpu-blacklist',
+            '--use-gl=egl', // Enable hardware acceleration
+          ]
         }
       },
     },

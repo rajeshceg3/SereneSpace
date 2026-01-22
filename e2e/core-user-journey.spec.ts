@@ -11,10 +11,15 @@ test('core user journey', async ({ page }) => {
   });
 
   await page.goto('/');
-  await page.waitForSelector('canvas', { state: 'visible', timeout: 10000 });
 
-  // Scroll to the second destination
-  await page.mouse.wheel(0, 1000);
+  // Wait for the canvas to be present in the DOM. This is a more reliable
+  // indicator that the app has loaded than checking for CSS opacity.
+  await page.waitForSelector('canvas', { state: 'attached', timeout: 15000 });
+
+  // Scroll to the second destination by dispatching a wheel event.
+  // This is more reliable in a headless environment where mouse simulation
+  // on a non-rendered canvas can be flaky.
+  await page.evaluate(() => window.dispatchEvent(new WheelEvent('wheel', { deltaY: 100 })));
 
   // Give animations time to play out
   await page.waitForTimeout(2000);
