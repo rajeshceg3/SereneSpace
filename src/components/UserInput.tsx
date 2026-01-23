@@ -1,6 +1,14 @@
 import { useCallback, useEffect } from 'react';
 import { useDestinationStore } from '../stores/useDestinationStore';
-import { SCROLL_SENSITIVITY, CAMERA_TARGET_Z_MIN, CAMERA_TARGET_Z_MAX, CAMERA_POSITION_Z_OFFSET } from '../constants';
+import { useResonanceStore } from '../stores/useResonanceStore';
+import {
+  SCROLL_SENSITIVITY,
+  CAMERA_TARGET_Z_MIN,
+  CAMERA_TARGET_Z_MAX,
+  CAMERA_POSITION_Z_OFFSET,
+  RESONANCE_SCROLL_IMPACT,
+  RESONANCE_KEY_IMPACT,
+} from '../constants';
 
 export const UserInput = () => {
   const {
@@ -11,12 +19,18 @@ export const UserInput = () => {
     setCameraTargetZ,
   } = useDestinationStore();
 
+  const addStress = useResonanceStore((state) => state.addStress);
+
   const handleWheel = useCallback(
     (event: WheelEvent) => {
       const newTargetZ = cameraTargetZ - event.deltaY * SCROLL_SENSITIVITY;
       setCameraTargetZ(Math.max(CAMERA_TARGET_Z_MIN, Math.min(CAMERA_TARGET_Z_MAX, newTargetZ)));
+
+      // Add stress based on scroll intensity (clamped to avoid massive spikes)
+      const intensity = Math.min(Math.abs(event.deltaY) * 0.01, 1);
+      addStress(intensity * RESONANCE_SCROLL_IMPACT);
     },
-    [cameraTargetZ, setCameraTargetZ],
+    [cameraTargetZ, setCameraTargetZ, addStress],
   );
 
   const handleKeyDown = useCallback(
@@ -39,9 +53,12 @@ export const UserInput = () => {
         const nextDestination = destinations[nextIndex];
         setActiveDestination(nextDestination.id);
         setCameraTargetZ(nextDestination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
+
+        // Add stress on navigation
+        addStress(RESONANCE_KEY_IMPACT);
       }
     },
-    [destinations, activeDestination, setActiveDestination, setCameraTargetZ],
+    [destinations, activeDestination, setActiveDestination, setCameraTargetZ, addStress],
   );
 
   useEffect(() => {
