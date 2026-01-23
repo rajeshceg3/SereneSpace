@@ -1,13 +1,13 @@
 // src/stores/useDestinationStore.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useDestinationStore } from './useDestinationStore';
+import { useDestinationStore, type Destination } from './useDestinationStore';
 import { act } from '@testing-library/react';
 
 // Mock fetch
 const mockDestinations = [
-  { id: '1', name: 'Mars', coordinates: [1, 1, 1], description: 'Red Planet', ambientColor: '#ff0000' },
-  { id: '2', name: 'Jupiter', coordinates: [2, 2, 2], description: 'Gas Giant', ambientColor: '#ff8800' },
-];
+  { id: '1', name: 'Mars', coordinates: [1, 1, 1] as [number, number, number], description: 'Red Planet', ambientColor: '#ff0000' },
+  { id: '2', name: 'Jupiter', coordinates: [2, 2, 2] as [number, number, number], description: 'Gas Giant', ambientColor: '#ff8800' },
+] as Destination[];
 
 const fetchMock = vi.fn();
 vi.stubGlobal('fetch', fetchMock);

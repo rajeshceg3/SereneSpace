@@ -17,13 +17,27 @@ import { FPSMonitor } from '../components/FPSMonitor';
 
 // Component for a single destination object
 const DestinationObject = ({ destination }: { destination: Destination }) => {
-  const { setHoveredDestination, setCameraTargetZ } = useDestinationStore();
+  const {
+    activeDestination,
+    setActiveDestination,
+    setHoveredDestination,
+    setCameraTargetZ,
+  } = useDestinationStore();
   const { focus } = useA11y();
+
+  useEffect(() => {
+    if (focus) {
+      setActiveDestination(destination.id);
+      setCameraTargetZ(destination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
+    }
+  }, [focus, destination.id, destination.coordinates, setActiveDestination, setCameraTargetZ]);
 
   const handleDestinationClick = (destination: Destination) => {
     // Set the camera target to be slightly in front of the clicked destination
     setCameraTargetZ(destination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
   };
+
+  const isFocused = focus || activeDestination === destination.id;
 
   return (
     <A11y
@@ -38,7 +52,7 @@ const DestinationObject = ({ destination }: { destination: Destination }) => {
       >
         <torusGeometry args={[0.5, 0.1, 16, 32]} />
         <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.1} />
-        {focus && (
+        {isFocused && (
           <Torus args={[0.6, 0.02, 16, 32]} position={[0, 0, 0]}>
             <meshBasicMaterial color="white" />
           </Torus>
@@ -49,8 +63,9 @@ const DestinationObject = ({ destination }: { destination: Destination }) => {
 };
 
 const AmbientScene = () => {
-  const groupRef = useRef<THREE.Group>(null);
-  const { a11y } = useA11y();
+  const groupRef = useRef<THREE.Group>(null!);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { a11y } = useA11y() as any;
 
   const {
     destinations,
@@ -110,7 +125,7 @@ export const Experience = () => {
     <Canvas>
       <FPSMonitor />
       <A11y
-        role="application"
+        role="content"
         description="An immersive 3D travel experience. Use arrow keys or scroll to navigate between destinations."
       >
         <AmbientScene />

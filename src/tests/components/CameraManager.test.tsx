@@ -31,7 +31,7 @@ describe('CameraManager Integration', () => {
   });
 
   it('moves camera and activates destination', async () => {
-    const groupRef = React.createRef<THREE.Group>();
+    const groupRef = React.createRef<THREE.Group>() as React.RefObject<THREE.Group>;
     const renderer = await ReactThreeTestRenderer.create(
       <CameraManager groupRef={groupRef} />
     );
@@ -58,7 +58,7 @@ describe('CameraManager Integration', () => {
   });
 
   it('does not active destination if not close enough', async () => {
-    const groupRef = React.createRef<THREE.Group>();
+    const groupRef = React.createRef<THREE.Group>() as React.RefObject<THREE.Group>;
     const renderer = await ReactThreeTestRenderer.create(
       <CameraManager groupRef={groupRef} />
     );

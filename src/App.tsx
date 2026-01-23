@@ -7,6 +7,7 @@ import { useDestinationStore } from './stores/useDestinationStore';
 import { Loading } from './components/Loading';
 import { ErrorFallback } from './components/ErrorFallback';
 import { FADE_IN_DELAY, FADE_IN_DURATION } from './constants';
+import { isWebGLSupported } from './utils/webglDetector';
 
 function App() {
   const { isLoading, error, fetchDestinations } = useDestinationStore();
@@ -15,10 +16,7 @@ function App() {
   useEffect(() => {
     fetchDestinations();
   }, [fetchDestinations]);
-  const [hasWebGL] = useState(() => {
-    const canvas = document.createElement('canvas');
-    return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-  });
+  const [hasWebGL] = useState(isWebGLSupported);
 
   useEffect(() => {
     // Fade in effect after loading is complete

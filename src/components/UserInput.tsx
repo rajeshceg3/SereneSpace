@@ -26,7 +26,7 @@ export const UserInput = () => {
       const currentIndex = destinations.findIndex((d) => d.id === activeDestination);
 
       let nextIndex = -1;
-      if (event.key === 'ArrowRight' || event.key === 'Tab') {
+      if (event.key === 'ArrowRight') {
         nextIndex = currentIndex >= 0 ? (currentIndex + 1) % destinations.length : 0;
       } else if (event.key === 'ArrowLeft') {
         nextIndex =
@@ -34,7 +34,8 @@ export const UserInput = () => {
       }
 
       if (nextIndex !== -1) {
-        event.preventDefault(); // Prevent default browser action for Tab
+        // Prevent default browser action for Arrow keys to avoid page scroll (though canvas captures it usually)
+        event.preventDefault();
         const nextDestination = destinations[nextIndex];
         setActiveDestination(nextDestination.id);
         setCameraTargetZ(nextDestination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
