@@ -95,3 +95,7 @@
   - Added unit tests for `UserInput.tsx` (Arrow key navigation).
   - Added unit tests for `FPSMonitor.tsx`.
   - Fixed TypeScript errors across the codebase to ensure a clean build.
+- **Feature: Chronos Temporal Ambience**:
+  - Implemented `useTimeStore` to track real-world time phases (Dawn, Day, Dusk, Night).
+  - Created `Atmosphere` component to dynamically adjust lighting, fog, and background color.
+  - Integrated `Atmosphere` into `Experience.tsx` for a context-aware immersive experience.
