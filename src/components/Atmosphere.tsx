@@ -11,6 +11,7 @@ import {
   RESONANCE_LIGHT_DIMMER,
 } from '../constants';
 
+// Force-include
 export const Atmosphere = () => {
   const { phase, updatePhase } = useTimeStore();
   const { scene } = useThree();

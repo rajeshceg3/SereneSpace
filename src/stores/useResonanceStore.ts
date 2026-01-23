@@ -7,6 +7,7 @@ interface ResonanceState {
   decayStress: () => void;
 }
 
+// Force-include
 export const useResonanceStore = create<ResonanceState>((set) => ({
   currentStress: 0,
   addStress: (amount: number) =>
