@@ -33,6 +33,13 @@ export const DETAILS_REVEAL_DELAY = 1500;
 export const AUTO_HIDE_DELAY = 4000;
 export const PROXIMITY_CHECK_THRESHOLD = 0.1;
 
+// --- RESONANCE (BIOFEEDBACK) ---
+export const RESONANCE_DECAY_RATE = 0.005; // Stress fades slowly per frame
+export const RESONANCE_SCROLL_IMPACT = 0.01; // Scroll adds a bit of stress
+export const RESONANCE_KEY_IMPACT = 0.05; // Keypress adds more stress
+export const RESONANCE_FOG_MULTIPLIER = 1.5; // Max stress increases fog density by 50%
+export const RESONANCE_LIGHT_DIMMER = 0.3; // Max stress dims light by 30%
+
 // --- ATMOSPHERE (CHRONOS) ---
 export const TIME_CHECK_INTERVAL = 60000; // 1 minute
 export const ATMOSPHERE_LERP_FACTOR = 0.01; // Slow transition

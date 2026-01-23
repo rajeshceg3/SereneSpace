@@ -12,6 +12,7 @@ import {
   FLOAT_SPEED,
 } from '../constants';
 import { UserInput } from '../components/UserInput';
+import { ResonanceSystem } from '../components/ResonanceSystem';
 import { CameraManager } from '../components/CameraManager';
 import { FPSMonitor } from '../components/FPSMonitor';
 import { Atmosphere } from '../components/Atmosphere';
@@ -90,6 +91,7 @@ const AmbientScene = () => {
   return (
     <>
       <UserInput />
+      <ResonanceSystem />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />
