@@ -32,3 +32,41 @@ export const NAME_REVEAL_DELAY = 500;
 export const DETAILS_REVEAL_DELAY = 1500;
 export const AUTO_HIDE_DELAY = 4000;
 export const PROXIMITY_CHECK_THRESHOLD = 0.1;
+
+// --- ATMOSPHERE (CHRONOS) ---
+export const TIME_CHECK_INTERVAL = 60000; // 1 minute
+export const ATMOSPHERE_LERP_FACTOR = 0.01; // Slow transition
+
+export const TIME_PHASES = {
+  DAWN: { start: 5, end: 8 },
+  DAY: { start: 8, end: 17 },
+  DUSK: { start: 17, end: 20 },
+  NIGHT: { start: 20, end: 5 }, // Special handling for crossing midnight
+};
+
+export const ATMOSPHERE_CONFIG = {
+  DAWN: {
+    color: '#ffcc99', // Warm orange/pink
+    intensity: 0.8,
+    backgroundColor: '#ffaa88',
+    fogDensity: 0.04,
+  },
+  DAY: {
+    color: '#ffffff', // Bright white
+    intensity: 1.0,
+    backgroundColor: '#88ccff',
+    fogDensity: 0.02,
+  },
+  DUSK: {
+    color: '#cc88ff', // Purple/orange
+    intensity: 0.6,
+    backgroundColor: '#442266',
+    fogDensity: 0.05,
+  },
+  NIGHT: {
+    color: '#4444ff', // Cool blue
+    intensity: 0.3,
+    backgroundColor: '#000022',
+    fogDensity: 0.08,
+  },
+};

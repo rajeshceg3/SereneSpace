@@ -14,6 +14,7 @@ import {
 import { UserInput } from '../components/UserInput';
 import { CameraManager } from '../components/CameraManager';
 import { FPSMonitor } from '../components/FPSMonitor';
+import { Atmosphere } from '../components/Atmosphere';
 
 // Component for a single destination object
 const DestinationObject = ({ destination }: { destination: Destination }) => {
@@ -91,8 +92,7 @@ const AmbientScene = () => {
       <UserInput />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
+      <Atmosphere />
 
       <group ref={groupRef}>
         {destinations.map((destination) => {
