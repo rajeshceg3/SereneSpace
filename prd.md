@@ -105,7 +105,35 @@ Beta release	Week 6
 
 2.2 Feature Specifications
 
-Feature 1: Ambient Landing Experience
+Feature 1: Bio-Feedback Atmosphere (Resonance System)
+
+Description
+The application's atmosphere dynamically adapts to the user's interaction patterns, creating a bio-feedback loop that encourages and rewards calm exploration.
+
+Flow
+
+1. User interacts with the scene (scroll, keyboard navigation).
+
+
+2. High-intensity interactions ("stress") are detected.
+
+
+3. The environment responds in real-time: fog density increases, and light intensity decreases, creating a more focused, intimate atmosphere.
+
+
+4. As interactions become calmer, "stress" decays, and the environment "opens up," becoming brighter and more expansive.
+
+
+Business Logic
+
+This system is always active and requires no user configuration.
+
+It directly supports the core product vision of leaving users feeling calmer.
+
+
+---
+
+Feature 2: Ambient Landing Experience
 
 Description
 Users land directly into a living Three.js scene.

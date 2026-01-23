@@ -2,6 +2,10 @@
 
 This guide explains how to navigate and interact with the Stillness experience.
 
+## A Living World
+
+The world of Stillness is alive and will respond to your presence. The pace of your interaction matters. A calm, deliberate approach will be rewarded with a more expansive and serene environment, while rapid, hurried interactions may cause the world to feel more intimate and focused. Listen to the world, and it will listen to you.
+
 ## Core Interactions
 
 The experience is designed to be intuitive and immersive, relying on subtle cues rather than traditional UI elements.
