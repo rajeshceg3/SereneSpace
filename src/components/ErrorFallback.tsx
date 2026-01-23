@@ -1,6 +1,3 @@
-// src/components/ErrorFallback.tsx
-import React from 'react';
-
 export const ErrorFallback = ({ message }: { message: string }) => {
   return (
     <div

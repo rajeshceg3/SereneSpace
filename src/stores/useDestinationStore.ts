@@ -24,7 +24,7 @@ interface DestinationState {
   isUiVisible: boolean; // Deprecated, but keeping for compatibility if needed
   isNameVisible: boolean;
   isDetailsVisible: boolean;
-  uiVisibilityTimer: NodeJS.Timeout | null;
+  uiVisibilityTimer: ReturnType<typeof setTimeout> | null;
   isLoading: boolean;
   error: string | null;
   reducedMotion: boolean;

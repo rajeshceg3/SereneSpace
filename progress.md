@@ -85,3 +85,13 @@
 - [x] FPS ≥ target
 - [x] Reduced motion verified
 - [x] Lighthouse ≥ 85 (Fallback implemented and verified via E2E test; direct audit blocked by environment)
+
+## Recent Implementation Updates
+- **Refactoring & Optimization**:
+  - Refactored `src/App.tsx` to use `isWebGLSupported` utility (Code Quality).
+  - Refactored `src/components/UserInput.tsx` to remove Tab hijacking, ensuring strict adherence to WCAG 2.1 AA (Keyboard traversal) by allowing native focus navigation.
+  - Updated `src/scenes/Experience.tsx` to synchronize `activeDestination` with A11y focus state, ensuring the 3D scene responds to keyboard navigation.
+- **Testing**:
+  - Added unit tests for `UserInput.tsx` (Arrow key navigation).
+  - Added unit tests for `FPSMonitor.tsx`.
+  - Fixed TypeScript errors across the codebase to ensure a clean build.
