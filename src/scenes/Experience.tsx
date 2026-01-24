@@ -1,12 +1,11 @@
 import { Canvas } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
-import { PerspectiveCamera, Environment, Float, Torus } from '@react-three/drei';
+import { PerspectiveCamera, Environment, Float } from '@react-three/drei';
 import { A11y, useA11y } from '@react-three/a11y';
 import * as THREE from 'three';
-import { useDestinationStore, type Destination } from '../stores/useDestinationStore';
+import { useDestinationStore } from '../stores/useDestinationStore';
 import {
   CAMERA_INITIAL_Z,
-  CAMERA_POSITION_Z_OFFSET,
   FLOAT_INTENSITY,
   FLOAT_ROTATION_INTENSITY,
   FLOAT_SPEED,
@@ -16,53 +15,8 @@ import { ResonanceSystem } from '../components/ResonanceSystem';
 import { CameraManager } from '../components/CameraManager';
 import { FPSMonitor } from '../components/FPSMonitor';
 import { Atmosphere } from '../components/Atmosphere';
-
-// Component for a single destination object
-const DestinationObject = ({ destination }: { destination: Destination }) => {
-  const {
-    activeDestination,
-    setActiveDestination,
-    setHoveredDestination,
-    setCameraTargetZ,
-  } = useDestinationStore();
-  const { focus } = useA11y();
-
-  useEffect(() => {
-    if (focus) {
-      setActiveDestination(destination.id);
-      setCameraTargetZ(destination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
-    }
-  }, [focus, destination.id, destination.coordinates, setActiveDestination, setCameraTargetZ]);
-
-  const handleDestinationClick = (destination: Destination) => {
-    // Set the camera target to be slightly in front of the clicked destination
-    setCameraTargetZ(destination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
-  };
-
-  const isFocused = focus || activeDestination === destination.id;
-
-  return (
-    <A11y
-      role="button"
-      description={`Destination: ${destination.name}`}
-      actionCall={() => handleDestinationClick(destination)}
-    >
-      <mesh
-        position={destination.coordinates}
-        onPointerOver={() => setHoveredDestination(destination.id)}
-        onPointerOut={() => setHoveredDestination(null)}
-      >
-        <torusGeometry args={[0.5, 0.1, 16, 32]} />
-        <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.1} />
-        {isFocused && (
-          <Torus args={[0.6, 0.02, 16, 32]} position={[0, 0, 0]}>
-            <meshBasicMaterial color="white" />
-          </Torus>
-        )}
-      </mesh>
-    </A11y>
-  );
-};
+import { BloomSystem } from '../components/BloomSystem';
+import { Destination } from '../components/Destination';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -92,6 +46,7 @@ const AmbientScene = () => {
     <>
       <UserInput />
       <ResonanceSystem />
+      <BloomSystem />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />
@@ -107,10 +62,10 @@ const AmbientScene = () => {
                   rotationIntensity={FLOAT_ROTATION_INTENSITY}
                   floatIntensity={FLOAT_INTENSITY}
                 >
-                  <DestinationObject destination={destination} />
+                  <Destination destination={destination} />
                 </Float>
               ) : (
-                <DestinationObject destination={destination} />
+                <Destination destination={destination} />
               )}
             </group>
           );

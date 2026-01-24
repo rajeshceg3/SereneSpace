@@ -6,6 +6,7 @@ import { useBloomStore } from './../stores/useBloomStore';
 import { CAMERA_POSITION_Z_OFFSET } from '../constants';
 
 // Component for a single destination object
+// Displays the destination geometry, changing to a complex shape when bloomed.
 export const Destination = ({ destination }: { destination: DestinationType }) => {
   const {
     activeDestination,

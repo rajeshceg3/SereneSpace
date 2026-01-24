@@ -40,6 +40,10 @@ export const RESONANCE_KEY_IMPACT = 0.05; // Keypress adds more stress
 export const RESONANCE_FOG_MULTIPLIER = 1.5; // Max stress increases fog density by 50%
 export const RESONANCE_LIGHT_DIMMER = 0.3; // Max stress dims light by 30%
 
+// --- BLOOM (REWARD SYSTEM) ---
+export const BLOOM_STRESS_THRESHOLD = 0.2; // Low stress required to bloom
+export const FOCUS_TIME_TO_BLOOM = 3; // Seconds of focus required to bloom
+
 // --- ATMOSPHERE (CHRONOS) ---
 export const TIME_CHECK_INTERVAL = 60000; // 1 minute
 export const ATMOSPHERE_LERP_FACTOR = 0.01; // Slow transition
