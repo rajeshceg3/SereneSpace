@@ -14,14 +14,20 @@
 - [x] 4. Minimal UI
 
 ### 2.2 Feature Specifications
-#### Feature 1: Ambient Landing Experience
+#### Feature 1: Bio-Feedback Atmosphere (Resonance System)
+- [x] Input stress generation (Scroll & Keyboard)
+- [x] State management (Stress accumulation & decay)
+- [x] Environmental response (Fog density & Light intensity modulation)
+- [x] Passive decay (Headless system)
+
+#### Feature 2: Ambient Landing Experience
 - [x] App loads
 - [x] Scene fades in from black (800–1200ms)
 - [x] Ambient motion begins automatically (Camera parallax, Light shift, Slow object rotation)
 - [x] Edge Cases: Low-power devices → reduced motion mode
 - [x] Edge Cases: WebGL unsupported → fallback static page
 
-#### Feature 2: Spatial Destination Exploration
+#### Feature 3: Spatial Destination Exploration
 - [x] Destinations as floating 3D objects
 - [x] Scroll → camera gently advances
 - [x] Destination comes into focus
@@ -31,7 +37,7 @@
 - [x] Logic: UI auto-hides after 2s inactivity
 - [x] Error Handling: Asset load failure → graceful placeholder
 
-#### Feature 3: Invisible Navigation Layer
+#### Feature 4: Invisible Navigation Layer
 - [x] No persistent navbar
 - [x] Navigation hints fade in only when needed
 - [x] Keyboard navigation supported
