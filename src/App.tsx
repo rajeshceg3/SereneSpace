@@ -11,6 +11,7 @@ import { isWebGLSupported } from './utils/webglDetector';
 import { TelemetryRecorder } from './components/TelemetryRecorder';
 import { SessionDebrief } from './components/SessionDebrief';
 import { useTelemetryStore } from './stores/useTelemetryStore';
+import { SentinelSystem } from './components/SentinelSystem';
 
 function App() {
   const { isLoading, error, fetchDestinations } = useDestinationStore();
@@ -66,6 +67,7 @@ function App() {
       <HoverHint />
 
       <TelemetryRecorder />
+      <SentinelSystem />
       <SessionDebrief />
 
       <button

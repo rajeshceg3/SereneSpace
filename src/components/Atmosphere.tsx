@@ -3,11 +3,11 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useTimeStore } from '../stores/useTimeStore';
 import { useResonanceStore } from '../stores/useResonanceStore';
+import { useSentinelStore } from '../stores/useSentinelStore';
 import {
   ATMOSPHERE_CONFIG,
   ATMOSPHERE_LERP_FACTOR,
   TIME_CHECK_INTERVAL,
-  RESONANCE_FOG_MULTIPLIER,
   RESONANCE_LIGHT_DIMMER,
 } from '../constants';
 
@@ -65,12 +65,14 @@ export const Atmosphere = () => {
     }
 
     // 3. Lerp Fog
+    const fogSensitivity = useSentinelStore.getState().activeParameters.fogSensitivity;
+
     if (scene.fog instanceof THREE.FogExp2) {
       scene.fog.color.lerp(targetBgColor, ATMOSPHERE_LERP_FACTOR);
       // eslint-disable-next-line
       scene.fog.density = THREE.MathUtils.lerp(
         scene.fog.density,
-        targetConfig.fogDensity * (1 + stress * RESONANCE_FOG_MULTIPLIER),
+        targetConfig.fogDensity * (1 + stress * fogSensitivity),
         ATMOSPHERE_LERP_FACTOR
       );
     } else {
@@ -78,7 +80,7 @@ export const Atmosphere = () => {
       // @ts-ignore - Direct mutation of scene fog is required for Three.js
       scene.fog = new THREE.FogExp2(
         targetConfig.backgroundColor,
-        targetConfig.fogDensity * (1 + stress * RESONANCE_FOG_MULTIPLIER)
+        targetConfig.fogDensity * (1 + stress * fogSensitivity)
       );
     }
   });
