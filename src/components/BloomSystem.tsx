@@ -6,6 +6,7 @@ import { useBloomStore } from './../stores/useBloomStore';
 import { BLOOM_STRESS_THRESHOLD, FOCUS_TIME_TO_BLOOM } from '../constants';
 
 // A headless component to manage the "bloom" state of destinations
+// Implements the Bloom System: A reward mechanism for calm focus.
 export const BloomSystem = () => {
   const { activeDestination } = useDestinationStore.getState();
   const { currentStress } = useResonanceStore.getState();

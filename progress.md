@@ -19,6 +19,7 @@
 - [x] State management (Stress accumulation & decay)
 - [x] Environmental response (Fog density & Light intensity modulation)
 - [x] Passive decay (Headless system)
+- [x] Bloom System (Reward for calm focus: Icosahedron -> TorusKnot transformation)
 
 #### Feature 2: Ambient Landing Experience
 - [x] App loads
@@ -105,3 +106,9 @@
   - Implemented `useTimeStore` to track real-world time phases (Dawn, Day, Dusk, Night).
   - Created `Atmosphere` component to dynamically adjust lighting, fog, and background color.
   - Integrated `Atmosphere` into `Experience.tsx` for a context-aware immersive experience.
+- **Feature: Bloom System**:
+  - Implemented `useBloomStore` to track state.
+  - Added `BloomSystem` component to monitor stress and focus time.
+  - Updated `Destination` component to react to bloom state.
+  - Integrated into `Experience.tsx`.
+  - Added comprehensive tests for Bloom logic and rendering.
