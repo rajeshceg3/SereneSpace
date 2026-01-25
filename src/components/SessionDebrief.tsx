@@ -1,4 +1,11 @@
 import { useTelemetryStore } from '../stores/useTelemetryStore';
+import {
+  TELEMETRY_GRAPH_WIDTH,
+  TELEMETRY_GRAPH_HEIGHT,
+  TELEMETRY_GRAPH_PADDING,
+  TELEMETRY_COHERENCE_THRESHOLD,
+} from '../constants';
+import './SessionDebrief.css';
 
 export const SessionDebrief = () => {
   const { sessionData, isDebriefOpen, setDebriefOpen } = useTelemetryStore();
@@ -18,16 +25,16 @@ export const SessionDebrief = () => {
   const coherenceScore = Math.round((1 - averageStress) * 100);
 
   // SVG Graph Config
-  const width = 600;
-  const height = 300;
-  const padding = 40;
+  const width = TELEMETRY_GRAPH_WIDTH;
+  const height = TELEMETRY_GRAPH_HEIGHT;
+  const padding = TELEMETRY_GRAPH_PADDING;
 
   const getPoints = () => {
     if (sessionData.length < 2) return '';
 
     const maxTime = durationMs || 1; // Avoid divide by zero
 
-    return sessionData.map((pt, i) => {
+    return sessionData.map((pt) => {
       const x = padding + ((pt.timestamp - startTime) / maxTime) * (width - 2 * padding);
       const y = height - padding - (pt.value * (height - 2 * padding));
       return `${x},${y}`;
@@ -35,53 +42,71 @@ export const SessionDebrief = () => {
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        backgroundColor: 'rgba(10, 10, 15, 0.95)',
-        zIndex: 10000,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#00ffcc',
-        fontFamily: 'monospace',
-        backdropFilter: 'blur(10px)',
-      }}
-    >
-      <div style={{ maxWidth: '800px', width: '90%', border: '1px solid #00ffcc', padding: '20px', borderRadius: '4px', boxShadow: '0 0 20px rgba(0, 255, 204, 0.2)' }}>
-        <h2 style={{ borderBottom: '1px solid #004444', paddingBottom: '10px', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '2px' }}>
+    <div className="session-debrief-overlay">
+      <div className="session-debrief-container">
+        <h2 className="session-debrief-header">
           Mission Debrief // Cognitive Telemetry
         </h2>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ border: '1px solid #004444', padding: '10px' }}>
-            <div style={{ fontSize: '12px', color: '#888' }}>DURATION</div>
-            <div style={{ fontSize: '24px' }}>{durationSec}s</div>
+        <div className="session-debrief-stats-grid">
+          <div className="session-debrief-stat-item">
+            <div className="session-debrief-label">DURATION</div>
+            <div className="session-debrief-value">{durationSec}s</div>
           </div>
-          <div style={{ border: '1px solid #004444', padding: '10px' }}>
-            <div style={{ fontSize: '12px', color: '#888' }}>AVG STRESS</div>
-            <div style={{ fontSize: '24px' }}>{(averageStress * 100).toFixed(1)}%</div>
+          <div className="session-debrief-stat-item">
+            <div className="session-debrief-label">AVG STRESS</div>
+            <div className="session-debrief-value">{(averageStress * 100).toFixed(1)}%</div>
           </div>
-          <div style={{ border: '1px solid #004444', padding: '10px' }}>
-            <div style={{ fontSize: '12px', color: '#888' }}>COHERENCE</div>
-            <div style={{ fontSize: '24px', color: coherenceScore > 80 ? '#00ffcc' : 'white' }}>{coherenceScore}</div>
+          <div className="session-debrief-stat-item">
+            <div className="session-debrief-label">COHERENCE</div>
+            <div
+              className={`session-debrief-value ${
+                coherenceScore > TELEMETRY_COHERENCE_THRESHOLD
+                  ? 'session-debrief-value-high'
+                  : 'session-debrief-value-normal'
+              }`}
+            >
+              {coherenceScore}
+            </div>
           </div>
         </div>
 
-        <div style={{ border: '1px solid #004444', padding: '20px', backgroundColor: '#050510', marginBottom: '20px', position: 'relative' }}>
-          <div style={{ fontSize: '12px', color: '#888', marginBottom: '10px', position: 'absolute', top: '10px', left: '10px' }}>STRESS INTENSITY</div>
-          <svg width="100%" height="300" viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
+        <div className="session-debrief-graph-container">
+          <div className="session-debrief-graph-label">STRESS INTENSITY</div>
+          <svg
+            width="100%"
+            height={height}
+            viewBox={`0 0 ${width} ${height}`}
+            className="session-debrief-svg"
+          >
             {/* Grid Lines */}
-            <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#004444" strokeWidth="1" />
-            <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#004444" strokeWidth="1" />
+            <line
+              x1={padding}
+              y1={padding}
+              x2={padding}
+              y2={height - padding}
+              stroke="#004444"
+              strokeWidth="1"
+            />
+            <line
+              x1={padding}
+              y1={height - padding}
+              x2={width - padding}
+              y2={height - padding}
+              stroke="#004444"
+              strokeWidth="1"
+            />
 
             {/* 100% Stress Line */}
-            <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="#004444" strokeDasharray="4" strokeWidth="1" />
+            <line
+              x1={padding}
+              y1={padding}
+              x2={width - padding}
+              y2={padding}
+              stroke="#004444"
+              strokeDasharray="4"
+              strokeWidth="1"
+            />
 
             {/* Data Path */}
             <polyline
@@ -96,23 +121,10 @@ export const SessionDebrief = () => {
           </svg>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
+        <div className="session-debrief-actions">
           <button
             onClick={() => setDebriefOpen(false)}
-            style={{
-              backgroundColor: 'transparent',
-              border: '1px solid #00ffcc',
-              color: '#00ffcc',
-              padding: '10px 30px',
-              fontFamily: 'monospace',
-              fontSize: '16px',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(0, 255, 204, 0.1)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+            className="session-debrief-button"
           >
             Resume Mission
           </button>

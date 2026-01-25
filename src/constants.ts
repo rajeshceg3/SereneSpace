@@ -81,3 +81,9 @@ export const ATMOSPHERE_CONFIG = {
     fogDensity: 0.08,
   },
 };
+
+// --- TELEMETRY (CCTS) ---
+export const TELEMETRY_GRAPH_WIDTH = 600;
+export const TELEMETRY_GRAPH_HEIGHT = 300;
+export const TELEMETRY_GRAPH_PADDING = 40;
+export const TELEMETRY_COHERENCE_THRESHOLD = 80;
