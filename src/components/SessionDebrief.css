@@ -1,0 +1,104 @@
+.session-debrief-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(10, 10, 15, 0.95);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #00ffcc;
+  font-family: monospace;
+  backdrop-filter: blur(10px);
+}
+
+.session-debrief-container {
+  max-width: 800px;
+  width: 90%;
+  border: 1px solid #00ffcc;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+}
+
+.session-debrief-header {
+  border-bottom: 1px solid #004444;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.session-debrief-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.session-debrief-stat-item {
+  border: 1px solid #004444;
+  padding: 10px;
+}
+
+.session-debrief-label {
+  font-size: 12px;
+  color: #888;
+}
+
+.session-debrief-value {
+  font-size: 24px;
+}
+
+.session-debrief-value-high {
+  color: #00ffcc;
+}
+
+.session-debrief-value-normal {
+  color: white;
+}
+
+.session-debrief-graph-container {
+  border: 1px solid #004444;
+  padding: 20px;
+  background-color: #050510;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.session-debrief-graph-label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 10px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.session-debrief-svg {
+  overflow: visible;
+}
+
+.session-debrief-actions {
+  text-align: right;
+}
+
+.session-debrief-button {
+  background-color: transparent;
+  border: 1px solid #00ffcc;
+  color: #00ffcc;
+  padding: 10px 30px;
+  font-family: monospace;
+  font-size: 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.session-debrief-button:hover {
+  background-color: rgba(0, 255, 204, 0.1);
+}
