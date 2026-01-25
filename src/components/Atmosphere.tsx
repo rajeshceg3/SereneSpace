@@ -3,17 +3,19 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useTimeStore } from '../stores/useTimeStore';
 import { useResonanceStore } from '../stores/useResonanceStore';
+import { useSentinelStore } from '../stores/useSentinelStore';
 import {
   ATMOSPHERE_CONFIG,
   ATMOSPHERE_LERP_FACTOR,
   TIME_CHECK_INTERVAL,
-  RESONANCE_FOG_MULTIPLIER,
   RESONANCE_LIGHT_DIMMER,
+  SENTINEL_PROTOCOLS,
 } from '../constants';
 
 // Force-include
 export const Atmosphere = () => {
   const { phase, updatePhase } = useTimeStore();
+  const activeProtocol = useSentinelStore((state) => state.activeProtocol);
   const { scene } = useThree();
 
   // Refs for lights to update them in useFrame
@@ -35,6 +37,9 @@ export const Atmosphere = () => {
   // it's acceptable. The lerping happens in useFrame using these as targets.
   const targetColor = new THREE.Color(targetConfig.color);
   const targetBgColor = new THREE.Color(targetConfig.backgroundColor);
+
+  // Get dynamic fog multiplier based on sentinel protocol
+  const fogMultiplier = SENTINEL_PROTOCOLS[activeProtocol].fogMultiplier;
 
   useFrame(() => {
     if (!ambientLightRef.current || !sunLightRef.current) return;
@@ -70,7 +75,7 @@ export const Atmosphere = () => {
       // eslint-disable-next-line
       scene.fog.density = THREE.MathUtils.lerp(
         scene.fog.density,
-        targetConfig.fogDensity * (1 + stress * RESONANCE_FOG_MULTIPLIER),
+        targetConfig.fogDensity * (1 + stress * fogMultiplier),
         ATMOSPHERE_LERP_FACTOR
       );
     } else {
@@ -78,7 +83,7 @@ export const Atmosphere = () => {
       // @ts-ignore - Direct mutation of scene fog is required for Three.js
       scene.fog = new THREE.FogExp2(
         targetConfig.backgroundColor,
-        targetConfig.fogDensity * (1 + stress * RESONANCE_FOG_MULTIPLIER)
+        targetConfig.fogDensity * (1 + stress * fogMultiplier)
       );
     }
   });

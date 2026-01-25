@@ -81,3 +81,19 @@ export const ATMOSPHERE_CONFIG = {
     fogDensity: 0.08,
   },
 };
+
+// --- SENTINEL (ADAPTIVE SYSTEM) ---
+export const SENTINEL_PROTOCOLS = {
+  OBSERVER: {
+    decayRate: RESONANCE_DECAY_RATE,
+    fogMultiplier: RESONANCE_FOG_MULTIPLIER,
+  },
+  GUIDANCE: {
+    decayRate: 0.01,
+    fogMultiplier: 2.5,
+  },
+  DEEP_DIVE: {
+    decayRate: 0.002,
+    fogMultiplier: 0.8,
+  },
+};

@@ -43,6 +43,18 @@
 - [x] Navigation hints fade in only when needed
 - [x] Keyboard navigation supported
 
+#### Feature 5: Cognitive Coherence Telemetry System
+- [x] Telemetry Store (Data persistence)
+- [x] Telemetry Recorder (Headless data capture)
+- [x] Session Debrief (Visualization overlay)
+- [x] Integration (Trigger via UI)
+
+#### Feature 6: Adaptive Sentinel Module
+- [x] Sentinel Store (Protocol management)
+- [x] Sentinel System (Headless logic)
+- [x] Resonance Integration (Dynamic decay)
+- [x] Atmosphere Integration (Dynamic fog)
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
