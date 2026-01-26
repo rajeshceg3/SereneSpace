@@ -111,6 +111,10 @@
 - [x] Lighthouse ≥ 85 (Fallback implemented and verified via E2E test; direct audit blocked by environment)
 
 ## Recent Implementation Updates
+- **Code Quality & Maintenance**:
+  - **Refactored UI Components**: Extracted `NoWebGLFallback` into a dedicated component/CSS to clean up `App.tsx`.
+  - **Linting & Type Safety**: Fixed TypeScript `any` types in test files and removed impure `Date.now()` calls from `SessionDebrief` render cycle.
+  - **Test Coverage**: Verified robust test coverage for core systems.
 - **Refactoring & Optimization**:
   - **Refactored Telemetry System**: Extracted magic numbers to `constants.ts` and moved styles to CSS modules (`SessionDebrief.css`, `TelemetryControls.css`) to adhere to coding standards.
   - Created `TelemetryControls` component to clean up `App.tsx`.

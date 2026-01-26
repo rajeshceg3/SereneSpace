@@ -5,7 +5,16 @@ import { CameraManager } from '../../components/CameraManager';
 import * as THREE from 'three';
 
 // Define the mock store state
-let mockState: any;
+interface MockState {
+  destinations: { id: string; name: string; coordinates: number[] }[];
+  activeDestination: string;
+  setActiveDestination: ReturnType<typeof vi.fn>;
+  cameraTargetZ: number;
+  reducedMotion: boolean;
+  setCameraTargetZ: ReturnType<typeof vi.fn>;
+}
+
+let mockState: MockState;
 
 vi.mock('../../stores/useDestinationStore', () => ({
   useDestinationStore: () => mockState,

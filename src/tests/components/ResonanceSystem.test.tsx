@@ -5,6 +5,7 @@ import { ResonanceSystem } from '../../components/ResonanceSystem';
 const decayStressMock = vi.fn();
 
 vi.mock('../../stores/useResonanceStore', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useResonanceStore: (selector: (state: any) => any) => {
     const state = {
       decayStress: decayStressMock,
