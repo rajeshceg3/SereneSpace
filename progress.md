@@ -53,6 +53,13 @@
 - [x] Dynamic atmosphere adjustment (Lighting, Fog, Color)
 - [x] Integration into Experience
 
+#### Feature 7: Adaptive Sentinel Module (ASM)
+- [x] Protocol Definition (Observer, Guidance, Deep Dive)
+- [x] State Management (Sentinel Store)
+- [x] Logic System (Hysteresis & Protocol Switching)
+- [x] Integration with Resonance (Dynamic Decay)
+- [x] Integration with Atmosphere (Visual Feedback)
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders

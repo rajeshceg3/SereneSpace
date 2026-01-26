@@ -87,3 +87,28 @@ export const TELEMETRY_GRAPH_WIDTH = 600;
 export const TELEMETRY_GRAPH_HEIGHT = 300;
 export const TELEMETRY_GRAPH_PADDING = 40;
 export const TELEMETRY_COHERENCE_THRESHOLD = 80;
+
+// --- SENTINEL (ADAPTIVE PROTOCOLS) ---
+export const SENTINEL_HYSTERESIS_MS = 3000; // Time to sustain stress before switch
+export const SENTINEL_DEEP_DIVE_DELAY_MS = 5000; // Time to sustain calm before deep dive
+
+export const SENTINEL_PROTOCOLS = {
+  OBSERVER: {
+    name: 'OBSERVER',
+    decayRate: RESONANCE_DECAY_RATE,
+    fogDensityOffset: 0,
+    lightIntensityMultiplier: 1.0,
+  },
+  GUIDANCE: {
+    name: 'GUIDANCE',
+    decayRate: 0.02, // Fast decay to restore calm
+    fogDensityOffset: 0.1, // Thicker fog
+    lightIntensityMultiplier: 0.6, // Dimmer light
+  },
+  DEEP_DIVE: {
+    name: 'DEEP_DIVE',
+    decayRate: 0.001, // Very slow decay (sustain flow)
+    fogDensityOffset: -0.01, // Clearer
+    lightIntensityMultiplier: 1.2, // Brighter
+  },
+} as const;

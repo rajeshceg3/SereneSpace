@@ -12,6 +12,7 @@ import {
 } from '../constants';
 import { UserInput } from '../components/UserInput';
 import { ResonanceSystem } from '../components/ResonanceSystem';
+import { SentinelSystem } from '../components/SentinelSystem';
 import { CameraManager } from '../components/CameraManager';
 import { FPSMonitor } from '../components/FPSMonitor';
 import { Atmosphere } from '../components/Atmosphere';
@@ -46,6 +47,7 @@ const AmbientScene = () => {
     <>
       <UserInput />
       <ResonanceSystem />
+      <SentinelSystem />
       <BloomSystem />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
