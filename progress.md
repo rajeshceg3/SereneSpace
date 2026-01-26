@@ -53,6 +53,12 @@
 - [x] Dynamic atmosphere adjustment (Lighting, Fog, Color)
 - [x] Integration into Experience
 
+#### Feature 7: Adaptive Sentinel Module
+- [x] Protocol State Management (Observer, Guidance, Deep Dive)
+- [x] Hysteresis Logic (Stress thresholds & durations)
+- [x] System Response (Dynamic Resonance Decay & Visual Atmosphere Tuning)
+- [x] Integration with Resonance & Atmosphere Systems
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
@@ -112,3 +118,8 @@
   - Verified integration and styling.
 - **Feature: Chronos Temporal Ambience**:
   - Formally documented as Feature 6.
+- **Feature: Adaptive Sentinel Module**:
+  - Implemented `useSentinelStore` and `SentinelSystem` with hysteresis logic.
+  - Refactored `useResonanceStore` to support dynamic decay rates.
+  - Updated `Atmosphere` to visually respond to active Sentinel protocols.
+  - Verified via unit and integration tests.

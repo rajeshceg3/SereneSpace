@@ -17,6 +17,7 @@ import { FPSMonitor } from '../components/FPSMonitor';
 import { Atmosphere } from '../components/Atmosphere';
 import { BloomSystem } from '../components/BloomSystem';
 import { Destination } from '../components/Destination';
+import { SentinelSystem } from '../components/SentinelSystem';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -47,6 +48,7 @@ const AmbientScene = () => {
       <UserInput />
       <ResonanceSystem />
       <BloomSystem />
+      <SentinelSystem />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />

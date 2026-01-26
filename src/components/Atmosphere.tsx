@@ -3,12 +3,14 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useTimeStore } from '../stores/useTimeStore';
 import { useResonanceStore } from '../stores/useResonanceStore';
+import { useSentinelStore } from '../stores/useSentinelStore';
 import {
   ATMOSPHERE_CONFIG,
   ATMOSPHERE_LERP_FACTOR,
   TIME_CHECK_INTERVAL,
   RESONANCE_FOG_MULTIPLIER,
   RESONANCE_LIGHT_DIMMER,
+  SENTINEL_PROTOCOLS,
 } from '../constants';
 
 // Force-include
@@ -31,8 +33,6 @@ export const Atmosphere = () => {
   const targetConfig = ATMOSPHERE_CONFIG[phase];
 
   // Helper vectors/colors for lerping to avoid GC
-  // Note: We create new instances here per render, but since this is a low-frequency update (phase change),
-  // it's acceptable. The lerping happens in useFrame using these as targets.
   const targetColor = new THREE.Color(targetConfig.color);
   const targetBgColor = new THREE.Color(targetConfig.backgroundColor);
 
@@ -40,19 +40,32 @@ export const Atmosphere = () => {
     if (!ambientLightRef.current || !sunLightRef.current) return;
 
     const stress = useResonanceStore.getState().currentStress;
+    const { activeProtocol } = useSentinelStore.getState();
+
+    // Protocol adjustments
+    let fogProtocolModifier = 1.0;
+    let lightProtocolModifier = 1.0;
+
+    if (activeProtocol === SENTINEL_PROTOCOLS.GUIDANCE) {
+      fogProtocolModifier = 1.5; // Thicker fog
+      lightProtocolModifier = 0.8; // Dimmer
+    } else if (activeProtocol === SENTINEL_PROTOCOLS.DEEP_DIVE) {
+      fogProtocolModifier = 0.8; // Clearer
+      lightProtocolModifier = 1.1; // Brighter
+    }
 
     // 1. Lerp Lights
     ambientLightRef.current.color.lerp(targetColor, ATMOSPHERE_LERP_FACTOR);
     ambientLightRef.current.intensity = THREE.MathUtils.lerp(
       ambientLightRef.current.intensity,
-      targetConfig.intensity * (1 - stress * RESONANCE_LIGHT_DIMMER),
+      targetConfig.intensity * (1 - stress * RESONANCE_LIGHT_DIMMER) * lightProtocolModifier,
       ATMOSPHERE_LERP_FACTOR
     );
 
     sunLightRef.current.color.lerp(targetColor, ATMOSPHERE_LERP_FACTOR);
     sunLightRef.current.intensity = THREE.MathUtils.lerp(
       sunLightRef.current.intensity,
-      targetConfig.intensity * (1 - stress * RESONANCE_LIGHT_DIMMER),
+      targetConfig.intensity * (1 - stress * RESONANCE_LIGHT_DIMMER) * lightProtocolModifier,
       ATMOSPHERE_LERP_FACTOR
     );
 
@@ -70,7 +83,7 @@ export const Atmosphere = () => {
       // eslint-disable-next-line
       scene.fog.density = THREE.MathUtils.lerp(
         scene.fog.density,
-        targetConfig.fogDensity * (1 + stress * RESONANCE_FOG_MULTIPLIER),
+        targetConfig.fogDensity * (1 + stress * RESONANCE_FOG_MULTIPLIER) * fogProtocolModifier,
         ATMOSPHERE_LERP_FACTOR
       );
     } else {
@@ -78,7 +91,7 @@ export const Atmosphere = () => {
       // @ts-ignore - Direct mutation of scene fog is required for Three.js
       scene.fog = new THREE.FogExp2(
         targetConfig.backgroundColor,
-        targetConfig.fogDensity * (1 + stress * RESONANCE_FOG_MULTIPLIER)
+        targetConfig.fogDensity * (1 + stress * RESONANCE_FOG_MULTIPLIER) * fogProtocolModifier
       );
     }
   });
