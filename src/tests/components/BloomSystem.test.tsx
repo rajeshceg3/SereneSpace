@@ -5,11 +5,14 @@ import { useDestinationStore } from '../../stores/useDestinationStore';
 import { useResonanceStore } from '../../stores/useResonanceStore';
 import { useBloomStore } from '../../stores/useBloomStore';
 
+interface GlobalWithMockFrame {
+  __useFrameCallback?: (state: unknown, delta: number) => void;
+}
+
 // Mock useFrame
 vi.mock('@react-three/fiber', () => ({
-  useFrame: (callback: any) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (globalThis as any).__useFrameCallback = callback;
+  useFrame: (callback: (state: unknown, delta: number) => void) => {
+    (globalThis as unknown as GlobalWithMockFrame).__useFrameCallback = callback;
   },
 }));
 
@@ -22,8 +25,7 @@ describe('BloomSystem', () => {
   });
 
   const runFrame = (delta: number) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const callback = (globalThis as any).__useFrameCallback;
+    const callback = (globalThis as unknown as GlobalWithMockFrame).__useFrameCallback;
     if (callback) {
       callback({}, delta);
     }

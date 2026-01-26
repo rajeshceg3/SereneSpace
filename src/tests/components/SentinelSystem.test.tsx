@@ -21,6 +21,7 @@ vi.mock('../../stores/useResonanceStore', () => ({
 
 vi.mock('../../stores/useSentinelStore', () => ({
   useSentinelStore: Object.assign(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (selector: any) => selector({ setProtocol: setProtocolMock }), // Hook usage
     {
       getState: () => ({

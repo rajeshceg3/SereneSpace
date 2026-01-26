@@ -21,8 +21,7 @@ import { Destination } from '../components/Destination';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { a11y } = useA11y() as any;
+  const { a11y } = useA11y() as { a11y: { announce: (msg: string) => void } };
 
   const {
     destinations,

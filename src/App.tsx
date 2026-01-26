@@ -6,6 +6,7 @@ import { HoverHint } from './components/HoverHint';
 import { useDestinationStore } from './stores/useDestinationStore';
 import { Loading } from './components/Loading';
 import { ErrorFallback } from './components/ErrorFallback';
+import { NoWebGLFallback } from './components/NoWebGLFallback';
 import { FADE_IN_DELAY, FADE_IN_DURATION } from './constants';
 import { isWebGLSupported } from './utils/webglDetector';
 import { TelemetryRecorder } from './components/TelemetryRecorder';
@@ -32,11 +33,7 @@ function App() {
   }, [isLoading, error]);
 
   if (!hasWebGL) {
-    return (
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', backgroundColor: '#000' }}>
-        <p>Your device does not support WebGL. Please try a different device.</p>
-      </div>
-    );
+    return <NoWebGLFallback />;
   }
 
   if (isLoading) {

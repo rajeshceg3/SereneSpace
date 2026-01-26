@@ -1,6 +1,7 @@
 import { render, screen, act } from '@testing-library/react';
 import { FPSMonitor } from '../../components/FPSMonitor';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+import React from 'react';
 
 const { mockUseFrame } = vi.hoisted(() => ({
   mockUseFrame: vi.fn(),
@@ -11,7 +12,7 @@ vi.mock('@react-three/fiber', () => ({
 }));
 
 vi.mock('@react-three/drei', () => ({
-  Html: ({ children }: any) => <div>{children}</div>,
+  Html: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 describe('FPSMonitor', () => {

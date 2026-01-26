@@ -13,8 +13,8 @@ export const SessionDebrief = () => {
   if (!isDebriefOpen) return null;
 
   // Metrics
-  const startTime = sessionData.length > 0 ? sessionData[0].timestamp : Date.now();
-  const endTime = sessionData.length > 0 ? sessionData[sessionData.length - 1].timestamp : Date.now();
+  const startTime = sessionData.length > 0 ? sessionData[0].timestamp : 0;
+  const endTime = sessionData.length > 0 ? sessionData[sessionData.length - 1].timestamp : 0;
   const durationMs = endTime - startTime;
   const durationSec = Math.floor(durationMs / 1000);
 
