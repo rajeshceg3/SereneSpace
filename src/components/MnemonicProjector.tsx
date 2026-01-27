@@ -7,12 +7,14 @@ const Shard = ({ session, index, total }: { session: SessionSummary; index: numb
   const meshRef = useRef<THREE.Mesh>(null!);
 
   // Procedural Geometry Parameters based on session data
-  const position = useMemo(() => {
+  const basePosition = useMemo(() => {
     const angle = index * 0.8; // Golden angle approx
     const radius = 2 + (index * 0.2);
     const y = (index * 0.3) - (total * 0.15); // Center vertically roughly
     return new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
   }, [index, total]);
+
+  const position = useMemo(() => [basePosition.x, basePosition.y, basePosition.z] as [number, number, number], [basePosition]);
 
   const color = useMemo(() => {
     const score = session.coherenceScore;
@@ -32,7 +34,7 @@ const Shard = ({ session, index, total }: { session: SessionSummary; index: numb
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.getElapsedTime();
-    meshRef.current.position.y = position.y + Math.sin(t + index) * 0.1;
+    meshRef.current.position.y = basePosition.y + Math.sin(t + index) * 0.1;
   });
 
   return (

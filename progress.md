@@ -60,6 +60,13 @@
 - [x] Integration with Resonance (Dynamic Decay)
 - [x] Integration with Atmosphere (Visual Feedback)
 
+#### Feature 8: Mnemonic Projection Interface (MPI)
+- [x] Visualizes persistent user history (3D Spiral of Shards)
+- [x] Maps coherenceScore to color (Gold, Cyan, Grey)
+- [x] Maps duration to height
+- [x] Integrated into Landing Scene
+- [x] Performance: Limits visualization to last 50 sessions
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
@@ -123,6 +130,9 @@
   - Verified integration and styling.
 - **Feature: Chronos Temporal Ambience**:
   - Formally documented as Feature 6.
+- **Feature: Mnemonic Projection Interface**:
+  - Validated and documented as Feature 8.
+  - Added unit tests for `MnemonicProjector`.
 - **Architecture & Service Layer**:
   - **Refactored Types**: Centralized `Destination` and `TelemetryPoint` interfaces in `src/types/index.ts` to improve maintainability and type safety.
   - **Destination Service**: Implemented `DestinationService` to abstract data fetching logic, decoupling it from the store.
