@@ -31,6 +31,12 @@ vi.mock('../../stores/useSentinelStore', () => ({
   ),
 }));
 
+vi.mock('../../services/AnalyticsService', () => ({
+  analytics: {
+    track: vi.fn(),
+  },
+}));
+
 describe('SentinelSystem', () => {
   beforeEach(() => {
     vi.clearAllMocks();

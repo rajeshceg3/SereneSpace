@@ -22,7 +22,7 @@ import { MnemonicProjector } from '../components/MnemonicProjector';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
-  const { a11y } = useA11y() as { a11y: { announce: (msg: string) => void } };
+  const { a11y } = useA11y() as unknown as { a11y: { announce: (msg: string) => void } };
 
   const {
     destinations,
