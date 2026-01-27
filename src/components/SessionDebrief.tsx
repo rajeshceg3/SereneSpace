@@ -8,7 +8,7 @@ import {
 import './SessionDebrief.css';
 
 export const SessionDebrief = () => {
-  const { sessionData, isDebriefOpen, setDebriefOpen } = useTelemetryStore();
+  const { sessionData, isDebriefOpen, setDebriefOpen, archiveSession } = useTelemetryStore();
 
   if (!isDebriefOpen) return null;
 
@@ -123,10 +123,13 @@ export const SessionDebrief = () => {
 
         <div className="session-debrief-actions">
           <button
-            onClick={() => setDebriefOpen(false)}
+            onClick={() => {
+              archiveSession();
+              setDebriefOpen(false);
+            }}
             className="session-debrief-button"
           >
-            Resume Mission
+            Archive & Resume Mission
           </button>
         </div>
       </div>
