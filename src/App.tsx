@@ -12,12 +12,15 @@ import { isWebGLSupported } from './utils/webglDetector';
 import { TelemetryRecorder } from './components/TelemetryRecorder';
 import { SessionDebrief } from './components/SessionDebrief';
 import { TelemetryControls } from './components/TelemetryControls';
+import { analytics } from './services/AnalyticsService';
 
 function App() {
   const { isLoading, error, fetchDestinations } = useDestinationStore();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    analytics.init();
+    analytics.track('App Loaded');
     fetchDestinations();
   }, [fetchDestinations]);
   const [hasWebGL] = useState(isWebGLSupported);

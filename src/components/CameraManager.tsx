@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useDestinationStore, type Destination } from '../stores/useDestinationStore';
+import { useDestinationStore } from '../stores/useDestinationStore';
+import type { Destination } from '../types';
 import {
   CAMERA_LERP_FACTOR,
   FOCUS_THRESHOLD,

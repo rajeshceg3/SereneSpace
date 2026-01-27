@@ -123,3 +123,7 @@
   - Verified integration and styling.
 - **Feature: Chronos Temporal Ambience**:
   - Formally documented as Feature 6.
+- **Architecture & Service Layer**:
+  - **Refactored Types**: Centralized `Destination` and `TelemetryPoint` interfaces in `src/types/index.ts` to improve maintainability and type safety.
+  - **Destination Service**: Implemented `DestinationService` to abstract data fetching logic, decoupling it from the store.
+  - **Analytics Service**: Implemented `AnalyticsService` with a modular provider pattern (defaulting to Console), integrated into `App`, `DestinationStore`, and `SentinelSystem` to track key user events.

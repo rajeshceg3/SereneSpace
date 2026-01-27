@@ -1,16 +1,28 @@
 // src/stores/useDestinationStore.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useDestinationStore, type Destination } from './useDestinationStore';
+import { useDestinationStore } from './useDestinationStore';
+import type { Destination } from '../types';
+import { DestinationService } from '../services/DestinationService';
 import { act } from '@testing-library/react';
 
-// Mock fetch
+// Mock DestinationService
+vi.mock('../services/DestinationService', () => ({
+  DestinationService: {
+    fetchDestinations: vi.fn(),
+  },
+}));
+
+// Mock AnalyticsService
+vi.mock('../services/AnalyticsService', () => ({
+  analytics: {
+    track: vi.fn(),
+  },
+}));
+
 const mockDestinations = [
   { id: '1', name: 'Mars', coordinates: [1, 1, 1] as [number, number, number], description: 'Red Planet', ambientColor: '#ff0000' },
   { id: '2', name: 'Jupiter', coordinates: [2, 2, 2] as [number, number, number], description: 'Gas Giant', ambientColor: '#ff8800' },
 ] as Destination[];
-
-const fetchMock = vi.fn();
-vi.stubGlobal('fetch', fetchMock);
 
 describe('useDestinationStore', () => {
   beforeEach(() => {
@@ -29,7 +41,7 @@ describe('useDestinationStore', () => {
       });
     });
     vi.useFakeTimers();
-    fetchMock.mockClear();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -37,10 +49,7 @@ describe('useDestinationStore', () => {
   });
 
   it('should fetch destinations and set the first one as active', async () => {
-    fetchMock.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockDestinations),
-    });
+    (DestinationService.fetchDestinations as any).mockResolvedValue(mockDestinations);
 
     await act(async () => {
       await useDestinationStore.getState().fetchDestinations();
@@ -55,7 +64,7 @@ describe('useDestinationStore', () => {
   });
 
   it('should handle fetch errors gracefully', async () => {
-    fetchMock.mockResolvedValue({ ok: false });
+    (DestinationService.fetchDestinations as any).mockRejectedValue(new Error('Failed to fetch'));
 
     await act(async () => {
       await useDestinationStore.getState().fetchDestinations();

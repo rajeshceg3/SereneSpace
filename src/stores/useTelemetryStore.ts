@@ -1,10 +1,5 @@
 import { create } from 'zustand';
-
-export interface TelemetryPoint {
-  timestamp: number;
-  value: number; // 0 to 1 (stress level)
-  event?: string; // Optional label for specific events (e.g., "Destination Arrived")
-}
+import type { TelemetryPoint } from '../types';
 
 interface TelemetryState {
   sessionData: TelemetryPoint[];

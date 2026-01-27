@@ -5,15 +5,9 @@ import {
   DETAILS_REVEAL_DELAY,
   AUTO_HIDE_DELAY,
 } from '../constants';
-
-// Matches the structure in public/destinations.json
-export interface Destination {
-  id: string;
-  name: string;
-  coordinates: [number, number, number];
-  ambientColor: string;
-  description: string;
-}
+import type { Destination } from '../types';
+import { DestinationService } from '../services/DestinationService';
+import { analytics } from '../services/AnalyticsService';
 
 interface DestinationState {
   destinations: Destination[];
@@ -49,15 +43,11 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   error: null,
   reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 
-  // Fetches destination data from the public JSON file
+  // Fetches destination data using the service layer
   fetchDestinations: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(`${import.meta.env.BASE_URL}destinations.json`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data: Destination[] = await response.json();
+      const data = await DestinationService.fetchDestinations();
       set({ destinations: data, isLoading: false });
 
       // Set the first destination as active by default
@@ -85,6 +75,8 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
 
     // If there's a new active destination, start the timer logic
     if (details) {
+      analytics.track('Destination Viewed', { id: details.id, name: details.name });
+
       // 1. Reveal Name
       const nameTimer = setTimeout(() => {
         if (get().activeDestination !== id) return;

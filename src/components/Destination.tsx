@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { Torus, Icosahedron, TorusKnot } from '@react-three/drei';
 import { A11y, useA11y } from '@react-three/a11y';
-import { useDestinationStore, type Destination as DestinationType } from './../stores/useDestinationStore';
+import { useDestinationStore } from './../stores/useDestinationStore';
+import type { Destination as DestinationType } from '../types';
 import { useBloomStore } from './../stores/useBloomStore';
 import { CAMERA_POSITION_Z_OFFSET } from '../constants';
 
