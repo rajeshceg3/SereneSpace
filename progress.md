@@ -137,3 +137,7 @@
   - **Refactored Types**: Centralized `Destination` and `TelemetryPoint` interfaces in `src/types/index.ts` to improve maintainability and type safety.
   - **Destination Service**: Implemented `DestinationService` to abstract data fetching logic, decoupling it from the store.
   - **Analytics Service**: Implemented `AnalyticsService` with a modular provider pattern (defaulting to Console), integrated into `App`, `DestinationStore`, and `SentinelSystem` to track key user events.
+- **Test Infrastructure & Coverage**:
+  - **Refactored Test Structure**: Consolidated tests into a standard `src/tests` directory structure (`src/tests/stores`, `src/tests/components`) to eliminate technical debt and improved discoverability.
+  - **Merged Telemetry Tests**: Unified scattered telemetry tests into a single, comprehensive `src/tests/stores/useTelemetryStore.test.ts` file, ensuring coverage for both session logging and persistence logic.
+  - **Sentinel System Coverage**: Added `src/tests/stores/useSentinelStore.test.ts` to cover protocol switching and state management, ensuring 100% store test coverage.

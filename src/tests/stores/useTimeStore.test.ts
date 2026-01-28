@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useTimeStore, getCurrentPhase } from '../stores/useTimeStore';
+import { useTimeStore, getCurrentPhase } from '../../stores/useTimeStore';
 
 describe('useTimeStore', () => {
   beforeEach(() => {

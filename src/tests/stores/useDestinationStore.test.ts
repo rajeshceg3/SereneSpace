@@ -1,19 +1,19 @@
-// src/stores/useDestinationStore.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useDestinationStore } from './useDestinationStore';
-import type { Destination } from '../types';
-import { DestinationService } from '../services/DestinationService';
+// src/tests/stores/useDestinationStore.test.ts
+import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { useDestinationStore } from '../../stores/useDestinationStore';
+import type { Destination } from '../../types';
+import { DestinationService } from '../../services/DestinationService';
 import { act } from '@testing-library/react';
 
 // Mock DestinationService
-vi.mock('../services/DestinationService', () => ({
+vi.mock('../../services/DestinationService', () => ({
   DestinationService: {
     fetchDestinations: vi.fn(),
   },
 }));
 
 // Mock AnalyticsService
-vi.mock('../services/AnalyticsService', () => ({
+vi.mock('../../services/AnalyticsService', () => ({
   analytics: {
     track: vi.fn(),
   },
@@ -49,7 +49,7 @@ describe('useDestinationStore', () => {
   });
 
   it('should fetch destinations and set the first one as active', async () => {
-    (DestinationService.fetchDestinations as any).mockResolvedValue(mockDestinations);
+    (DestinationService.fetchDestinations as Mock).mockResolvedValue(mockDestinations);
 
     await act(async () => {
       await useDestinationStore.getState().fetchDestinations();
@@ -64,7 +64,7 @@ describe('useDestinationStore', () => {
   });
 
   it('should handle fetch errors gracefully', async () => {
-    (DestinationService.fetchDestinations as any).mockRejectedValue(new Error('Failed to fetch'));
+    (DestinationService.fetchDestinations as Mock).mockRejectedValue(new Error('Failed to fetch'));
 
     await act(async () => {
       await useDestinationStore.getState().fetchDestinations();
