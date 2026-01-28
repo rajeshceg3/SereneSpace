@@ -19,6 +19,8 @@ import { Atmosphere } from '../components/Atmosphere';
 import { BloomSystem } from '../components/BloomSystem';
 import { Destination } from '../components/Destination';
 import { MnemonicProjector } from '../components/MnemonicProjector';
+import { EntrainmentSystem } from '../components/EntrainmentSystem';
+import { EntrainmentField } from '../components/EntrainmentField';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -49,6 +51,8 @@ const AmbientScene = () => {
       <ResonanceSystem />
       <SentinelSystem />
       <BloomSystem />
+      <EntrainmentSystem />
+      <EntrainmentField />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />

@@ -2,10 +2,12 @@ import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import { useResonanceStore } from '../stores/useResonanceStore';
 import { useSentinelStore } from '../stores/useSentinelStore';
+import { useEntrainmentStore } from '../stores/useEntrainmentStore';
 import {
   SENTINEL_HYSTERESIS_MS,
   SENTINEL_DEEP_DIVE_DELAY_MS,
-  SENTINEL_PROTOCOLS
+  SENTINEL_PROTOCOLS,
+  SENTINEL_ENTRAINMENT_MAP
 } from '../constants';
 import { analytics } from '../services/AnalyticsService';
 
@@ -18,6 +20,7 @@ export const SentinelSystem = () => {
     const stress = useResonanceStore.getState().currentStress;
     const activeProtocol = useSentinelStore.getState().activeProtocol;
     const setDecayRate = useResonanceStore.getState().setDecayRate;
+    const setEntrainmentFreq = useEntrainmentStore.getState().setTargetFreq;
 
     // Timer Logic
     if (stress > 0.8) {
@@ -38,10 +41,12 @@ export const SentinelSystem = () => {
             setProtocol('GUIDANCE');
             analytics.track('Sentinel Protocol Changed', { protocol: 'GUIDANCE', cause: 'High Stress Hysteresis' });
             if (setDecayRate) setDecayRate(SENTINEL_PROTOCOLS.GUIDANCE.decayRate);
+            setEntrainmentFreq(SENTINEL_ENTRAINMENT_MAP.GUIDANCE);
         } else if (lowStressTimer.current > SENTINEL_DEEP_DIVE_DELAY_MS) {
             setProtocol('DEEP_DIVE');
             analytics.track('Sentinel Protocol Changed', { protocol: 'DEEP_DIVE', cause: 'Low Stress Hysteresis' });
             if (setDecayRate) setDecayRate(SENTINEL_PROTOCOLS.DEEP_DIVE.decayRate);
+            setEntrainmentFreq(SENTINEL_ENTRAINMENT_MAP.DEEP_DIVE);
         }
     } else if (activeProtocol === 'GUIDANCE') {
         // Exit Guidance if stress drops sufficiently
@@ -49,6 +54,7 @@ export const SentinelSystem = () => {
             setProtocol('OBSERVER');
             analytics.track('Sentinel Protocol Changed', { protocol: 'OBSERVER', cause: 'Stress Normalized' });
             if (setDecayRate) setDecayRate(SENTINEL_PROTOCOLS.OBSERVER.decayRate);
+            setEntrainmentFreq(SENTINEL_ENTRAINMENT_MAP.OBSERVER);
         }
     } else if (activeProtocol === 'DEEP_DIVE') {
         // Exit Deep Dive if stress rises slightly
@@ -56,6 +62,7 @@ export const SentinelSystem = () => {
             setProtocol('OBSERVER');
             analytics.track('Sentinel Protocol Changed', { protocol: 'OBSERVER', cause: 'Stress Increased' });
             if (setDecayRate) setDecayRate(SENTINEL_PROTOCOLS.OBSERVER.decayRate);
+            setEntrainmentFreq(SENTINEL_ENTRAINMENT_MAP.OBSERVER);
         }
     }
   });

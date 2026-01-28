@@ -112,3 +112,24 @@ export const SENTINEL_PROTOCOLS = {
     lightIntensityMultiplier: 1.2, // Brighter
   },
 } as const;
+
+// --- ENTRAINMENT (NEURAL ENT.) ---
+export const ENTRAINMENT_FREQUENCIES = {
+  DELTA: 3, // Deep restorative (0.5-4Hz)
+  THETA: 6, // Meditation/Creativity (4-8Hz)
+  ALPHA: 10, // Relaxed alertness (8-13Hz)
+  BETA: 20, // Focus/Active (13-30Hz)
+};
+
+export const ENTRAINMENT_CONFIG = {
+  BASE_INTENSITY: 0.15, // Subtle visual pulse strength (0-1)
+  MAX_INTENSITY: 0.3,
+  PULSE_SMOOTHING: 0.1, // Lerp factor for frequency transitions
+};
+
+// Map Protocols to Frequencies
+export const SENTINEL_ENTRAINMENT_MAP = {
+  OBSERVER: ENTRAINMENT_FREQUENCIES.ALPHA,
+  GUIDANCE: ENTRAINMENT_FREQUENCIES.THETA,
+  DEEP_DIVE: ENTRAINMENT_FREQUENCIES.DELTA,
+};
