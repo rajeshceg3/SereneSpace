@@ -67,6 +67,13 @@
 - [x] Integrated into Landing Scene
 - [x] Performance: Limits visualization to last 50 sessions
 
+#### Feature 9: Neural Entrainment Architect (NEA)
+- [x] Protocol to Frequency mapping (Observer->Alpha, Guidance->Theta, DeepDive->Delta)
+- [x] State management (Entrainment Store)
+- [x] Logic System (Headless EntrainmentSystem with oscillator)
+- [x] Visual Layer (EntrainmentField subtle overlay)
+- [x] Integration with Sentinel System (Automatic frequency switching)
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
