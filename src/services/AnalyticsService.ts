@@ -1,5 +1,6 @@
 export interface AnalyticsProvider {
   init(): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   track(event: string, properties?: Record<string, any>): void;
 }
 
@@ -8,6 +9,7 @@ class ConsoleAnalyticsProvider implements AnalyticsProvider {
     console.log('[Analytics] Initialized Console Provider');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   track(event: string, properties?: Record<string, any>) {
     console.log(`[Analytics] Track: ${event}`, properties);
   }
@@ -27,6 +29,7 @@ export class AnalyticsService {
     this.initialized = true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   track(event: string, properties?: Record<string, any>) {
     if (!this.initialized) {
       console.warn('[Analytics] Tracking event before initialization:', event);

@@ -6,6 +6,7 @@ import { MnemonicProjector } from '../../components/MnemonicProjector';
 const useTelemetryStoreMock = vi.fn();
 
 vi.mock('../../stores/useTelemetryStore', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useTelemetryStore: (selector: any) => useTelemetryStoreMock(selector),
 }));
 
