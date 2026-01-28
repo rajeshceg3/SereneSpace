@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useResonanceStore } from './useResonanceStore';
-import { RESONANCE_DECAY_RATE } from '../constants';
+import { useResonanceStore } from '../../stores/useResonanceStore';
+import { RESONANCE_DECAY_RATE } from '../../constants';
 
 describe('useResonanceStore', () => {
   beforeEach(() => {

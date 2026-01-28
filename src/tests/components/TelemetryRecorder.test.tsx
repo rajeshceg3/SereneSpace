@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
-import { TelemetryRecorder } from '../components/TelemetryRecorder';
-import { useTelemetryStore } from '../stores/useTelemetryStore';
-import { useResonanceStore } from '../stores/useResonanceStore';
-import { useDestinationStore } from '../stores/useDestinationStore';
+import { TelemetryRecorder } from '../../components/TelemetryRecorder';
+import { useTelemetryStore } from '../../stores/useTelemetryStore';
+import { useResonanceStore } from '../../stores/useResonanceStore';
+import { useDestinationStore } from '../../stores/useDestinationStore';
 
 describe('TelemetryRecorder', () => {
   beforeEach(() => {

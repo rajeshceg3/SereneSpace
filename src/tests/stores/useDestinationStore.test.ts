@@ -1,19 +1,19 @@
-// src/stores/useDestinationStore.test.ts
+// src/tests/stores/useDestinationStore.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useDestinationStore } from './useDestinationStore';
-import type { Destination } from '../types';
-import { DestinationService } from '../services/DestinationService';
+import { useDestinationStore } from '../../stores/useDestinationStore';
+import type { Destination } from '../../types';
+import { DestinationService } from '../../services/DestinationService';
 import { act } from '@testing-library/react';
 
 // Mock DestinationService
-vi.mock('../services/DestinationService', () => ({
+vi.mock('../../services/DestinationService', () => ({
   DestinationService: {
     fetchDestinations: vi.fn(),
   },
 }));
 
 // Mock AnalyticsService
-vi.mock('../services/AnalyticsService', () => ({
+vi.mock('../../services/AnalyticsService', () => ({
   analytics: {
     track: vi.fn(),
   },
