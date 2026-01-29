@@ -11,6 +11,7 @@ import { isWebGLSupported } from './utils/webglDetector';
 import { TelemetryRecorder } from './components/TelemetryRecorder';
 import { SessionDebrief } from './components/SessionDebrief';
 import { TelemetryControls } from './components/TelemetryControls';
+import { HorizonIndicator } from './components/HorizonIndicator';
 import { analytics } from './services/AnalyticsService';
 
 // Lazy load the Experience component
@@ -71,6 +72,7 @@ function App() {
       <TelemetryRecorder />
       <SessionDebrief />
       <TelemetryControls />
+      <HorizonIndicator />
     </>
   );
 }
