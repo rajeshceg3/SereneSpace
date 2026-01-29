@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { useResonanceStore } from '../stores/useResonanceStore';
 import { useSentinelStore } from '../stores/useSentinelStore';
 import { useEntrainmentStore } from '../stores/useEntrainmentStore';
+import { PredictiveModel } from '../services/PredictiveModel';
 import {
   SENTINEL_HYSTERESIS_MS,
   SENTINEL_DEEP_DIVE_DELAY_MS,
@@ -15,12 +16,35 @@ export const SentinelSystem = () => {
   const setProtocol = useSentinelStore((state) => state.setProtocol);
   const highStressTimer = useRef(0);
   const lowStressTimer = useRef(0);
+  const predictiveModel = useRef(new PredictiveModel());
 
   useFrame((_, delta) => {
     const stress = useResonanceStore.getState().currentStress;
     const activeProtocol = useSentinelStore.getState().activeProtocol;
     const setDecayRate = useResonanceStore.getState().setDecayRate;
     const setEntrainmentFreq = useEntrainmentStore.getState().setTargetFreq;
+
+    // Predictive Logic
+    predictiveModel.current.addSample(stress, Date.now());
+    const predictedStress = predictiveModel.current.predict(2000); // Predict 2s ahead
+
+    // Preemptive Switching
+    if (activeProtocol === 'OBSERVER') {
+      if (predictedStress > 0.9) {
+        setProtocol('GUIDANCE');
+        analytics.track('Sentinel Protocol Changed', { protocol: 'GUIDANCE', cause: 'Predictive High Stress' });
+        if (setDecayRate) setDecayRate(SENTINEL_PROTOCOLS.GUIDANCE.decayRate);
+        setEntrainmentFreq(SENTINEL_ENTRAINMENT_MAP.GUIDANCE);
+        return;
+      }
+      if (predictedStress < 0.1) {
+        setProtocol('DEEP_DIVE');
+        analytics.track('Sentinel Protocol Changed', { protocol: 'DEEP_DIVE', cause: 'Predictive Low Stress' });
+        if (setDecayRate) setDecayRate(SENTINEL_PROTOCOLS.DEEP_DIVE.decayRate);
+        setEntrainmentFreq(SENTINEL_ENTRAINMENT_MAP.DEEP_DIVE);
+        return;
+      }
+    }
 
     // Timer Logic
     if (stress > 0.8) {

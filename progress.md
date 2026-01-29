@@ -74,6 +74,12 @@
 - [x] Visual Layer (EntrainmentField subtle overlay)
 - [x] Integration with Sentinel System (Automatic frequency switching)
 
+#### Feature 10: Cognitive Predictive Modeling (CPM)
+- [x] Service: PredictiveModel (Linear Regression)
+- [x] Logic: Preemptive protocol switching based on future stress prediction
+- [x] Integration: SentinelSystem uses prediction to bypass hysteresis
+- [x] Testing: Unit tests for regression logic
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders

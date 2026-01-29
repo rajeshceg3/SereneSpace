@@ -47,8 +47,8 @@ describe('SentinelSystem', () => {
   it('switches to GUIDANCE when stress > 0.8 for 3 seconds', async () => {
     const renderer = await ReactThreeTestRenderer.create(<SentinelSystem />);
 
-    // Set high stress
-    mockStress = 0.9;
+    // Set high stress (but below predictive threshold of 0.9)
+    mockStress = 0.85;
 
     // Advance 2 seconds (should not switch yet)
     // 2s / 0.1s per frame = 20 frames
@@ -59,6 +59,28 @@ describe('SentinelSystem', () => {
     await renderer.advanceFrames(20, 0.1);
     expect(setProtocolMock).toHaveBeenCalledWith('GUIDANCE');
     expect(setDecayRateMock).toHaveBeenCalledWith(SENTINEL_PROTOCOLS.GUIDANCE.decayRate);
+  });
+
+  it('predictively switches to GUIDANCE when stress is very high (> 0.9)', async () => {
+    const renderer = await ReactThreeTestRenderer.create(<SentinelSystem />);
+
+    // Set very high stress (predictive threshold > 0.9)
+    mockStress = 0.95;
+
+    // Advance only 2 frames (should switch immediately, ignoring 3s hysteresis)
+    await renderer.advanceFrames(2, 0.1);
+    expect(setProtocolMock).toHaveBeenCalledWith('GUIDANCE');
+  });
+
+  it('predictively switches to DEEP_DIVE when stress is very low (< 0.1)', async () => {
+    const renderer = await ReactThreeTestRenderer.create(<SentinelSystem />);
+
+    // Set very low stress (predictive threshold < 0.1)
+    mockStress = 0.05;
+
+    // Advance only 2 frames (should switch immediately, ignoring 5s hysteresis)
+    await renderer.advanceFrames(2, 0.1);
+    expect(setProtocolMock).toHaveBeenCalledWith('DEEP_DIVE');
   });
 
   it('switches to DEEP_DIVE when stress < 0.2 for 5 seconds', async () => {
