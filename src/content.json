@@ -1,0 +1,39 @@
+{
+  "destinations": {
+    "Serenity": {
+      "quotes": [
+        "The quieter you become, the more you are able to hear.",
+        "Within you, there is a stillness and a sanctuary to which you can retreat at any time and be yourself.",
+        "Peace comes from within. Do not seek it without."
+      ]
+    },
+    "Clarity": {
+      "questions": [
+        "What is one thing you could let go of to find more clarity?",
+        "What does your ideal day look like? What's one step you can take towards it?",
+        "What is most important to you right now?"
+      ]
+    },
+    "Connection": {
+      "quotes": [
+        "The shortest distance between two people is a shared feeling.",
+        "We are all connected; to each other, biologically. To the earth, chemically. To the rest of the universe atomically.",
+        "You are not a drop in the ocean. You are the entire ocean in a drop."
+      ]
+    },
+    "Resilience": {
+      "quotes": [
+        "The oak fought the wind and was broken, the willow bent when it must and survived.",
+        "Do not judge me by my success, judge me by how many times I fell down and got back up again.",
+        "A smooth sea never made a skilled sailor."
+      ]
+    },
+    "Introspection": {
+      "questions": [
+        "What is a belief you hold that you haven't questioned in a while?",
+        "How have you grown in the past year?",
+        "What is your inner voice telling you right now?"
+      ]
+    }
+  }
+}

@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Torus, Icosahedron, TorusKnot } from '@react-three/drei';
 import { A11y, useA11y } from '@react-three/a11y';
+import { useFrame } from '@react-three/fiber';
 import { useDestinationStore } from './../stores/useDestinationStore';
+import { useResonanceStore } from './../stores/useResonanceStore';
 import type { Destination as DestinationType } from '../types';
 import { useBloomStore } from './../stores/useBloomStore';
 import { CAMERA_POSITION_Z_OFFSET } from '../constants';
+import { Mesh } from 'three';
 
 // Component for a single destination object
 // Displays the destination geometry, changing to a complex shape when bloomed.
@@ -17,6 +20,7 @@ export const Destination = ({ destination }: { destination: DestinationType }) =
   } = useDestinationStore();
   const { bloomedDestinations } = useBloomStore();
   const { focus } = useA11y();
+  const meshRef = useRef<Mesh>(null!);
 
   const hasBloomed = bloomedDestinations[destination.id];
 
@@ -34,6 +38,20 @@ export const Destination = ({ destination }: { destination: DestinationType }) =
 
   const isFocused = focus || activeDestination === destination.id;
 
+  useFrame(({ clock }) => {
+    if (meshRef.current && isFocused) {
+      const stress = useResonanceStore.getState().currentStress;
+      const pulseFrequency = 1.5; // Slower, calming pulse
+      const pulseAmplitude = 0.05 + stress * 0.1; // More stress = more intense pulse
+
+      const scale = 1 + Math.sin(clock.getElapsedTime() * pulseFrequency) * pulseAmplitude;
+      meshRef.current.scale.set(scale, scale, scale);
+    } else if (meshRef.current) {
+      // Reset scale when not focused
+      meshRef.current.scale.set(1, 1, 1);
+    }
+  });
+
   return (
     <A11y
       role="button"
@@ -41,6 +59,7 @@ export const Destination = ({ destination }: { destination: DestinationType }) =
       actionCall={() => handleDestinationClick(destination)}
     >
       <mesh
+        ref={meshRef}
         position={destination.coordinates}
         onPointerOver={() => setHoveredDestination(destination.id)}
         onPointerOut={() => setHoveredDestination(null)}
