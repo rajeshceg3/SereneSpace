@@ -1,5 +1,5 @@
 // src/tests/stores/useDestinationStore.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { useDestinationStore } from '../../stores/useDestinationStore';
 import type { Destination } from '../../types';
 import { DestinationService } from '../../services/DestinationService';
