@@ -54,3 +54,9 @@
   line-height: 1.6;
   font-weight: 300;
 }
+
+.thematic-content {
+  margin-top: 1rem;
+  font-style: italic;
+  opacity: 0.8;
+}
