@@ -1,7 +1,7 @@
 import { useDestinationStore } from '../stores/useDestinationStore';
 import './DestinationDetails.css';
 import content from '../content.json';
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 
 // Define a type for our content structure for better type safety
 type ContentData = {
@@ -17,18 +17,26 @@ const typedContent: ContentData = content;
 
 export const DestinationDetails = () => {
   const { activeDestinationDetails, isNameVisible, isDetailsVisible } = useDestinationStore();
+  const [thematicContent, setThematicContent] = useState<string | null>(null);
 
-  const thematicContent = useMemo(() => {
-    if (!activeDestinationDetails) return null;
-
-    const destinationContent = typedContent.destinations[activeDestinationDetails.name];
-    if (!destinationContent) return null;
-
-    const items = destinationContent.quotes || destinationContent.questions || [];
-    if (items.length === 0) return null;
-
-    // Select a random item
-    return items[Math.floor(Math.random() * items.length)];
+  useEffect(() => {
+    if (activeDestinationDetails) {
+      const destinationContent = typedContent.destinations[activeDestinationDetails.name];
+      if (destinationContent) {
+        const items = destinationContent.quotes || destinationContent.questions || [];
+        if (items.length > 0) {
+          const randomContent = items[Math.floor(Math.random() * items.length)];
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setThematicContent(randomContent);
+        } else {
+          setThematicContent(null);
+        }
+      } else {
+        setThematicContent(null);
+      }
+    } else {
+      setThematicContent(null);
+    }
   }, [activeDestinationDetails]);
 
   if (!activeDestinationDetails) return null;
