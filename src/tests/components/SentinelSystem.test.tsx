@@ -5,6 +5,16 @@ import { SENTINEL_PROTOCOLS } from '../../constants';
 
 // Mocks
 const setProtocolMock = vi.fn();
+const analyzeMock = vi.fn().mockReturnValue({ velocity: 0, projected: 0, confidence: 0 });
+
+vi.mock('../../services/PredictiveModel', () => ({
+  PredictiveModel: function () {
+    return {
+      addSample: vi.fn(),
+      analyze: analyzeMock,
+    };
+  },
+}));
 const setDecayRateMock = vi.fn();
 
 let mockStress = 0;
@@ -42,6 +52,7 @@ describe('SentinelSystem', () => {
     vi.clearAllMocks();
     mockStress = 0;
     mockActiveProtocol = 'OBSERVER';
+    analyzeMock.mockReturnValue({ velocity: 0, projected: 0, confidence: 0 });
   });
 
   it('switches to GUIDANCE when stress > 0.8 for 3 seconds', async () => {
@@ -86,5 +97,21 @@ describe('SentinelSystem', () => {
     await renderer.advanceFrames(2, 0.1);
     expect(setProtocolMock).toHaveBeenCalledWith('OBSERVER');
     expect(setDecayRateMock).toHaveBeenCalledWith(SENTINEL_PROTOCOLS.OBSERVER.decayRate);
+  });
+
+  it('switches to GUIDANCE preemptively when projected stress is high', async () => {
+    const renderer = await ReactThreeTestRenderer.create(<SentinelSystem />);
+
+    // Stress is moderate (safe)
+    mockStress = 0.5;
+
+    // But Prediction is High Risk
+    analyzeMock.mockReturnValue({ velocity: 0.1, projected: 0.9, confidence: 0.9 });
+
+    // Advance 3.5 seconds
+    // Even though current stress is safe, the predictive model should trigger the timer
+    await renderer.advanceFrames(35, 0.1);
+
+    expect(setProtocolMock).toHaveBeenCalledWith('GUIDANCE');
   });
 });
