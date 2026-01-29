@@ -1,4 +1,4 @@
-import { Destination } from '../types';
+import type { Destination } from '../types';
 
 export class DestinationService {
   static async fetchDestinations(): Promise<Destination[]> {

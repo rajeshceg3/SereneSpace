@@ -1,7 +1,7 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useTelemetryStore, SessionSummary } from '../stores/useTelemetryStore';
+import { useTelemetryStore, type SessionSummary } from '../stores/useTelemetryStore';
 
 const Shard = ({ session, index, total }: { session: SessionSummary; index: number; total: number }) => {
   const meshRef = useRef<THREE.Mesh>(null!);
@@ -57,7 +57,7 @@ export const MnemonicProjector = () => {
   const history = useTelemetryStore((state) => state.history);
   const groupRef = useRef<THREE.Group>(null!);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * 0.02;
     }

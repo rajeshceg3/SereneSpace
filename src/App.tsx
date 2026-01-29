@@ -1,6 +1,5 @@
-import { Experience } from './scenes/Experience';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import './App.css';
-import { useEffect, useState } from 'react';
 import { DestinationDetails } from './components/DestinationDetails';
 import { HoverHint } from './components/HoverHint';
 import { useDestinationStore } from './stores/useDestinationStore';
@@ -13,6 +12,9 @@ import { TelemetryRecorder } from './components/TelemetryRecorder';
 import { SessionDebrief } from './components/SessionDebrief';
 import { TelemetryControls } from './components/TelemetryControls';
 import { analytics } from './services/AnalyticsService';
+
+// Lazy load the Experience component
+const Experience = lazy(() => import('./scenes/Experience').then(module => ({ default: module.Experience })));
 
 function App() {
   const { isLoading, error, fetchDestinations } = useDestinationStore();
@@ -59,7 +61,9 @@ function App() {
           backgroundColor: '#000',
         }}
       >
-        <Experience />
+        <Suspense fallback={<Loading />}>
+          <Experience />
+        </Suspense>
       </div>
       <DestinationDetails />
       <HoverHint />

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { DestinationService } from '../../services/DestinationService';
-import { Destination } from '../../types';
+import type { Destination } from '../../types';
 
 describe('DestinationService', () => {
   const mockDestinations: Destination[] = [
@@ -15,7 +15,7 @@ describe('DestinationService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch = vi.fn();
+    globalThis.fetch = vi.fn();
   });
 
   afterEach(() => {
@@ -23,18 +23,18 @@ describe('DestinationService', () => {
   });
 
   it('should fetch destinations successfully', async () => {
-    (global.fetch as Mock).mockResolvedValue({
+    (globalThis.fetch as Mock).mockResolvedValue({
       ok: true,
       json: async () => mockDestinations,
     });
 
     const result = await DestinationService.fetchDestinations();
     expect(result).toEqual(mockDestinations);
-    expect(global.fetch).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}destinations.json`);
+    expect(globalThis.fetch).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}destinations.json`);
   });
 
   it('should throw an error if response is not ok', async () => {
-    (global.fetch as Mock).mockResolvedValue({
+    (globalThis.fetch as Mock).mockResolvedValue({
       ok: false,
     });
 
@@ -42,7 +42,7 @@ describe('DestinationService', () => {
   });
 
   it('should throw an error if fetch fails', async () => {
-    (global.fetch as Mock).mockRejectedValue(new Error('Fetch failed'));
+    (globalThis.fetch as Mock).mockRejectedValue(new Error('Fetch failed'));
 
     await expect(DestinationService.fetchDestinations()).rejects.toThrow('Fetch failed');
   });
