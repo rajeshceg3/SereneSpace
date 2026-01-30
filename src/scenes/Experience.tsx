@@ -21,6 +21,7 @@ import { Destination } from '../components/Destination';
 import { MnemonicProjector } from '../components/MnemonicProjector';
 import { EntrainmentSystem } from '../components/EntrainmentSystem';
 import { EntrainmentField } from '../components/EntrainmentField';
+import { FractalLandscape } from '../components/FractalLandscape';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -56,6 +57,7 @@ const AmbientScene = () => {
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />
+      <FractalLandscape />
 
       <group position={[0, -2, 0]}>
         <MnemonicProjector />
