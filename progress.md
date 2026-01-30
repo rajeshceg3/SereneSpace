@@ -74,6 +74,17 @@
 - [x] Visual Layer (EntrainmentField subtle overlay)
 - [x] Integration with Sentinel System (Automatic frequency switching)
 
+#### Feature 10: Cognitive Predictive Modeling (CPM)
+- [x] Linear Regression Model (PredictiveModel Service)
+- [x] Stress Trend Analysis (Velocity & Projection)
+- [x] Preemptive Protocol Switching (Sentinel System Integration)
+- [x] State Management (Prediction Store)
+
+#### Feature 11: Analytics Module
+- [x] Integration with PostHog (posthog-js)
+- [x] Event Tracking (Session, Destination, Protocol)
+- [x] Environment-based Provider Switching (Dev vs Prod)
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
