@@ -1,10 +1,12 @@
+import posthog from 'posthog-js';
+
 export interface AnalyticsProvider {
   init(): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   track(event: string, properties?: Record<string, any>): void;
 }
 
-class ConsoleAnalyticsProvider implements AnalyticsProvider {
+export class ConsoleAnalyticsProvider implements AnalyticsProvider {
   init() {
     console.log('[Analytics] Initialized Console Provider');
   }
@@ -12,6 +14,30 @@ class ConsoleAnalyticsProvider implements AnalyticsProvider {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   track(event: string, properties?: Record<string, any>) {
     console.log(`[Analytics] Track: ${event}`, properties);
+  }
+}
+
+export class PostHogAnalyticsProvider implements AnalyticsProvider {
+  private apiKey: string;
+  private host: string;
+
+  constructor(apiKey: string, host: string) {
+    this.apiKey = apiKey;
+    this.host = host;
+  }
+
+  init() {
+    posthog.init(this.apiKey, {
+      api_host: this.host,
+      autocapture: false,
+      capture_pageview: false,
+    });
+    console.log('[Analytics] Initialized PostHog Provider');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  track(event: string, properties?: Record<string, any>) {
+    posthog.capture(event, properties);
   }
 }
 
@@ -38,5 +64,12 @@ export class AnalyticsService {
   }
 }
 
-// Default instance using Console Provider (can be swapped based on env)
-export const analytics = new AnalyticsService(new ConsoleAnalyticsProvider());
+// Select provider based on env
+const apiKey = import.meta.env.VITE_POSTHOG_KEY;
+const host = import.meta.env.VITE_POSTHOG_HOST || 'https://app.posthog.com';
+
+const provider = apiKey
+  ? new PostHogAnalyticsProvider(apiKey, host)
+  : new ConsoleAnalyticsProvider();
+
+export const analytics = new AnalyticsService(provider);
