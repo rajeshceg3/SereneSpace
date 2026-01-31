@@ -12,6 +12,8 @@ import { TelemetryRecorder } from './components/TelemetryRecorder';
 import { SessionDebrief } from './components/SessionDebrief';
 import { TelemetryControls } from './components/TelemetryControls';
 import { HorizonIndicator } from './components/HorizonIndicator';
+import { AcousticField } from './components/AcousticField';
+import { AudioControls } from './components/AudioControls';
 import { analytics } from './services/AnalyticsService';
 
 // Lazy load the Experience component
@@ -73,6 +75,8 @@ function App() {
       <SessionDebrief />
       <TelemetryControls />
       <HorizonIndicator />
+      <AcousticField />
+      <AudioControls />
     </>
   );
 }

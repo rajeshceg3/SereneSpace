@@ -133,3 +133,28 @@ export const SENTINEL_ENTRAINMENT_MAP = {
   GUIDANCE: ENTRAINMENT_FREQUENCIES.THETA,
   DEEP_DIVE: ENTRAINMENT_FREQUENCIES.DELTA,
 };
+
+// --- AUDIO (SONIFEROUS AETHER) ---
+export const AUDIO_CONFIG = {
+  MASTER_VOLUME: 0.4,
+  RAMP_TIME: 2, // Seconds to fade in/out
+  FILTER_MIN: 200, // Low pass cutoff at max stress (muffled)
+  FILTER_MAX: 3000, // Low pass cutoff at min stress (bright)
+  BINAURAL_BASE_FREQ: 200, // Base tone for binaural beats
+
+  // Protocol-specific Drone Layers (Root Frequencies)
+  PROTOCOLS: {
+    OBSERVER: {
+      root: 110, // A2 - Grounding
+      harmonics: [1.5, 2.0], // Fifth (E3), Octave (A3)
+    },
+    GUIDANCE: {
+      root: 146.83, // D3 - Focus (Sacral/Solar)
+      harmonics: [1.5, 1.25], // Fifth (A3), Major Third (F#3) - Uplifting
+    },
+    DEEP_DIVE: {
+      root: 55, // A1 - Sub-bass
+      harmonics: [2.0, 3.0], // Octave (A2), Fifth (E3) - Deep resonance
+    },
+  }
+};
