@@ -35,6 +35,7 @@ class AudioEngine {
     if (this.ctx) return true;
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       this.ctx = new AudioContextClass();
 

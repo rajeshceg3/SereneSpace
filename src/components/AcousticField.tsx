@@ -36,20 +36,20 @@ export const AcousticField = () => {
   }, [isInitialized, isMuted, volume]);
 
   // 3. Animation Loop (Independent of 3D Canvas)
-  const animate = () => {
-    // Only update if running to save CPU
-    const store = useAudioStore.getState();
-    if (store.isInitialized && !store.isMuted) {
-       const stress = useResonanceStore.getState().currentStress;
-       const protocol = useSentinelStore.getState().activeProtocol;
-       const entrainmentFreq = useEntrainmentStore.getState().targetFreq;
-
-       audioEngine.update(stress, protocol, entrainmentFreq);
-    }
-    requestRef.current = requestAnimationFrame(animate);
-  };
-
   useEffect(() => {
+    const animate = () => {
+      // Only update if running to save CPU
+      const store = useAudioStore.getState();
+      if (store.isInitialized && !store.isMuted) {
+         const stress = useResonanceStore.getState().currentStress;
+         const protocol = useSentinelStore.getState().activeProtocol;
+         const entrainmentFreq = useEntrainmentStore.getState().targetFreq;
+
+         audioEngine.update(stress, protocol, entrainmentFreq);
+      }
+      requestRef.current = requestAnimationFrame(animate);
+    };
+
     requestRef.current = requestAnimationFrame(animate);
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
