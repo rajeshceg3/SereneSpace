@@ -1,3 +1,4 @@
+// Feature 12: Fractal Synthesis Engine Tests
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { FractalLandscape } from '../../components/FractalLandscape';

@@ -1,3 +1,4 @@
+// Feature 9: Neural Entrainment Architect - Visual Field
 import { useThree, useFrame } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
