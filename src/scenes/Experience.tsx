@@ -22,6 +22,7 @@ import { MnemonicProjector } from '../components/MnemonicProjector';
 import { EntrainmentSystem } from '../components/EntrainmentSystem';
 import { EntrainmentField } from '../components/EntrainmentField';
 import { FractalLandscape } from '../components/FractalLandscape';
+import { SpatialAudioListener } from '../components/SpatialAudioListener';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -54,6 +55,7 @@ const AmbientScene = () => {
       <BloomSystem />
       <EntrainmentSystem />
       <EntrainmentField />
+      <SpatialAudioListener />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />
