@@ -21,6 +21,8 @@ import { Destination } from '../components/Destination';
 import { MnemonicProjector } from '../components/MnemonicProjector';
 import { EntrainmentSystem } from '../components/EntrainmentSystem';
 import { EntrainmentField } from '../components/EntrainmentField';
+import { RespirationSystem } from '../components/RespirationSystem';
+import { BreathVisualizer } from '../components/BreathVisualizer';
 import { FractalLandscape } from '../components/FractalLandscape';
 
 const AmbientScene = () => {
@@ -54,6 +56,8 @@ const AmbientScene = () => {
       <BloomSystem />
       <EntrainmentSystem />
       <EntrainmentField />
+      <RespirationSystem />
+      <BreathVisualizer />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />

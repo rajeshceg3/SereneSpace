@@ -4,6 +4,8 @@ import * as THREE from 'three';
 import { useTimeStore } from '../stores/useTimeStore';
 import { useResonanceStore } from '../stores/useResonanceStore';
 import { useSentinelStore } from '../stores/useSentinelStore';
+import { useRespirationStore } from '../stores/useRespirationStore';
+import { RespirationController } from '../services/RespirationController';
 import {
   ATMOSPHERE_CONFIG,
   ATMOSPHERE_LERP_FACTOR,
@@ -21,6 +23,9 @@ export const Atmosphere = () => {
   // Refs for lights to update them in useFrame
   const ambientLightRef = useRef<THREE.AmbientLight>(null);
   const sunLightRef = useRef<THREE.DirectionalLight>(null);
+
+  // Store base intensity to separate slow atmospheric changes from fast breathing pulses
+  const baseIntensityRef = useRef(1.0);
 
   // Timer for phase updates
   useEffect(() => {
@@ -45,26 +50,31 @@ export const Atmosphere = () => {
 
     // 1. Lerp Lights
     // Calculate target intensity based on Time Phase AND Sentinel Protocol AND Stress
-    const targetIntensity = Math.max(
+    const targetBaseIntensity = Math.max(
       0,
       targetConfig.intensity *
       protocolConfig.lightIntensityMultiplier *
       (1 - stress * RESONANCE_LIGHT_DIMMER)
     );
 
-    ambientLightRef.current.color.lerp(targetColor, ATMOSPHERE_LERP_FACTOR);
-    ambientLightRef.current.intensity = THREE.MathUtils.lerp(
-      ambientLightRef.current.intensity,
-      targetIntensity,
+    // Lerp the base intensity smoothly
+    baseIntensityRef.current = THREE.MathUtils.lerp(
+      baseIntensityRef.current,
+      targetBaseIntensity,
       ATMOSPHERE_LERP_FACTOR
     );
 
+    // Apply Breath Modulation (Immediate, no lerp)
+    const breathValue = RespirationController.getValue();
+    const isBreathActive = useRespirationStore.getState().isActive;
+    // Pulse: 0.8x to 1.2x based on breath
+    const breathMod = isBreathActive ? (0.8 + breathValue * 0.4) : 1.0;
+
+    ambientLightRef.current.color.lerp(targetColor, ATMOSPHERE_LERP_FACTOR);
+    ambientLightRef.current.intensity = baseIntensityRef.current * breathMod;
+
     sunLightRef.current.color.lerp(targetColor, ATMOSPHERE_LERP_FACTOR);
-    sunLightRef.current.intensity = THREE.MathUtils.lerp(
-      sunLightRef.current.intensity,
-      targetIntensity,
-      ATMOSPHERE_LERP_FACTOR
-    );
+    sunLightRef.current.intensity = baseIntensityRef.current * breathMod;
 
     // 2. Lerp Background
     if (scene.background instanceof THREE.Color) {

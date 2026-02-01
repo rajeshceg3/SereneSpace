@@ -3,6 +3,8 @@ import { useRef, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useResonanceStore } from '../stores/useResonanceStore';
+import { useRespirationStore } from '../stores/useRespirationStore';
+import { RespirationController } from '../services/RespirationController';
 import { NOISE_GLSL } from '../shaders/noise';
 
 export const FractalLandscape = () => {
@@ -24,6 +26,7 @@ export const FractalLandscape = () => {
       shader.uniforms.uStress = { value: 0 };
       shader.uniforms.uOffsetZ = { value: 0 };
       shader.uniforms.uOffsetX = { value: 0 };
+      shader.uniforms.uBreath = { value: 0 };
 
       shaderRef.current = shader;
 
@@ -33,6 +36,7 @@ export const FractalLandscape = () => {
         uniform float uStress;
         uniform float uOffsetZ;
         uniform float uOffsetX;
+        uniform float uBreath;
         ${NOISE_GLSL}
       ` + shader.vertexShader;
 
@@ -62,6 +66,9 @@ export const FractalLandscape = () => {
 
         elevation += stressNoise * jaggedness;
 
+        // Breath Modulation (The earth heaves)
+        elevation *= (1.0 + uBreath * 0.5);
+
         // Apply elevation to Y
         transformed.y += elevation * 3.0;
         `
@@ -85,11 +92,14 @@ export const FractalLandscape = () => {
 
     // 2. Update Uniforms
     const stress = useResonanceStore.getState().currentStress;
+    const isBreathActive = useRespirationStore.getState().isActive;
+    const breathValue = RespirationController.getValue();
 
     shaderRef.current.uniforms.uTime.value = clock.getElapsedTime();
     shaderRef.current.uniforms.uStress.value = stress;
     shaderRef.current.uniforms.uOffsetZ.value = camera.position.z;
     shaderRef.current.uniforms.uOffsetX.value = camera.position.x;
+    shaderRef.current.uniforms.uBreath.value = isBreathActive ? breathValue : 0;
   });
 
   return (
