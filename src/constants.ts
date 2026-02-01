@@ -142,6 +142,12 @@ export const AUDIO_CONFIG = {
   FILTER_MAX: 3000, // Low pass cutoff at min stress (bright)
   BINAURAL_BASE_FREQ: 200, // Base tone for binaural beats
 
+  // Spatial Audio
+  SPATIAL_SOURCE_VOLUME: 0.3,
+  REF_DISTANCE: 2,
+  MAX_DISTANCE: 20,
+  ROLLOFF_FACTOR: 1,
+
   // Protocol-specific Drone Layers (Root Frequencies)
   PROTOCOLS: {
     OBSERVER: {
