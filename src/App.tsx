@@ -14,6 +14,7 @@ import { TelemetryControls } from './components/TelemetryControls';
 import { HorizonIndicator } from './components/HorizonIndicator';
 import { AcousticField } from './components/AcousticField';
 import { AudioControls } from './components/AudioControls';
+import { RespirationControls } from './components/RespirationControls';
 import { analytics } from './services/AnalyticsService';
 
 // Lazy load the Experience component
@@ -77,6 +78,7 @@ function App() {
       <HorizonIndicator />
       <AcousticField />
       <AudioControls />
+      <RespirationControls />
     </>
   );
 }

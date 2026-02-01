@@ -1,0 +1,109 @@
+.respiration-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: monospace;
+  pointer-events: none; /* Let clicks pass through empty areas */
+}
+
+.respiration-controls > * {
+  pointer-events: auto;
+}
+
+.respiration-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 5px 10px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.respiration-title {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.respiration-toggle {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+}
+
+.respiration-toggle:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+.respiration-toggle.active {
+  border-color: #00ccff;
+  color: #00ccff;
+  box-shadow: 0 0 8px rgba(0, 204, 255, 0.3);
+}
+
+.respiration-panel {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px;
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.respiration-phase {
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 5px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+}
+
+.respiration-patterns {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pattern-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: left;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.2s;
+}
+
+.pattern-btn:hover {
+  color: #fff;
+}
+
+.pattern-btn.selected {
+  color: #00ccff;
+  border-left: 2px solid #00ccff;
+  padding-left: 6px;
+  background: linear-gradient(90deg, rgba(0, 204, 255, 0.1), transparent);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
