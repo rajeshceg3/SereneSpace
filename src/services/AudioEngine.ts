@@ -2,6 +2,12 @@ import { AUDIO_CONFIG, SENTINEL_PROTOCOLS } from '../constants';
 
 type SentinelProtocol = keyof typeof SENTINEL_PROTOCOLS;
 
+export interface PositionalSourceHandle {
+  setPosition: (x: number, y: number, z: number) => void;
+  setVolume: (volume: number) => void;
+  stop: () => void;
+}
+
 class AudioEngine {
   private static instance: AudioEngine;
   private ctx: AudioContext | null = null;
@@ -18,8 +24,6 @@ class AudioEngine {
   private binauralGain: GainNode | null = null;
 
   // State Tracking
-  private currentProtocol: SentinelProtocol = 'OBSERVER';
-  private currentStress = 0;
   private isRunning = false;
 
   private constructor() {}
@@ -166,6 +170,94 @@ class AudioEngine {
         this.binauralLeft.frequency.setTargetAtTime(base, now, rampTime);
         // Right = Base + Entrainment Frequency (e.g. 200 + 10 = 210Hz)
         this.binauralRight.frequency.setTargetAtTime(base + entrainmentFreq, now, rampTime);
+    }
+  }
+
+  public createPositionalSource(initialPosition: [number, number, number]): PositionalSourceHandle {
+    if (!this.ctx || !this.masterGain) {
+      return { setPosition: () => {}, setVolume: () => {}, stop: () => {} };
+    }
+
+    const osc = this.ctx.createOscillator();
+    osc.type = 'sine';
+    // Use a random harmonic frequency
+    const harmonics = [220, 275, 330, 440, 550, 660];
+    osc.frequency.value = harmonics[Math.floor(Math.random() * harmonics.length)];
+
+    const gain = this.ctx.createGain();
+    gain.gain.value = 0.05; // Gentle
+
+    const panner = this.ctx.createPanner();
+    panner.panningModel = 'HRTF';
+    panner.distanceModel = 'exponential';
+    panner.refDistance = 2;
+    panner.maxDistance = 20;
+    panner.rolloffFactor = 1.0;
+
+    // Set initial position
+    if (panner.positionX) {
+        panner.positionX.value = initialPosition[0];
+        panner.positionY.value = initialPosition[1];
+        panner.positionZ.value = initialPosition[2];
+    } else {
+        panner.setPosition(initialPosition[0], initialPosition[1], initialPosition[2]);
+    }
+
+    osc.connect(gain);
+    gain.connect(panner);
+    panner.connect(this.masterGain);
+
+    osc.start();
+
+    return {
+      setPosition: (x: number, y: number, z: number) => {
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        if (panner.positionX) {
+          panner.positionX.setTargetAtTime(x, now, 0.1);
+          panner.positionY.setTargetAtTime(y, now, 0.1);
+          panner.positionZ.setTargetAtTime(z, now, 0.1);
+        } else {
+          panner.setPosition(x, y, z);
+        }
+      },
+      setVolume: (v: number) => {
+        if (!this.ctx) return;
+        gain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.1);
+      },
+      stop: () => {
+        osc.stop();
+        osc.disconnect();
+        gain.disconnect();
+        panner.disconnect();
+      }
+    };
+  }
+
+  public updateListener(
+    x: number, y: number, z: number,
+    fx: number, fy: number, fz: number,
+    ux: number, uy: number, uz: number
+  ) {
+    if (!this.ctx) return;
+    const listener = this.ctx.listener;
+    const now = this.ctx.currentTime;
+
+    if (listener.positionX) {
+      listener.positionX.setTargetAtTime(x, now, 0.1);
+      listener.positionY.setTargetAtTime(y, now, 0.1);
+      listener.positionZ.setTargetAtTime(z, now, 0.1);
+
+      listener.forwardX.setTargetAtTime(fx, now, 0.1);
+      listener.forwardY.setTargetAtTime(fy, now, 0.1);
+      listener.forwardZ.setTargetAtTime(fz, now, 0.1);
+
+      listener.upX.setTargetAtTime(ux, now, 0.1);
+      listener.upY.setTargetAtTime(uy, now, 0.1);
+      listener.upZ.setTargetAtTime(uz, now, 0.1);
+    } else {
+      listener.setPosition(x, y, z);
+      listener.setOrientation(fx, fy, fz, ux, uy, uz);
     }
   }
 }

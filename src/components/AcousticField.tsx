@@ -7,7 +7,7 @@ import { audioEngine } from '../services/AudioEngine';
 
 export const AcousticField = () => {
   const { isInitialized, isMuted, volume, setSupported } = useAudioStore();
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | null>(null);
 
   // 1. Initialize Engine
   useEffect(() => {

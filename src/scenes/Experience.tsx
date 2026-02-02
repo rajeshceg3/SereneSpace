@@ -24,6 +24,7 @@ import { EntrainmentField } from '../components/EntrainmentField';
 import { RespirationSystem } from '../components/RespirationSystem';
 import { BreathVisualizer } from '../components/BreathVisualizer';
 import { FractalLandscape } from '../components/FractalLandscape';
+import { SpatialAudioListener } from '../components/SpatialAudioListener';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -51,6 +52,7 @@ const AmbientScene = () => {
   return (
     <>
       <UserInput />
+      <SpatialAudioListener />
       <ResonanceSystem />
       <SentinelSystem />
       <BloomSystem />

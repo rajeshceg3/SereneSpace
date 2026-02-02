@@ -7,7 +7,9 @@ import { useResonanceStore } from './../stores/useResonanceStore';
 import type { Destination as DestinationType } from '../types';
 import { useBloomStore } from './../stores/useBloomStore';
 import { CAMERA_POSITION_Z_OFFSET } from '../constants';
-import { Mesh } from 'three';
+import { Mesh, Vector3 } from 'three';
+import { audioEngine } from '../services/AudioEngine';
+import type { PositionalSourceHandle } from '../services/AudioEngine';
 
 // Component for a single destination object
 // Displays the destination geometry, changing to a complex shape when bloomed.
@@ -21,8 +23,20 @@ export const Destination = ({ destination }: { destination: DestinationType }) =
   const { bloomedDestinations } = useBloomStore();
   const { focus } = useA11y();
   const meshRef = useRef<Mesh>(null!);
+  const audioSourceRef = useRef<PositionalSourceHandle | null>(null);
+  const worldPos = useRef(new Vector3());
 
   const hasBloomed = bloomedDestinations[destination.id];
+
+  useEffect(() => {
+    // Create spatial audio source
+    const source = audioEngine.createPositionalSource(destination.coordinates);
+    audioSourceRef.current = source;
+
+    return () => {
+      source.stop();
+    };
+  }, [destination.coordinates]);
 
   useEffect(() => {
     if (focus) {
@@ -39,16 +53,24 @@ export const Destination = ({ destination }: { destination: DestinationType }) =
   const isFocused = focus || activeDestination === destination.id;
 
   useFrame(({ clock }) => {
-    if (meshRef.current && isFocused) {
-      const stress = useResonanceStore.getState().currentStress;
-      const pulseFrequency = 1.5; // Slower, calming pulse
-      const pulseAmplitude = 0.05 + stress * 0.1; // More stress = more intense pulse
+    if (meshRef.current) {
+      // Update audio source position to match the mesh (including float animations)
+      if (audioSourceRef.current) {
+        meshRef.current.getWorldPosition(worldPos.current);
+        audioSourceRef.current.setPosition(worldPos.current.x, worldPos.current.y, worldPos.current.z);
+      }
 
-      const scale = 1 + Math.sin(clock.getElapsedTime() * pulseFrequency) * pulseAmplitude;
-      meshRef.current.scale.set(scale, scale, scale);
-    } else if (meshRef.current) {
-      // Reset scale when not focused
-      meshRef.current.scale.set(1, 1, 1);
+      if (isFocused) {
+        const stress = useResonanceStore.getState().currentStress;
+        const pulseFrequency = 1.5; // Slower, calming pulse
+        const pulseAmplitude = 0.05 + stress * 0.1; // More stress = more intense pulse
+
+        const scale = 1 + Math.sin(clock.getElapsedTime() * pulseFrequency) * pulseAmplitude;
+        meshRef.current.scale.set(scale, scale, scale);
+      } else {
+        // Reset scale when not focused
+        meshRef.current.scale.set(1, 1, 1);
+      }
     }
   });
 

@@ -1,5 +1,4 @@
 // Feature 10: Cognitive Predictive Modeling - Visual Layer
-import React from 'react';
 import { usePredictionStore } from '../stores/usePredictionStore';
 import './HorizonIndicator.css';
 
