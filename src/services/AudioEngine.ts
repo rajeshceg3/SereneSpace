@@ -18,8 +18,6 @@ class AudioEngine {
   private binauralGain: GainNode | null = null;
 
   // State Tracking
-  private currentProtocol: SentinelProtocol = 'OBSERVER';
-  private currentStress = 0;
   private isRunning = false;
 
   private constructor() {}

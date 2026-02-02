@@ -1,0 +1,115 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Let clicks pass through */
+  z-index: 9000; /* High z-index */
+  font-family: 'Courier New', Courier, monospace;
+  color: rgba(200, 255, 255, 0.8);
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Common Panel Style */
+.panel {
+  background: rgba(0, 20, 30, 0.4);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  padding: 15px;
+  backdrop-filter: blur(2px);
+  max-width: 300px;
+  position: relative;
+}
+
+.panel::before {
+  /* Corner decoration */
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid cyan;
+  border-left: 2px solid cyan;
+}
+
+.label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 5px;
+  display: block;
+}
+
+.value {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Specific Sectors */
+.topSector {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bottomSector {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.warning {
+  color: #ffaa00;
+  border-color: #ffaa00;
+  text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+}
+
+.warning::before {
+  border-color: #ffaa00;
+}
+
+.critical {
+  color: #ff3333;
+  border-color: #ff3333;
+  text-shadow: 0 0 8px rgba(255, 50, 50, 0.8);
+  animation: pulse 1s infinite alternate;
+}
+
+.critical::before {
+  border-color: #ff3333;
+}
+
+@keyframes pulse {
+  from { opacity: 0.8; box-shadow: 0 0 5px rgba(255,0,0,0.2); }
+  to { opacity: 1; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
+}
+
+/* Sparkline SVG */
+.sparkline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.interventionOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  border: 2px solid currentColor;
+  padding: 20px 40px;
+  background: rgba(0,0,0,0.7);
+}

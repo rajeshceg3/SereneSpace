@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 
-export enum BreathPhase {
-  INHALE = 'INHALE',
-  HOLD_IN = 'HOLD_IN',
-  EXHALE = 'EXHALE',
-  HOLD_OUT = 'HOLD_OUT',
-}
+export const BreathPhase = {
+  INHALE: 'INHALE',
+  HOLD_IN: 'HOLD_IN',
+  EXHALE: 'EXHALE',
+  HOLD_OUT: 'HOLD_OUT',
+} as const;
+
+export type BreathPhase = typeof BreathPhase[keyof typeof BreathPhase];
 
 export interface BreathDurations {
   inhale: number;

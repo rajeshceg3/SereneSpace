@@ -92,6 +92,19 @@
 - [x] Bio-feedback Integration (Stress modulates terrain jaggedness)
 - [x] Performance Optimization (Low-poly flat shading)
 
+#### Feature 13: Spatial Audio System
+- [x] 3D Audio Positioning (AudioEngine)
+- [x] Distance-based attenuation
+- [x] Stereo panning relative to camera
+- [x] Integration with Destinations
+
+#### Feature 14: Active Environmental & Guidance Interface System (A.E.G.I.S.)
+- [x] Data Aggregation (Sentinel, Prediction, Resonance, Telemetry)
+- [x] Tactical HUD UI (AegisDisplay)
+- [x] System Controller (Toggleable via 'H' key)
+- [x] Real-time Coherence Sparklines
+- [x] Intervention Logic (Critical Status Alert)
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
