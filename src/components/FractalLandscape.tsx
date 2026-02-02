@@ -9,7 +9,8 @@ import { NOISE_GLSL } from '../shaders/noise';
 
 export const FractalLandscape = () => {
   const meshRef = useRef<THREE.Mesh>(null!);
-  const shaderRef = useRef<THREE.Shader>(null!);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const shaderRef = useRef<any>(null!);
   const { camera } = useThree();
 
   const material = useMemo(() => {

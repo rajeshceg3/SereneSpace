@@ -1,4 +1,4 @@
-import { useRespirationStore, BREATH_PATTERNS, BreathPhase, BreathPattern } from '../stores/useRespirationStore';
+import { useRespirationStore, BreathPhase, BREATH_PATTERNS, type BreathPattern } from '../stores/useRespirationStore';
 
 class RespirationControllerService {
   private elapsedInPhase: number = 0;
