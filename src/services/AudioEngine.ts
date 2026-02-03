@@ -2,6 +2,12 @@ import { AUDIO_CONFIG, SENTINEL_PROTOCOLS } from '../constants';
 
 type SentinelProtocol = keyof typeof SENTINEL_PROTOCOLS;
 
+interface PositionalSource {
+  oscillator: OscillatorNode;
+  gain: GainNode;
+  panner: PannerNode;
+}
+
 class AudioEngine {
   private static instance: AudioEngine;
   private ctx: AudioContext | null = null;
@@ -16,6 +22,9 @@ class AudioEngine {
   private binauralLeft: OscillatorNode | null = null;
   private binauralRight: OscillatorNode | null = null;
   private binauralGain: GainNode | null = null;
+
+  // Spatial Audio
+  private positionalSources: Map<string, PositionalSource> = new Map();
 
   // State Tracking
   private isRunning = false;
@@ -164,6 +173,103 @@ class AudioEngine {
         this.binauralLeft.frequency.setTargetAtTime(base, now, rampTime);
         // Right = Base + Entrainment Frequency (e.g. 200 + 10 = 210Hz)
         this.binauralRight.frequency.setTargetAtTime(base + entrainmentFreq, now, rampTime);
+    }
+  }
+
+  // --- Spatial Audio Implementation ---
+
+  /**
+   * Updates the audio listener's position and orientation to match the camera.
+   * Call this inside useFrame loop.
+   */
+  public setListenerPosition(
+    px: number, py: number, pz: number,
+    fx: number, fy: number, fz: number,
+    ux: number, uy: number, uz: number
+  ) {
+    if (!this.ctx || !this.isRunning) return;
+
+    const listener = this.ctx.listener;
+    const now = this.ctx.currentTime;
+
+    if (listener.positionX) {
+        // Standard AudioParam automation
+        listener.positionX.setTargetAtTime(px, now, 0.1);
+        listener.positionY.setTargetAtTime(py, now, 0.1);
+        listener.positionZ.setTargetAtTime(pz, now, 0.1);
+        listener.forwardX.setTargetAtTime(fx, now, 0.1);
+        listener.forwardY.setTargetAtTime(fy, now, 0.1);
+        listener.forwardZ.setTargetAtTime(fz, now, 0.1);
+        listener.upX.setTargetAtTime(ux, now, 0.1);
+        listener.upY.setTargetAtTime(uy, now, 0.1);
+        listener.upZ.setTargetAtTime(uz, now, 0.1);
+    } else {
+        // Legacy fallback
+        listener.setPosition(px, py, pz);
+        listener.setOrientation(fx, fy, fz, ux, uy, uz);
+    }
+  }
+
+  /**
+   * Creates a 3D spatial sound source for a destination.
+   */
+  public createPositionalSource(id: string, x: number, y: number, z: number) {
+    if (!this.ctx || this.positionalSources.has(id) || !this.masterGain) return;
+
+    // 1. Create Nodes
+    const oscillator = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const panner = this.ctx.createPanner();
+
+    // 2. Configure Panner
+    panner.panningModel = 'HRTF';
+    panner.distanceModel = 'inverse';
+    panner.refDistance = 2;
+    panner.maxDistance = 100;
+    panner.rolloffFactor = 1;
+    panner.positionX.setValueAtTime(x, this.ctx.currentTime);
+    panner.positionY.setValueAtTime(y, this.ctx.currentTime);
+    panner.positionZ.setValueAtTime(z, this.ctx.currentTime);
+
+    // 3. Configure Sound
+    oscillator.type = 'sine';
+    // Use a harmonic frequency relative to the drone to avoid dissonance
+    // E.g., 440Hz (A4) - a nice clear tone
+    oscillator.frequency.setValueAtTime(440, this.ctx.currentTime);
+
+    // 4. Connect
+    oscillator.connect(gain);
+    gain.connect(panner);
+    panner.connect(this.masterGain);
+
+    // 5. Start
+    gain.gain.setValueAtTime(0, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + 1); // Fade in softly
+    oscillator.start();
+
+    // 6. Store
+    this.positionalSources.set(id, { oscillator, gain, panner });
+  }
+
+  /**
+   * Removes a spatial sound source.
+   */
+  public removePositionalSource(id: string) {
+    const source = this.positionalSources.get(id);
+    if (source && this.ctx) {
+        // Fade out
+        const now = this.ctx.currentTime;
+        source.gain.gain.cancelScheduledValues(now);
+        source.gain.gain.setValueAtTime(source.gain.gain.value, now);
+        source.gain.gain.linearRampToValueAtTime(0, now + 0.5);
+
+        setTimeout(() => {
+            source.oscillator.stop();
+            source.oscillator.disconnect();
+            source.gain.disconnect();
+            source.panner.disconnect();
+            this.positionalSources.delete(id);
+        }, 600);
     }
   }
 }

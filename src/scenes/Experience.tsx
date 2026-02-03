@@ -24,6 +24,7 @@ import { EntrainmentField } from '../components/EntrainmentField';
 import { RespirationSystem } from '../components/RespirationSystem';
 import { BreathVisualizer } from '../components/BreathVisualizer';
 import { FractalLandscape } from '../components/FractalLandscape';
+import { SpatialAudioListener } from '../components/SpatialAudioListener';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -58,6 +59,7 @@ const AmbientScene = () => {
       <EntrainmentField />
       <RespirationSystem />
       <BreathVisualizer />
+      <SpatialAudioListener />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />

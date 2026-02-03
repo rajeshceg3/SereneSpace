@@ -8,6 +8,7 @@ import type { Destination as DestinationType } from '../types';
 import { useBloomStore } from './../stores/useBloomStore';
 import { CAMERA_POSITION_Z_OFFSET } from '../constants';
 import { Mesh } from 'three';
+import { audioEngine } from '../services/AudioEngine';
 
 // Component for a single destination object
 // Displays the destination geometry, changing to a complex shape when bloomed.
@@ -23,6 +24,21 @@ export const Destination = ({ destination }: { destination: DestinationType }) =
   const meshRef = useRef<Mesh>(null!);
 
   const hasBloomed = bloomedDestinations[destination.id];
+
+  // Initialize Spatial Audio
+  useEffect(() => {
+    // Create positional audio source for this destination
+    audioEngine.createPositionalSource(
+      destination.id,
+      destination.coordinates[0],
+      destination.coordinates[1],
+      destination.coordinates[2]
+    );
+
+    return () => {
+      audioEngine.removePositionalSource(destination.id);
+    };
+  }, [destination.id, destination.coordinates]);
 
   useEffect(() => {
     if (focus) {
