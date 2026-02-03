@@ -1,20 +1,31 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Define Mock Nodes
+const mockAudioParam = {
+  value: 0,
+  setValueAtTime: vi.fn(),
+  setTargetAtTime: vi.fn(),
+  linearRampToValueAtTime: vi.fn(),
+  cancelScheduledValues: vi.fn(),
+};
+
 const mockGainNode = {
-  gain: { setValueAtTime: vi.fn(), setTargetAtTime: vi.fn(), cancelScheduledValues: vi.fn() },
+  gain: { ...mockAudioParam },
   connect: vi.fn(),
+  disconnect: vi.fn(),
 };
 
 const mockOscillatorNode = {
-  frequency: { setValueAtTime: vi.fn(), setTargetAtTime: vi.fn() },
+  frequency: { ...mockAudioParam },
   start: vi.fn(),
+  stop: vi.fn(),
   connect: vi.fn(),
+  disconnect: vi.fn(),
   type: 'sine',
 };
 
 const mockBiquadFilterNode = {
-  frequency: { setValueAtTime: vi.fn(), setTargetAtTime: vi.fn() },
+  frequency: { ...mockAudioParam },
   connect: vi.fn(),
   type: 'lowpass',
 };
@@ -24,12 +35,41 @@ const mockStereoPannerNode = {
   connect: vi.fn(),
 };
 
+const mockPannerNode = {
+  positionX: { ...mockAudioParam },
+  positionY: { ...mockAudioParam },
+  positionZ: { ...mockAudioParam },
+  connect: vi.fn(),
+  disconnect: vi.fn(),
+  panningModel: 'HRTF',
+  distanceModel: 'inverse',
+  refDistance: 1,
+  maxDistance: 10000,
+  rolloffFactor: 1,
+};
+
+const mockListener = {
+  positionX: { ...mockAudioParam },
+  positionY: { ...mockAudioParam },
+  positionZ: { ...mockAudioParam },
+  forwardX: { ...mockAudioParam },
+  forwardY: { ...mockAudioParam },
+  forwardZ: { ...mockAudioParam },
+  upX: { ...mockAudioParam },
+  upY: { ...mockAudioParam },
+  upZ: { ...mockAudioParam },
+  setPosition: vi.fn(),
+  setOrientation: vi.fn(),
+};
+
 // Define Mock Context Class
 class MockAudioContext {
-  createGain = vi.fn(() => mockGainNode);
-  createOscillator = vi.fn(() => mockOscillatorNode);
-  createBiquadFilter = vi.fn(() => mockBiquadFilterNode);
+  createGain = vi.fn(() => ({ ...mockGainNode, gain: { ...mockAudioParam } })); // Return fresh objects
+  createOscillator = vi.fn(() => ({ ...mockOscillatorNode, frequency: { ...mockAudioParam } }));
+  createBiquadFilter = vi.fn(() => ({ ...mockBiquadFilterNode, frequency: { ...mockAudioParam } }));
   createStereoPanner = vi.fn(() => mockStereoPannerNode);
+  createPanner = vi.fn(() => ({ ...mockPannerNode, positionX: { ...mockAudioParam }, positionY: { ...mockAudioParam }, positionZ: { ...mockAudioParam } }));
+  listener = mockListener;
   destination = {};
   currentTime = 100;
   state = 'suspended';
@@ -57,13 +97,14 @@ describe('AudioEngine', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (audioEngine as any).drones = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).positionalSources = new Map();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (audioEngine as any).isRunning = false;
   });
 
   it('should initialize successfully', () => {
     const success = audioEngine.init();
     expect(success).toBe(true);
-    // Since we use the class directly, we check if instance methods were called
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ctx = (audioEngine as any).ctx;
     expect(ctx).toBeDefined();
@@ -111,5 +152,41 @@ describe('AudioEngine', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const masterGain = (audioEngine as any).masterGain;
     expect(masterGain.gain.setTargetAtTime).toHaveBeenCalledWith(0.8, expect.any(Number), expect.any(Number));
+  });
+
+  it('should update listener position', async () => {
+      audioEngine.init();
+      await audioEngine.start(0.5);
+
+      audioEngine.setListenerPosition(1, 2, 3, 0, 0, -1, 0, 1, 0);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ctx = (audioEngine as any).ctx;
+      expect(ctx.listener.positionX.setTargetAtTime).toHaveBeenCalledWith(1, expect.any(Number), expect.any(Number));
+      expect(ctx.listener.forwardZ.setTargetAtTime).toHaveBeenCalledWith(-1, expect.any(Number), expect.any(Number));
+  });
+
+  it('should create and remove positional sources', async () => {
+      audioEngine.init();
+      await audioEngine.start(0.5);
+
+      audioEngine.createPositionalSource('dest-1', 10, 0, 5);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sources = (audioEngine as any).positionalSources;
+      expect(sources.size).toBe(1);
+      expect(sources.get('dest-1')).toBeDefined();
+
+      // Check Panner creation
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const ctx = (audioEngine as any).ctx;
+      expect(ctx.createPanner).toHaveBeenCalled();
+
+      // Remove
+      audioEngine.removePositionalSource('dest-1');
+
+      // Removal is async (fade out), so verify scheduled values
+      const source = sources.get('dest-1');
+      expect(source.gain.gain.linearRampToValueAtTime).toHaveBeenCalledWith(0, expect.any(Number));
   });
 });
