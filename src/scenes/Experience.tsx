@@ -25,6 +25,8 @@ import { RespirationSystem } from '../components/RespirationSystem';
 import { BreathVisualizer } from '../components/BreathVisualizer';
 import { FractalLandscape } from '../components/FractalLandscape';
 import { SpatialAudioListener } from '../components/SpatialAudioListener';
+import { EchoGenerator } from '../components/EchoGenerator';
+import { EchoField } from '../components/EchoField';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -60,6 +62,8 @@ const AmbientScene = () => {
       <RespirationSystem />
       <BreathVisualizer />
       <SpatialAudioListener />
+      <EchoGenerator />
+      <EchoField />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />
