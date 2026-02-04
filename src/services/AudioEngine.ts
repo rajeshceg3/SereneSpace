@@ -23,6 +23,16 @@ class AudioEngine {
   private binauralRight: OscillatorNode | null = null;
   private binauralGain: GainNode | null = null;
 
+  // Noise Layers
+  private pinkNoiseNode: AudioBufferSourceNode | null = null;
+  private pinkNoiseGain: GainNode | null = null;
+  private brownNoiseNode: AudioBufferSourceNode | null = null;
+  private brownNoiseGain: GainNode | null = null;
+
+  // Reverb
+  private convolver: ConvolverNode | null = null;
+  private reverbGain: GainNode | null = null;
+
   // Spatial Audio
   private positionalSources: Map<string, PositionalSource> = new Map();
 
@@ -60,6 +70,8 @@ class AudioEngine {
       // Initialize Layers
       this.setupDroneLayer();
       this.setupBinauralLayer();
+      this.setupReverb(); // Must be before Noise so Noise can route to it if desired
+      this.setupNoiseLayer();
 
       return true;
     } catch (e) {
@@ -109,6 +121,118 @@ class AudioEngine {
     this.binauralRight.start();
     this.binauralRight.connect(pannerR);
     pannerR.connect(this.binauralGain);
+  }
+
+  private setupReverb() {
+    if (!this.ctx || !this.masterGain) return;
+
+    // Create Convolver
+    this.convolver = this.ctx.createConvolver();
+    this.convolver.buffer = this.createImpulseResponse(
+        AUDIO_CONFIG.REVERB.DURATION,
+        AUDIO_CONFIG.REVERB.DECAY
+    );
+
+    // Reverb Gain (Wet Mix)
+    this.reverbGain = this.ctx.createGain();
+    this.reverbGain.gain.setValueAtTime(AUDIO_CONFIG.REVERB.MIX, this.ctx.currentTime);
+
+    // Route: Convolver -> ReverbGain -> Master
+    this.convolver.connect(this.reverbGain);
+    this.reverbGain.connect(this.masterGain);
+  }
+
+  private setupNoiseLayer() {
+    if (!this.ctx || !this.masterGain) return;
+
+    // Pink Noise
+    this.pinkNoiseGain = this.ctx.createGain();
+    this.pinkNoiseGain.gain.setValueAtTime(AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN, this.ctx.currentTime);
+
+    // Connect to Master (Dry) and Reverb (Wet) if available
+    this.pinkNoiseGain.connect(this.masterGain);
+    if (this.convolver) {
+        this.pinkNoiseGain.connect(this.convolver);
+    }
+
+    const pinkBuffer = this.createNoiseBuffer('pink');
+    if (pinkBuffer) {
+        this.pinkNoiseNode = this.ctx.createBufferSource();
+        this.pinkNoiseNode.buffer = pinkBuffer;
+        this.pinkNoiseNode.loop = true;
+        this.pinkNoiseNode.start();
+        this.pinkNoiseNode.connect(this.pinkNoiseGain);
+    }
+
+    // Brown Noise
+    this.brownNoiseGain = this.ctx.createGain();
+    this.brownNoiseGain.gain.setValueAtTime(AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN, this.ctx.currentTime);
+
+    this.brownNoiseGain.connect(this.masterGain);
+    if (this.convolver) {
+        this.brownNoiseGain.connect(this.convolver);
+    }
+
+    const brownBuffer = this.createNoiseBuffer('brown');
+    if (brownBuffer) {
+        this.brownNoiseNode = this.ctx.createBufferSource();
+        this.brownNoiseNode.buffer = brownBuffer;
+        this.brownNoiseNode.loop = true;
+        this.brownNoiseNode.start();
+        this.brownNoiseNode.connect(this.brownNoiseGain);
+    }
+  }
+
+  private createNoiseBuffer(type: 'pink' | 'brown'): AudioBuffer | null {
+    if (!this.ctx) return null;
+    const bufferSize = this.ctx.sampleRate * 2; // 2 seconds
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // State variables for noise generation
+    let lastOut = 0;
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+
+    for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+
+        if (type === 'pink') {
+            // Paul Kellett's refined method for Pink Noise
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            b3 = 0.86650 * b3 + white * 0.3104856;
+            b4 = 0.55000 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.0168981;
+
+            data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+            data[i] *= 0.11; // Compensate gain
+            b6 = white * 0.115926;
+        } else {
+            // Brown Noise (1/f^2) - Integrate White Noise
+            lastOut = (lastOut + (0.02 * white)) / 1.02;
+            data[i] = lastOut;
+            data[i] *= 3.5; // Compensate gain
+        }
+    }
+    return buffer;
+  }
+
+  private createImpulseResponse(duration: number, decay: number): AudioBuffer | null {
+    if (!this.ctx) return null;
+    const rate = this.ctx.sampleRate;
+    const length = rate * duration;
+    const impulse = this.ctx.createBuffer(2, length, rate);
+    const left = impulse.getChannelData(0);
+    const right = impulse.getChannelData(1);
+
+    for (let i = 0; i < length; i++) {
+        const n = length - i;
+        const decayVal = Math.pow(n / length, decay);
+        left[i] = (Math.random() * 2 - 1) * decayVal;
+        right[i] = (Math.random() * 2 - 1) * decayVal;
+    }
+    return impulse;
   }
 
   public async start(initialVolume: number) {
@@ -173,6 +297,20 @@ class AudioEngine {
         this.binauralLeft.frequency.setTargetAtTime(base, now, rampTime);
         // Right = Base + Entrainment Frequency (e.g. 200 + 10 = 210Hz)
         this.binauralRight.frequency.setTargetAtTime(base + entrainmentFreq, now, rampTime);
+    }
+
+    // 4. Update Noise Levels based on Stress (Atmosphere Density)
+    // Stress 0 -> Min Volume (Calm)
+    // Stress 1 -> Max Volume (Windy/Stormy)
+    if (this.pinkNoiseGain && this.brownNoiseGain) {
+        const pinkTarget = AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN +
+            (stress * (AUDIO_CONFIG.NOISE.PINK_VOLUME_MAX - AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN));
+
+        const brownTarget = AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN +
+            (stress * (AUDIO_CONFIG.NOISE.BROWN_VOLUME_MAX - AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN));
+
+        this.pinkNoiseGain.gain.setTargetAtTime(pinkTarget, now, rampTime);
+        this.brownNoiseGain.gain.setTargetAtTime(brownTarget, now, rampTime);
     }
   }
 

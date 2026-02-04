@@ -106,6 +106,12 @@
 - [x] Real-time Coherence Sparklines
 - [x] Intervention Logic (Critical Status Alert)
 
+#### Feature 15: Spatial Aether Enhancements (Noise & Reverb)
+- [x] Procedural Noise Generation (Pink/Brown)
+- [x] Algorithmic Reverb (Impulse Response)
+- [x] Atmosphere Integration (Stress modulates noise volume)
+- [x] AudioEngine Expansion (Buffers & Convolver)
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
@@ -157,16 +163,10 @@
 - [x] Lighthouse ≥ 85 (Fallback implemented; Optimization via Lazy Loading applied)
 
 ## Recent Implementation Updates
-- **Feature Remediation: Spatial Audio System**:
-  - **Audit & Fix**: Identified that Feature 13 (Spatial Audio) was marked as complete but lacked implementation of 3D positional audio.
-  - **AudioEngine Update**: Refactored `AudioEngine.ts` to support `PannerNode` creation (`createPositionalSource`) and listener synchronization (`setListenerPosition`).
-  - **Spatial Listener**: Created `SpatialAudioListener.tsx` to bridge Three.js camera transforms to the Web Audio API listener in real-time.
-  - **Integration**: Updated `Destination.tsx` to attach spatial sound sources to each destination object.
-  - **Verification**: Updated `AudioEngine.test.ts` and created `SpatialAudioListener.test.tsx` to verify spatial logic. All tests pass.
-- **Performance & Optimization**:
-  - **Lazy Loading**: Implemented `React.lazy` and `Suspense` for the `Experience` component in `App.tsx` to optimize First Contentful Paint (FCP) and reduce the initial JavaScript bundle size.
-- **Code Quality & Stability**:
-  - **HMR Stability**: Refactored `src/main.tsx` to implement HMR-safe root creation, fixing "Cannot update an unmounted root" console errors during development.
-  - **Build Integrity**: Fixed TypeScript build errors (TS1484) by enforcing `import type` for type-only imports across components, services, and tests.
+- **Feature Implementation: Spatial Aether Enhancements (Feature 15)**:
+  - **Procedural Audio**: Implemented `createNoiseBuffer` (Pink/Brown noise) and `createImpulseResponse` in `AudioEngine.ts` to generate audio assets on the fly, adhering to the "no external assets" rule.
+  - **Atmospheric Modulation**: Connected noise volume controls to the `update()` loop, allowing stress levels (Sentinel System) to dynamically modulate wind/rumble intensity.
+  - **Reverb**: Added a `ConvolverNode` with a procedurally generated impulse response to simulate spatial depth.
+  - **Testing**: Updated `AudioEngine.test.ts` to verify the creation and initialization of noise and reverb nodes (Buffers, Convolvers) and their response to state updates.
 - **Verification**:
-  - **Build & Test**: Verified `npm run build` succeeds and all unit/integration tests (`npm test`) pass (33 files, 116 tests).
+  - **Tests**: Verified all unit/integration tests (`npm test`) pass (35 files, 124 tests), including new coverage for the enhanced audio engine.

@@ -156,5 +156,20 @@ export const AUDIO_CONFIG = {
       root: 55, // A1 - Sub-bass
       harmonics: [2.0, 3.0], // Octave (A2), Fifth (E3) - Deep resonance
     },
-  }
+  },
+
+  // Noise Configuration
+  NOISE: {
+    PINK_VOLUME_MIN: 0.02, // Subtle breeze
+    PINK_VOLUME_MAX: 0.15, // Windy
+    BROWN_VOLUME_MIN: 0.05, // Distant rumble
+    BROWN_VOLUME_MAX: 0.2, // Deep roar
+  },
+
+  // Reverb Configuration
+  REVERB: {
+    DURATION: 3, // Seconds
+    DECAY: 2,
+    MIX: 0.3, // Wet/Dry mix
+  },
 };
