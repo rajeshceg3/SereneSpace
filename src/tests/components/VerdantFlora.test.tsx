@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import * as THREE from 'three';
 import { VerdantFlora } from '../../components/VerdantFlora';
@@ -19,13 +19,13 @@ describe('VerdantFlora Component', () => {
     vi.clearAllMocks();
 
     // Setup Mock State
-    (useResonanceStore.getState as any) = vi.fn(() => ({
+    (useResonanceStore.getState as unknown as Mock).mockReturnValue({
       currentStress: 0.5,
-    }));
+    });
 
-    (useRespirationStore.getState as any) = vi.fn(() => ({
+    (useRespirationStore.getState as unknown as Mock).mockReturnValue({
       isActive: true,
-    }));
+    });
   });
 
   it('renders an instanced mesh with correct count', async () => {
@@ -58,7 +58,7 @@ describe('VerdantFlora Component', () => {
     };
 
     // Trigger compilation
-    material.onBeforeCompile(mockShader as any, {} as any);
+    material.onBeforeCompile(mockShader as unknown as THREE.Shader, {} as THREE.WebGLRenderer);
 
     // Verify Uniforms were initialized
     expect(mockShader.uniforms.uTime).toBeDefined();
@@ -84,7 +84,7 @@ describe('VerdantFlora Component', () => {
         },
         vertexShader: '',
     };
-    material.onBeforeCompile(mockShader as any, {} as any);
+    material.onBeforeCompile(mockShader as unknown as THREE.Shader, {} as THREE.WebGLRenderer);
 
     // Advance frame significantly
     await renderer.advanceFrames(10, 1.0);

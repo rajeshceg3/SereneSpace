@@ -17,21 +17,11 @@ export const VerdantFlora = () => {
   const shaderRef = useRef<any>(null!);
   const { camera } = useThree();
 
-  // Track dummy objects for matrix updates
-  const dummy = useMemo(() => new THREE.Object3D(), []);
+  // Track dummy objects for matrix updates using a ref to avoid recreating it
+  const dummyRef = useRef(new THREE.Object3D());
 
-  // Initial positions to keep track of logical position before wrapping
-  // Actually, we can just read from matrix, but keeping a separate array is often cleaner
-  // However, since we only wrap, reading current position is fine if we are careful.
-  // Let's use a Float32Array to store X,Z for speed.
-  const positions = useMemo(() => {
-    const pos = new Float32Array(INSTANCE_COUNT * 2); // x, z
-    for (let i = 0; i < INSTANCE_COUNT; i++) {
-      pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
-      pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
-    }
-    return pos;
-  }, []);
+  // Use a ref for the Float32Array to keep it mutable but persistent
+  const positionsRef = useRef<Float32Array>(null!);
 
   const geometry = useMemo(() => {
     // 1. Trunk
@@ -144,54 +134,63 @@ export const VerdantFlora = () => {
   useFrame(({ clock }) => {
     if (!meshRef.current || !shaderRef.current) return;
 
+    // Initialize positions if not ready (inside the loop or via useEffect, doing here ensures order)
+    if (!positionsRef.current) {
+        // We can't use Math.random inside useFrame if we want strict purity in render,
+        // but useFrame is an effect loop (subscription), so side effects like random generation are technically safe here
+        // IF they only happen once.
+        const pos = new Float32Array(INSTANCE_COUNT * 2);
+        for (let i = 0; i < INSTANCE_COUNT; i++) {
+            pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
+            pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
+        }
+        positionsRef.current = pos;
+    }
+
     const stress = useResonanceStore.getState().currentStress;
     const isBreathActive = useRespirationStore.getState().isActive;
     const breathValue = RespirationController.getValue();
     const time = clock.getElapsedTime();
 
-    // Update Uniforms
     shaderRef.current.uniforms.uTime.value = time;
     shaderRef.current.uniforms.uStress.value = stress;
     shaderRef.current.uniforms.uBreath.value = isBreathActive ? breathValue : 0;
 
-    // Update Instance Positions (Wrapping)
     const camX = camera.position.x;
     const camZ = camera.position.z;
+    const dummy = dummyRef.current;
+    const pos = positionsRef.current;
 
     let needsUpdate = false;
 
     for (let i = 0; i < INSTANCE_COUNT; i++) {
-      let x = positions[i * 2];
-      let z = positions[i * 2 + 1];
+      let x = pos[i * 2];
+      let z = pos[i * 2 + 1];
 
-      // Wrap X
-      let dist_x = x - camX;
-      if (dist_x < -HALF_SIZE) {
+      const distX = x - camX;
+      if (distX < -HALF_SIZE) {
          x += TERRAIN_SIZE;
-         positions[i * 2] = x;
+         pos[i * 2] = x;
          needsUpdate = true;
-      } else if (dist_x > HALF_SIZE) {
+      } else if (distX > HALF_SIZE) {
          x -= TERRAIN_SIZE;
-         positions[i * 2] = x;
+         pos[i * 2] = x;
          needsUpdate = true;
       }
 
-      // Wrap Z
-      let dist_z = z - camZ;
-      if (dist_z < -HALF_SIZE) {
+      const distZ = z - camZ;
+      if (distZ < -HALF_SIZE) {
          z += TERRAIN_SIZE;
-         positions[i * 2 + 1] = z;
+         pos[i * 2 + 1] = z;
          needsUpdate = true;
-      } else if (dist_z > HALF_SIZE) {
+      } else if (distZ > HALF_SIZE) {
          z -= TERRAIN_SIZE;
-         positions[i * 2 + 1] = z;
+         pos[i * 2 + 1] = z;
          needsUpdate = true;
       }
 
       if (needsUpdate) {
-         dummy.position.set(x, 0, z); // Y is 0, handled by shader
-         // We can randomize rotation per instance too if we stored it
-         // For now just identity rotation or predictable based on index
+         dummy.position.set(x, 0, z);
          dummy.rotation.y = i;
          dummy.updateMatrix();
          meshRef.current.setMatrixAt(i, dummy.matrix);
@@ -205,22 +204,34 @@ export const VerdantFlora = () => {
 
   // Initial placement
   useEffect(() => {
+    // If positionsRef is not yet initialized (e.g. useFrame hasn't run), initialize it here
+    if (!positionsRef.current) {
+        const pos = new Float32Array(INSTANCE_COUNT * 2);
+        for (let i = 0; i < INSTANCE_COUNT; i++) {
+            pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
+            pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
+        }
+        positionsRef.current = pos;
+    }
+
+    const dummy = dummyRef.current;
+    const pos = positionsRef.current;
     for (let i = 0; i < INSTANCE_COUNT; i++) {
-       dummy.position.set(positions[i*2], 0, positions[i*2+1]);
-       dummy.rotation.y = i; // Random rotation
-       const scale = 0.5 + Math.random() * 1.0; // Random size
+       dummy.position.set(pos[i*2], 0, pos[i*2+1]);
+       dummy.rotation.y = i;
+       const scale = 0.5 + Math.random() * 1.0;
        dummy.scale.set(scale, scale, scale);
        dummy.updateMatrix();
        meshRef.current.setMatrixAt(i, dummy.matrix);
     }
     meshRef.current.instanceMatrix.needsUpdate = true;
-  }, [dummy, positions]);
+  }, []);
 
   return (
     <instancedMesh
       ref={meshRef}
       args={[geometry, material, INSTANCE_COUNT]}
-      position={[0, -3, 0]} // Match Terrain Base Height
+      position={[0, -3, 0]}
       frustumCulled={false}
     />
   );
