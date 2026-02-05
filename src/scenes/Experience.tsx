@@ -24,6 +24,7 @@ import { EntrainmentField } from '../components/EntrainmentField';
 import { RespirationSystem } from '../components/RespirationSystem';
 import { BreathVisualizer } from '../components/BreathVisualizer';
 import { FractalLandscape } from '../components/FractalLandscape';
+import { VerdantFlora } from '../components/VerdantFlora';
 import { SpatialAudioListener } from '../components/SpatialAudioListener';
 import { EchoGenerator } from '../components/EchoGenerator';
 import { EchoField } from '../components/EchoField';
@@ -70,6 +71,7 @@ const AmbientScene = () => {
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />
       <FractalLandscape />
+      <VerdantFlora />
 
       <group position={[0, -2, 0]}>
         <MnemonicProjector />
