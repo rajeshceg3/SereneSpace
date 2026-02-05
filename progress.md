@@ -112,6 +112,10 @@
 - [x] Atmosphere Integration (Stress modulates noise volume)
 - [x] AudioEngine Expansion (Buffers & Convolver)
 
+#### Feature 16: Advanced Neural Entrainment (Phase 3)
+- [x] Isochronic Tones (Amplitude Modulation Layer)
+- [x] Cross-Modal Synesthesia (Audio-Visual Pulse Synchronization)
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
@@ -163,10 +167,9 @@
 - [x] Lighthouse ≥ 85 (Fallback implemented; Optimization via Lazy Loading applied)
 
 ## Recent Implementation Updates
-- **Feature Implementation: Spatial Aether Enhancements (Feature 15)**:
-  - **Procedural Audio**: Implemented `createNoiseBuffer` (Pink/Brown noise) and `createImpulseResponse` in `AudioEngine.ts` to generate audio assets on the fly, adhering to the "no external assets" rule.
-  - **Atmospheric Modulation**: Connected noise volume controls to the `update()` loop, allowing stress levels (Sentinel System) to dynamically modulate wind/rumble intensity.
-  - **Reverb**: Added a `ConvolverNode` with a procedurally generated impulse response to simulate spatial depth.
-  - **Testing**: Updated `AudioEngine.test.ts` to verify the creation and initialization of noise and reverb nodes (Buffers, Convolvers) and their response to state updates.
+- **Feature Implementation: Advanced Neural Entrainment (Feature 16)**:
+  - **Isochronic Tones**: Implemented a dedicated isochronic audio layer in `AudioEngine.ts` using an oscillator modulated by an LFO to create rhythmic pulses without headphones.
+  - **Cross-Modal Synesthesia**: Synchronized the visual `EntrainmentSystem` pulse with the audio LFO by exposing `AudioContext.currentTime` from the `AudioEngine`.
+  - **Testing**: Updated `AudioEngine.test.ts` to verify the creation of isochronic layers (Carrier + Modulator) and their frequency updates.
 - **Verification**:
-  - **Tests**: Verified all unit/integration tests (`npm test`) pass (35 files, 124 tests), including new coverage for the enhanced audio engine.
+  - **Tests**: Verified all unit/integration tests (`npm test`) pass (36 files, 127 tests), ensuring the new audio layer and synchronization logic are correct.

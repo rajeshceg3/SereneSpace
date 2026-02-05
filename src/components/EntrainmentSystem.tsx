@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useEntrainmentStore } from '../stores/useEntrainmentStore';
 import { ENTRAINMENT_CONFIG } from '../constants';
+import { audioEngine } from '../services/AudioEngine';
 
 export const EntrainmentSystem = () => {
   useFrame((state) => {
@@ -29,7 +30,8 @@ export const EntrainmentSystem = () => {
     // Calculate pulse (Sine wave 0 to 1)
     // sin(time * freq * 2PI) -> -1 to 1
     // mapped to 0 to 1
-    const time = state.clock.getElapsedTime();
+    // Cross-Modal Synesthesia: Use audio time if available for perfect sync
+    const time = audioEngine.getCurrentTime() || state.clock.getElapsedTime();
     const sineValue = Math.sin(time * newFreq * Math.PI * 2);
     const pulseValue = (sineValue + 1) / 2;
 
