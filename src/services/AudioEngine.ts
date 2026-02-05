@@ -23,6 +23,12 @@ class AudioEngine {
   private binauralRight: OscillatorNode | null = null;
   private binauralGain: GainNode | null = null;
 
+  // Isochronic Layers
+  private isochronicOscillator: OscillatorNode | null = null;
+  private isochronicGain: GainNode | null = null;
+  private isochronicModulator: OscillatorNode | null = null;
+  private isochronicModGain: GainNode | null = null;
+
   // Noise Layers
   private pinkNoiseNode: AudioBufferSourceNode | null = null;
   private pinkNoiseGain: GainNode | null = null;
@@ -70,6 +76,7 @@ class AudioEngine {
       // Initialize Layers
       this.setupDroneLayer();
       this.setupBinauralLayer();
+      this.setupIsochronicLayer();
       this.setupReverb(); // Must be before Noise so Noise can route to it if desired
       this.setupNoiseLayer();
 
@@ -121,6 +128,42 @@ class AudioEngine {
     this.binauralRight.start();
     this.binauralRight.connect(pannerR);
     pannerR.connect(this.binauralGain);
+  }
+
+  private setupIsochronicLayer() {
+    if (!this.ctx || !this.masterGain) return;
+
+    // Carrier Chain: IsoOsc -> IsoGain -> MasterGain
+    this.isochronicGain = this.ctx.createGain();
+    // Start with 0 volume, modulated up
+    this.isochronicGain.gain.setValueAtTime(0, this.ctx.currentTime);
+    this.isochronicGain.connect(this.masterGain);
+
+    this.isochronicOscillator = this.ctx.createOscillator();
+    this.isochronicOscillator.type = 'sine';
+    this.isochronicOscillator.frequency.setValueAtTime(AUDIO_CONFIG.BINAURAL_BASE_FREQ, this.ctx.currentTime);
+    this.isochronicOscillator.start();
+    this.isochronicOscillator.connect(this.isochronicGain);
+
+    // Modulation Chain: Modulator -> ModGain -> IsoGain.gain
+    // Math: gain = (sin(t) * 0.5) + 0.5 -> Ranges 0 to 1
+    this.isochronicModGain = this.ctx.createGain();
+    this.isochronicModGain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+
+    // Connect ModGain to IsoGain.gain (AudioParam)
+    this.isochronicModGain.connect(this.isochronicGain.gain);
+
+    // Bias (Offset): ConstantSource -> IsoGain.gain
+    const bias = this.ctx.createConstantSource();
+    bias.offset.setValueAtTime(0.5, this.ctx.currentTime);
+    bias.start();
+    bias.connect(this.isochronicGain.gain);
+
+    this.isochronicModulator = this.ctx.createOscillator();
+    this.isochronicModulator.type = 'sine';
+    this.isochronicModulator.frequency.setValueAtTime(10, this.ctx.currentTime); // Default Alpha
+    this.isochronicModulator.start();
+    this.isochronicModulator.connect(this.isochronicModGain);
   }
 
   private setupReverb() {
@@ -299,7 +342,12 @@ class AudioEngine {
         this.binauralRight.frequency.setTargetAtTime(base + entrainmentFreq, now, rampTime);
     }
 
-    // 4. Update Noise Levels based on Stress (Atmosphere Density)
+    // 4. Update Isochronic Tones
+    if (this.isochronicModulator) {
+        this.isochronicModulator.frequency.setTargetAtTime(entrainmentFreq, now, rampTime);
+    }
+
+    // 5. Update Noise Levels based on Stress (Atmosphere Density)
     // Stress 0 -> Min Volume (Calm)
     // Stress 1 -> Max Volume (Windy/Stormy)
     if (this.pinkNoiseGain && this.brownNoiseGain) {
@@ -315,6 +363,10 @@ class AudioEngine {
   }
 
   // --- Spatial Audio Implementation ---
+
+  public getCurrentTime(): number {
+    return this.ctx?.currentTime || 0;
+  }
 
   /**
    * Updates the audio listener's position and orientation to match the camera.

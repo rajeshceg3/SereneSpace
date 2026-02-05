@@ -48,6 +48,14 @@ const mockBuffer = {
   getChannelData: vi.fn(() => new Float32Array(100)),
 };
 
+const mockConstantSourceNode = {
+  offset: { ...mockAudioParam },
+  start: vi.fn(),
+  stop: vi.fn(),
+  connect: vi.fn(),
+  disconnect: vi.fn(),
+};
+
 const mockStereoPannerNode = {
   pan: { value: 0 },
   connect: vi.fn(),
@@ -90,6 +98,7 @@ class MockAudioContext {
   createBufferSource = vi.fn(() => ({ ...mockBufferSourceNode }));
   createConvolver = vi.fn(() => ({ ...mockConvolverNode }));
   createBuffer = vi.fn(() => mockBuffer);
+  createConstantSource = vi.fn(() => ({ ...mockConstantSourceNode }));
   sampleRate = 44100;
   listener = mockListener;
   destination = {};
@@ -127,6 +136,10 @@ describe('AudioEngine', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (audioEngine as any).convolver = null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).isochronicOscillator = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).isochronicModulator = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (audioEngine as any).isRunning = false;
   });
 
@@ -144,8 +157,9 @@ describe('AudioEngine', () => {
     audioEngine.init();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ctx = (audioEngine as any).ctx;
-    // 3 drones + 2 binaural = 5 oscillators
-    expect(ctx.createOscillator).toHaveBeenCalledTimes(5);
+    // 3 drones + 2 binaural + 1 isoCarrier + 1 isoModulator = 7 oscillators
+    expect(ctx.createOscillator).toHaveBeenCalledTimes(7);
+    expect(ctx.createConstantSource).toHaveBeenCalled();
   });
 
   it('should initialize noise and reverb layers', () => {
@@ -184,6 +198,11 @@ describe('AudioEngine', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const drones = (audioEngine as any).drones;
     expect(drones[0].frequency.setTargetAtTime).toHaveBeenCalled();
+
+    // Verify Isochronic update
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const isoMod = (audioEngine as any).isochronicModulator;
+    expect(isoMod.frequency.setTargetAtTime).toHaveBeenCalledWith(10, expect.any(Number), expect.any(Number));
 
     // Verify Noise update
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
