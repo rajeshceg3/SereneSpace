@@ -4,6 +4,7 @@ export interface Destination {
   coordinates: [number, number, number];
   ambientColor: string;
   description: string;
+  shape?: 'icosahedron' | 'octahedron' | 'sphere' | 'torus';
 }
 
 export interface TelemetryPoint {

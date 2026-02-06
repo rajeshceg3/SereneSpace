@@ -131,4 +131,33 @@ describe('useDestinationStore', () => {
     // Based on our mock, this should be false (default mock value)
     expect(state.reducedMotion).toBe(false);
   });
+
+  it('should add new destinations', () => {
+    act(() => {
+      useDestinationStore.setState({ destinations: [mockDestinations[0]] });
+    });
+
+    const newDest = mockDestinations[1];
+    act(() => {
+      useDestinationStore.getState().addDestinations([newDest]);
+    });
+
+    const state = useDestinationStore.getState();
+    expect(state.destinations).toHaveLength(2);
+    expect(state.destinations[1]).toEqual(newDest);
+  });
+
+  it('should remove destinations by id', () => {
+    act(() => {
+      useDestinationStore.setState({ destinations: mockDestinations });
+    });
+
+    act(() => {
+      useDestinationStore.getState().removeDestinations(['1']);
+    });
+
+    const state = useDestinationStore.getState();
+    expect(state.destinations).toHaveLength(1);
+    expect(state.destinations[0].id).toBe('2');
+  });
 });
