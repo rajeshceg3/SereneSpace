@@ -3,11 +3,12 @@ import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { InfiniteHorizon } from '../../components/InfiniteHorizon';
 import { useDestinationStore } from '../../stores/useDestinationStore';
 import { useThree } from '@react-three/fiber';
+import type { Destination } from '../../types';
 
 // Mock Cartographer
 vi.mock('../../services/Cartographer', () => ({
   Cartographer: {
-    generateNextDestination: (prev: any) => ({
+    generateNextDestination: (prev: Destination) => ({
       id: 'gen-' + Math.random(),
       coordinates: [0, 0, prev.coordinates[2] - 20],
       name: 'Generated',

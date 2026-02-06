@@ -22,7 +22,7 @@ export class Cartographer {
     return `${adj} ${noun}`;
   }
 
-  private static generateColor(prevColor: string): string {
+  private static generateColor(): string {
     // Convert hex to HSL, shift hue, convert back.
     // For simplicity, we'll pick a new random pastel color to ensure variety but calmness.
     // H: 0-360, S: 40-70%, L: 60-80%
@@ -60,7 +60,7 @@ export class Cartographer {
       id,
       name,
       coordinates: [x, y, nextZ],
-      ambientColor: this.generateColor(lastDestination.ambientColor),
+      ambientColor: this.generateColor(),
       description: `A ${name.toLowerCase()} awaiting your arrival.`,
       shape: this.generateShape()
     };
