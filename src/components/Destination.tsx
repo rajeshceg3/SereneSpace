@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Torus, Icosahedron, TorusKnot } from '@react-three/drei';
+import { Torus, Icosahedron, TorusKnot, Octahedron, Sphere } from '@react-three/drei';
 import { A11y, useA11y } from '@react-three/a11y';
 import { useFrame } from '@react-three/fiber';
 import { useDestinationStore } from './../stores/useDestinationStore';
@@ -85,9 +85,28 @@ export const Destination = ({ destination }: { destination: DestinationType }) =
             <meshStandardMaterial color={destination.ambientColor} roughness={0.1} metalness={0.8} />
           </TorusKnot>
         ) : (
-          <Icosahedron args={[0.5, 0]}>
-            <meshStandardMaterial color={destination.ambientColor} roughness={0.8} metalness={0.1} />
-          </Icosahedron>
+          <>
+            {(!destination.shape || destination.shape === 'icosahedron') && (
+              <Icosahedron args={[0.5, 0]}>
+                <meshStandardMaterial color={destination.ambientColor} roughness={0.8} metalness={0.1} />
+              </Icosahedron>
+            )}
+            {destination.shape === 'octahedron' && (
+              <Octahedron args={[0.5, 0]}>
+                <meshStandardMaterial color={destination.ambientColor} roughness={0.8} metalness={0.1} />
+              </Octahedron>
+            )}
+            {destination.shape === 'sphere' && (
+              <Sphere args={[0.5, 32, 32]}>
+                <meshStandardMaterial color={destination.ambientColor} roughness={0.8} metalness={0.1} />
+              </Sphere>
+            )}
+            {destination.shape === 'torus' && (
+              <Torus args={[0.4, 0.15, 16, 32]}>
+                <meshStandardMaterial color={destination.ambientColor} roughness={0.8} metalness={0.1} />
+              </Torus>
+            )}
+          </>
         )}
         {isFocused && (
           <Torus args={[0.6, 0.02, 16, 32]} position={[0, 0, 0]}>

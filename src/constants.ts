@@ -173,3 +173,11 @@ export const AUDIO_CONFIG = {
     MIX: 0.3, // Wet/Dry mix
   },
 };
+
+// --- INFINITE HORIZON (FEATURE 18) ---
+export const INFINITE_HORIZON_CONFIG = {
+  GENERATION_THRESHOLD: 40, // Distance (Z) from last destination to trigger generation
+  CULL_THRESHOLD: 50, // Distance (Z) behind camera to remove destinations
+  DESTINATION_GAP: 20, // Average Z distance between destinations
+  BATCH_SIZE: 3, // Number of destinations to generate at once
+};

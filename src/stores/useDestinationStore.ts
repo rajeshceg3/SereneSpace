@@ -27,6 +27,8 @@ interface DestinationState {
   setHoveredDestination: (id: string | null) => void;
   setCameraTargetZ: (z: number) => void;
   setUiVisible: (visible: boolean) => void;
+  addDestinations: (newDestinations: Destination[]) => void;
+  removeDestinations: (ids: string[]) => void;
 }
 
 export const useDestinationStore = create<DestinationState>((set, get) => ({
@@ -120,5 +122,17 @@ export const useDestinationStore = create<DestinationState>((set, get) => ({
   // Sets the camera's target Z position
   setCameraTargetZ: (z) => {
     set({ cameraTargetZ: z });
+  },
+
+  addDestinations: (newDestinations) => {
+    set((state) => ({
+      destinations: [...state.destinations, ...newDestinations],
+    }));
+  },
+
+  removeDestinations: (ids) => {
+    set((state) => ({
+      destinations: state.destinations.filter((d) => !ids.includes(d.id)),
+    }));
   },
 }));

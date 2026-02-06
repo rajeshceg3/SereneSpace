@@ -29,6 +29,7 @@ import { SpatialAudioListener } from '../components/SpatialAudioListener';
 import { EchoGenerator } from '../components/EchoGenerator';
 import { EchoField } from '../components/EchoField';
 import { LuminaField } from '../components/LuminaField';
+import { InfiniteHorizon } from '../components/InfiniteHorizon';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -67,6 +68,7 @@ const AmbientScene = () => {
       <EchoGenerator />
       <EchoField />
       <LuminaField />
+      <InfiniteHorizon />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />
