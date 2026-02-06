@@ -2,7 +2,7 @@
   position: fixed;
   bottom: 20px;
   left: 20px;
-  z-index: 50;
+  z-index: 2000;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -72,6 +72,38 @@
   margin-bottom: 5px;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
   letter-spacing: 1px;
+}
+
+.respiration-modes {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.mode-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 3px 6px;
+  flex: 1;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+.mode-btn.selected {
+  background: rgba(0, 204, 255, 0.1);
+  border-color: #00ccff;
+  color: #00ccff;
+  box-shadow: 0 0 5px rgba(0, 204, 255, 0.2);
 }
 
 .respiration-patterns {

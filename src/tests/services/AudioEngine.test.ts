@@ -153,6 +153,14 @@ describe('AudioEngine', () => {
     expect(ctx.createBiquadFilter).toHaveBeenCalled();
   });
 
+  it('should expose the underlying AudioContext', () => {
+    audioEngine.init();
+    const ctx = audioEngine.getContext();
+    expect(ctx).toBeDefined();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(ctx).toBe((audioEngine as any).ctx);
+  });
+
   it('should create oscillators for drone layer', () => {
     audioEngine.init();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
