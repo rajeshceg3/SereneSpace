@@ -368,6 +368,10 @@ class AudioEngine {
     return this.ctx?.currentTime || 0;
   }
 
+  public getContext(): AudioContext | null {
+    return this.ctx;
+  }
+
   /**
    * Updates the audio listener's position and orientation to match the camera.
    * Call this inside useFrame loop.

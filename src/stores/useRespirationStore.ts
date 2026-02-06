@@ -46,21 +46,25 @@ export const BREATH_PATTERNS: Record<string, BreathPattern> = {
 
 interface RespirationState {
   isActive: boolean;
+  inputMode: 'PROCEDURAL' | 'MICROPHONE';
   selectedPatternId: string;
   currentPhase: BreathPhase;
 
   // Actions
   toggleActive: () => void;
+  setInputMode: (mode: 'PROCEDURAL' | 'MICROPHONE') => void;
   setPattern: (patternId: string) => void;
   setPhase: (phase: BreathPhase) => void; // Called by the Controller/System
 }
 
 export const useRespirationStore = create<RespirationState>((set) => ({
   isActive: false,
+  inputMode: 'PROCEDURAL',
   selectedPatternId: 'COHERENCE',
   currentPhase: BreathPhase.INHALE,
 
   toggleActive: () => set((state) => ({ isActive: !state.isActive })),
+  setInputMode: (mode) => set({ inputMode: mode }),
   setPattern: (patternId) => {
     if (BREATH_PATTERNS[patternId]) {
       set({ selectedPatternId: patternId });

@@ -116,6 +116,12 @@
 - [x] Isochronic Tones (Amplitude Modulation Layer)
 - [x] Cross-Modal Synesthesia (Audio-Visual Pulse Synchronization)
 
+#### Feature 17: Verdant Echoes (Flora System)
+- [x] Instanced Mesh Flora (VerdantFlora Component)
+- [x] Shader Injection for Wind & Stress Response
+- [x] Terrain Wrapping for Infinite Illusion
+- [x] Integration with Fractal Landscape
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders

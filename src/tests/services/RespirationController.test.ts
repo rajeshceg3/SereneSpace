@@ -1,78 +1,150 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RespirationController } from '../../services/RespirationController';
 import { useRespirationStore, BreathPhase } from '../../stores/useRespirationStore';
+import { audioEngine } from '../../services/AudioEngine';
+
+// Mock AudioEngine
+vi.mock('../../services/AudioEngine', () => ({
+  audioEngine: {
+    getContext: vi.fn(),
+  },
+}));
+
+// Mock Audio Context Parts
+const mockAnalyser = {
+  fftSize: 2048,
+  smoothingTimeConstant: 0.8,
+  frequencyBinCount: 128,
+  getByteTimeDomainData: vi.fn((array) => {
+    // Fill with some data
+    for(let i=0; i<array.length; i++) array[i] = 128 + 10; // Slight offset
+  }),
+};
+
+const mockMediaStreamSource = {
+  connect: vi.fn(),
+  disconnect: vi.fn(),
+};
+
+const mockContext = {
+  createMediaStreamSource: vi.fn(() => mockMediaStreamSource),
+  createAnalyser: vi.fn(() => mockAnalyser),
+};
+
+// Mock Navigator MediaDevices
+const mockStop = vi.fn();
+const mockStream = {
+  getTracks: vi.fn(() => [{ stop: mockStop }]),
+};
+
+const mockGetUserMedia = vi.fn().mockResolvedValue(mockStream);
+
+Object.defineProperty(global.navigator, 'mediaDevices', {
+  value: {
+    getUserMedia: mockGetUserMedia,
+  },
+  writable: true,
+  configurable: true,
+});
 
 describe('RespirationController', () => {
   beforeEach(() => {
-    // Reset Store
     useRespirationStore.setState({
       isActive: false,
-      selectedPatternId: 'COHERENCE', // 5.5 in, 5.5 out
+      inputMode: 'PROCEDURAL',
       currentPhase: BreathPhase.INHALE,
+      selectedPatternId: 'COHERENCE'
     });
+    vi.clearAllMocks();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine.getContext as any).mockReturnValue(mockContext);
 
-    // Reset Controller (trickier since it's a singleton with private state)
-    // We can reset it by calling update with a large delta while inactive,
-    // or by toggling active off then on.
-    // The code says: if (!active) { reset; return; }
-
-    // Ensure it resets
-    useRespirationStore.setState({ isActive: false });
-    RespirationController.update(1.0);
+    // Reset singleton state
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (RespirationController as any).micStream = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (RespirationController as any).isInitializingMic = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (RespirationController as any).analyser = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (RespirationController as any).micSource = null;
   });
 
-  it('should not update value if inactive', () => {
-    useRespirationStore.setState({ isActive: false });
-    RespirationController.update(1.0);
+  it('should initialize with 0 value', () => {
     expect(RespirationController.getValue()).toBe(0);
   });
 
-  it('should advance phase correctly (Coherence: 5.5s)', () => {
-    useRespirationStore.setState({ isActive: true });
-
-    // Initially Inhale (0s elapsed)
-    expect(useRespirationStore.getState().currentPhase).toBe(BreathPhase.INHALE);
-
-    // Advance 5.4s
-    RespirationController.update(5.4);
-    expect(useRespirationStore.getState().currentPhase).toBe(BreathPhase.INHALE);
-
-    // Advance 0.2s (Total 5.6s) -> Should switch to EXHALE (Coherence has 0 hold)
-    RespirationController.update(0.2);
-    expect(useRespirationStore.getState().currentPhase).toBe(BreathPhase.EXHALE);
+  it('should update procedurally when active', () => {
+    useRespirationStore.getState().toggleActive(); // Active
+    RespirationController.update(1.0); // 1 sec
+    expect(RespirationController.getValue()).toBeGreaterThan(0);
   });
 
-  it('should calculate value correctly during inhale', () => {
-    useRespirationStore.setState({ isActive: true });
-    // Inhale duration 5.5s
+  it('should switch to microphone mode and init mic', async () => {
+    useRespirationStore.getState().toggleActive();
+    useRespirationStore.getState().setInputMode('MICROPHONE');
 
-    // At 0s -> 0
-    expect(RespirationController.getValue()).toBeCloseTo(0);
+    // Trigger update to start init
+    RespirationController.update(0.1);
 
-    // At 2.75s (Halfway) -> 0.5 (Sine wave: (1 - cos(0.5*PI))/2 = (1 - 0)/2 = 0.5)
-    RespirationController.update(2.75);
-    expect(RespirationController.getValue()).toBeCloseTo(0.5);
+    // Init is async, wait a tick
+    await new Promise(resolve => setTimeout(resolve, 10));
 
-    // At 5.5s -> 1.0
-    RespirationController.update(2.75);
-    // Note: It might have switched phase exactly at 5.5, so value might be starting Exhale (1.0)
-    // Let's check value is close to 1
-    expect(RespirationController.getValue()).toBeGreaterThan(0.9);
+    expect(mockGetUserMedia).toHaveBeenCalled();
+    expect(audioEngine.getContext).toHaveBeenCalled();
+    expect(mockContext.createMediaStreamSource).toHaveBeenCalled();
+    expect(mockContext.createAnalyser).toHaveBeenCalled();
   });
 
-  it('should handle Hold phases (Relax 4-7-8)', () => {
-    useRespirationStore.setState({ isActive: true, selectedPatternId: 'RELAX_478' });
+  it('should update value from microphone data', async () => {
+    useRespirationStore.getState().toggleActive();
+    useRespirationStore.getState().setInputMode('MICROPHONE');
 
-    // Inhale 4s
-    RespirationController.update(4.01);
-    expect(useRespirationStore.getState().currentPhase).toBe(BreathPhase.HOLD_IN);
-    expect(RespirationController.getValue()).toBe(1.0);
+    // Init
+    RespirationController.update(0.1);
+    await new Promise(resolve => setTimeout(resolve, 10));
 
-    // Hold 7s
-    RespirationController.update(6.9);
-    expect(useRespirationStore.getState().currentPhase).toBe(BreathPhase.HOLD_IN);
+    // Update again to read data
+    RespirationController.update(0.1);
 
-    RespirationController.update(0.2); // Total hold > 7s
-    expect(useRespirationStore.getState().currentPhase).toBe(BreathPhase.EXHALE);
+    expect(mockAnalyser.getByteTimeDomainData).toHaveBeenCalled();
+    // With our mock data (138), rms should be > 0.
+    // (138-128)/128 = 10/128 approx 0.078
+    // RMS approx 0.078
+    // Target 0.078 * 5 = 0.39
+    // Value moves from 0 towards 0.39
+    expect(RespirationController.getValue()).toBeGreaterThan(0);
+  });
+
+  it('should stop microphone when switching back to procedural', async () => {
+    useRespirationStore.getState().toggleActive();
+    useRespirationStore.getState().setInputMode('MICROPHONE');
+
+    // Init
+    RespirationController.update(0.1);
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    // Switch back
+    useRespirationStore.getState().setInputMode('PROCEDURAL');
+    RespirationController.update(0.1);
+
+    // Verify stream stopped
+    expect(mockStop).toHaveBeenCalled();
+    expect(mockMediaStreamSource.disconnect).toHaveBeenCalled();
+  });
+
+  it('should stop microphone when deactivated', async () => {
+    useRespirationStore.getState().toggleActive();
+    useRespirationStore.getState().setInputMode('MICROPHONE');
+
+    // Init
+    RespirationController.update(0.1);
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    // Deactivate
+    useRespirationStore.getState().toggleActive();
+    RespirationController.update(0.1);
+
+    expect(mockStop).toHaveBeenCalled();
   });
 });

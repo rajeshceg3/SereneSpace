@@ -1,9 +1,17 @@
 import { useRespirationStore, BreathPhase, BREATH_PATTERNS, type BreathPattern } from '../stores/useRespirationStore';
+import { audioEngine } from './AudioEngine';
 
 class RespirationControllerService {
   private elapsedInPhase: number = 0;
   private currentValue: number = 0; // 0.0 to 1.0 (Lung volume)
   private _lastPhase: BreathPhase = BreathPhase.INHALE;
+
+  // Microphone State
+  private micStream: MediaStream | null = null;
+  private analyser: AnalyserNode | null = null;
+  private micSource: MediaStreamAudioSourceNode | null = null;
+  private micBuffer: Uint8Array | null = null;
+  private isInitializingMic: boolean = false;
 
   public update(deltaTime: number): void {
     const state = useRespirationStore.getState();
@@ -16,7 +24,21 @@ class RespirationControllerService {
          this._lastPhase = BreathPhase.INHALE;
          state.setPhase(BreathPhase.INHALE);
       }
+      this.stopMicrophone();
       return;
+    }
+
+    // Handle Input Modes
+    if (state.inputMode === 'MICROPHONE') {
+        if (!this.micStream && !this.isInitializingMic) {
+            this.initMicrophone();
+        }
+        this.updateFromMicrophone();
+        return; // Skip procedural update
+    } else {
+        if (this.micStream) {
+            this.stopMicrophone();
+        }
     }
 
     const pattern = BREATH_PATTERNS[state.selectedPatternId];
@@ -47,6 +69,65 @@ class RespirationControllerService {
 
     // Calculate Value (0.0 to 1.0)
     this.calculateValue(currentPhase, duration);
+  }
+
+  private async initMicrophone() {
+    this.isInitializingMic = true;
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        this.micStream = stream;
+
+        const ctx = audioEngine.getContext();
+        if (ctx) {
+            this.micSource = ctx.createMediaStreamSource(stream);
+            this.analyser = ctx.createAnalyser();
+            this.analyser.fftSize = 256;
+            this.analyser.smoothingTimeConstant = 0.5;
+            this.micSource.connect(this.analyser);
+            this.micBuffer = new Uint8Array(this.analyser.frequencyBinCount);
+        }
+    } catch (err) {
+        console.error('Microphone access denied:', err);
+        // Fallback to procedural
+        useRespirationStore.getState().setInputMode('PROCEDURAL');
+    } finally {
+        this.isInitializingMic = false;
+    }
+  }
+
+  private stopMicrophone() {
+    if (this.micStream) {
+        this.micStream.getTracks().forEach(track => track.stop());
+        this.micStream = null;
+    }
+    if (this.micSource) {
+        this.micSource.disconnect();
+        this.micSource = null;
+    }
+    // Don't disconnect analyser as we might reuse context? Actually node creation is cheap.
+    this.analyser = null;
+  }
+
+  private updateFromMicrophone() {
+    if (!this.analyser || !this.micBuffer) return;
+
+    // Use time domain data for waveform amplitude
+    this.analyser.getByteTimeDomainData(this.micBuffer);
+
+    let sum = 0;
+    // Calculate RMS
+    for (let i = 0; i < this.micBuffer.length; i++) {
+        const val = (this.micBuffer[i] - 128) / 128.0; // Normalize -1 to 1
+        sum += val * val;
+    }
+    const rms = Math.sqrt(sum / this.micBuffer.length);
+
+    // Map RMS to Breath Value (0 to 1) with some gain
+    // Sensitivity factor: 5.0
+    const target = Math.min(rms * 5.0, 1.0);
+
+    // Smooth transition
+    this.currentValue += (target - this.currentValue) * 0.1;
   }
 
   private getDuration(pattern: BreathPattern, phase: BreathPhase): number {
