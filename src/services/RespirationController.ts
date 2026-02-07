@@ -112,7 +112,8 @@ class RespirationControllerService {
     if (!this.analyser || !this.micBuffer) return;
 
     // Use time domain data for waveform amplitude
-    this.analyser.getByteTimeDomainData(this.micBuffer);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.analyser.getByteTimeDomainData(this.micBuffer as any);
 
     let sum = 0;
     // Calculate RMS

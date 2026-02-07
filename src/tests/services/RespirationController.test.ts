@@ -39,7 +39,7 @@ const mockStream = {
 
 const mockGetUserMedia = vi.fn().mockResolvedValue(mockStream);
 
-Object.defineProperty(global.navigator, 'mediaDevices', {
+Object.defineProperty(globalThis.navigator, 'mediaDevices', {
   value: {
     getUserMedia: mockGetUserMedia,
   },

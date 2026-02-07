@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import * as THREE from 'three';
 import { VerdantFlora } from '../../components/VerdantFlora';
@@ -58,7 +58,8 @@ describe('VerdantFlora Component', () => {
     };
 
     // Trigger compilation
-    material.onBeforeCompile(mockShader as unknown as THREE.Shader, {} as THREE.WebGLRenderer);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    material.onBeforeCompile(mockShader as any, {} as THREE.WebGLRenderer);
 
     // Verify Uniforms were initialized
     expect(mockShader.uniforms.uTime).toBeDefined();
@@ -84,7 +85,8 @@ describe('VerdantFlora Component', () => {
         },
         vertexShader: '',
     };
-    material.onBeforeCompile(mockShader as unknown as THREE.Shader, {} as THREE.WebGLRenderer);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    material.onBeforeCompile(mockShader as any, {} as THREE.WebGLRenderer);
 
     // Advance frame significantly
     await renderer.advanceFrames(10, 1.0);
