@@ -9,7 +9,7 @@ export const InfiniteHorizon = () => {
   const timeSinceLastCheck = useRef(0);
   const isGenerating = useRef(false);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     // Throttle checks to twice per second
     timeSinceLastCheck.current += delta;
     if (timeSinceLastCheck.current < 0.5) return;

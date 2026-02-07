@@ -1,28 +1,30 @@
 import { describe, it, expect } from 'vitest';
 import { Cartographer } from '../../services/Cartographer';
-import { Destination } from '../../types';
+import type { Destination } from '../../types';
 import { INFINITE_HORIZON_CONFIG } from '../../constants';
 
 // Mock crypto.randomUUID if not available
 if (!globalThis.crypto) {
     Object.defineProperty(globalThis, 'crypto', {
         value: {
-            randomUUID: () => 'test-uuid-' + Math.random()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            randomUUID: () => '00000000-0000-0000-0000-000000000000' as any
         }
     });
 } else if (!globalThis.crypto.randomUUID) {
-    globalThis.crypto.randomUUID = () => 'test-uuid-' + Math.random();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    globalThis.crypto.randomUUID = () => '00000000-0000-0000-0000-000000000000' as any;
 }
 
 describe('Cartographer', () => {
-  const mockDestination: Destination = {
-    id: 'initial',
+  const mockDestination = {
+    id: '00000000-0000-0000-0000-000000000000',
     name: 'Initial Point',
     coordinates: [0, 0, 0],
     ambientColor: '#ffffff',
     description: 'Start',
     shape: 'icosahedron'
-  };
+  } as unknown as Destination;
 
   it('generates a valid next destination', () => {
     const next = Cartographer.generateNextDestination(mockDestination);
