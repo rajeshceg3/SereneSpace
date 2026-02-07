@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAegisData } from './useAegisData';
 import { AegisDisplay } from './AegisDisplay';
+import { AegisAudio } from './AegisAudio';
 
 export const AegisSystem = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -23,5 +24,10 @@ export const AegisSystem = () => {
 
   if (!isVisible) return null;
 
-  return <AegisDisplay metrics={metrics} />;
+  return (
+    <>
+      <AegisDisplay metrics={metrics} />
+      <AegisAudio />
+    </>
+  );
 };
