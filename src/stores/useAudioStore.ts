@@ -1,5 +1,13 @@
 import { create } from 'zustand';
 import { AUDIO_CONFIG } from '../constants';
+import { audioEngine } from '../services/AudioEngine';
+
+interface LayerVolumes {
+  drone: number;
+  binaural: number;
+  noise: number;
+  reverb: number;
+}
 
 interface AudioState {
   isMuted: boolean;
@@ -7,10 +15,18 @@ interface AudioState {
   isInitialized: boolean;
   isSupported: boolean;
 
+  // New State
+  layerVolumes: LayerVolumes;
+  bioLockEnabled: boolean;
+
   toggleMute: () => void;
   setVolume: (volume: number) => void;
   initializeAudio: () => void;
   setSupported: (supported: boolean) => void;
+
+  // New Actions
+  setLayerVolume: (layer: keyof LayerVolumes, volume: number) => void;
+  setBioLock: (enabled: boolean) => void;
 }
 
 export const useAudioStore = create<AudioState>((set) => ({
@@ -19,8 +35,29 @@ export const useAudioStore = create<AudioState>((set) => ({
   isInitialized: false,
   isSupported: true,
 
+  layerVolumes: {
+    drone: 0.5,
+    binaural: 0.3,
+    noise: 1.0,
+    reverb: AUDIO_CONFIG.REVERB.MIX,
+  },
+  bioLockEnabled: false,
+
   toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
   setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
   initializeAudio: () => set({ isInitialized: true, isMuted: false }), // Auto-unmute on init
   setSupported: (isSupported) => set({ isSupported }),
+
+  setLayerVolume: (layer, volume) => {
+    const clamped = Math.max(0, Math.min(1, volume));
+    set((state) => ({
+      layerVolumes: { ...state.layerVolumes, [layer]: clamped }
+    }));
+    audioEngine.setLayerVolume(layer, clamped);
+  },
+
+  setBioLock: (enabled) => {
+    set({ bioLockEnabled: enabled });
+    audioEngine.setBioLock(enabled);
+  },
 }));

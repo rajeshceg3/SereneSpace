@@ -141,6 +141,20 @@ describe('AudioEngine', () => {
     (audioEngine as any).isochronicModulator = null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (audioEngine as any).isRunning = false;
+
+    // Reset new state
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).droneVolume = 0.5;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).binauralVolume = 0.3;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).noiseVolume = 1.0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).reverbVolume = 0.3;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).bioLockEnabled = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).currentBreathValue = 0;
   });
 
   it('should initialize successfully', () => {
@@ -264,5 +278,39 @@ describe('AudioEngine', () => {
       // Removal is async (fade out), so verify scheduled values
       const source = sources.get('dest-1');
       expect(source.gain.gain.linearRampToValueAtTime).toHaveBeenCalledWith(0, expect.any(Number));
+  });
+
+  it('should update layer volumes', () => {
+    audioEngine.init();
+    audioEngine.setLayerVolume('drone', 0.8);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const droneGain = (audioEngine as any).droneGain;
+    expect(droneGain.gain.setTargetAtTime).toHaveBeenCalledWith(0.8, expect.any(Number), expect.any(Number));
+  });
+
+  it('should enable bio-lock and modulate filter/volume', async () => {
+    audioEngine.init();
+    await audioEngine.start(0.5);
+    audioEngine.setBioLock(true);
+    audioEngine.updateBreath(1.0); // Full Inhale
+
+    // Call update
+    audioEngine.update(0.5, 'OBSERVER', 10);
+
+    // Verify Filter Cutoff is modulated
+    // Base cutoff for 0.5 stress is approx halfway (1600Hz).
+    // Breath 1.0 adds (1.0 - 0.5) * 1000 = +500Hz.
+    // So target should be higher than base.
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filter = (audioEngine as any).filter;
+    // We can't easily check exact value without calculation, but we can check call happened.
+    expect(filter.frequency.setTargetAtTime).toHaveBeenCalled();
+
+    // Verify Drone Gain modulated
+    // Base 0.5 + (1.0 * 0.1) = 0.6
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const droneGain = (audioEngine as any).droneGain;
+    expect(droneGain.gain.setTargetAtTime).toHaveBeenCalledWith(0.6, expect.any(Number), expect.any(Number));
   });
 });

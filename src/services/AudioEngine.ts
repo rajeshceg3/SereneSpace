@@ -14,6 +14,16 @@ class AudioEngine {
   private masterGain: GainNode | null = null;
   private filter: BiquadFilterNode | null = null;
 
+  // Layer Volumes (User Configurable)
+  private droneVolume: number = 0.5;
+  private binauralVolume: number = 0.3;
+  private noiseVolume: number = 1.0; // Multiplier for stress-based noise
+  private reverbVolume: number = AUDIO_CONFIG.REVERB.MIX;
+
+  // Bio-Lock State
+  private bioLockEnabled: boolean = false;
+  private currentBreathValue: number = 0;
+
   // Drone Layers
   private drones: OscillatorNode[] = [];
   private droneGain: GainNode | null = null;
@@ -309,20 +319,65 @@ class AudioEngine {
     this.masterGain.gain.setTargetAtTime(volume, now, 0.1);
   }
 
+  public setLayerVolume(layer: 'drone' | 'binaural' | 'noise' | 'reverb', volume: number) {
+    if (!this.ctx) return;
+    const now = this.ctx.currentTime;
+    const clamp = (v: number) => Math.max(0, Math.min(1, v));
+    const val = clamp(volume);
+
+    switch (layer) {
+      case 'drone':
+        this.droneVolume = val;
+        // Immediate update if active
+        if (this.droneGain) this.droneGain.gain.setTargetAtTime(val, now, 0.1);
+        break;
+      case 'binaural':
+        this.binauralVolume = val;
+        if (this.binauralGain) this.binauralGain.gain.setTargetAtTime(val, now, 0.1);
+        break;
+      case 'noise':
+        this.noiseVolume = val;
+        // Noise is updated in the loop based on stress, so we just update the multiplier state
+        break;
+      case 'reverb':
+        this.reverbVolume = val;
+        if (this.reverbGain) this.reverbGain.gain.setTargetAtTime(val, now, 0.1);
+        break;
+    }
+  }
+
+  public setBioLock(enabled: boolean) {
+    this.bioLockEnabled = enabled;
+  }
+
+  public updateBreath(breathValue: number) {
+    this.currentBreathValue = breathValue;
+  }
+
   public update(stress: number, protocol: SentinelProtocol, entrainmentFreq: number) {
     if (!this.ctx || !this.isRunning) return;
 
     const now = this.ctx.currentTime;
     const rampTime = 2.0; // Smooth transitions
 
-    // 1. Update Filter based on Stress (More stress = Lower cutoff/Muffled or Higher Dissonance)
-    // Let's implement: High Stress = Muffled (Closed in)
+    // 1. Update Filter based on Stress AND Breath (Bio-Lock)
     if (this.filter) {
-      const targetCutoff = AUDIO_CONFIG.FILTER_MAX - (stress * (AUDIO_CONFIG.FILTER_MAX - AUDIO_CONFIG.FILTER_MIN));
+      let targetCutoff = AUDIO_CONFIG.FILTER_MAX - (stress * (AUDIO_CONFIG.FILTER_MAX - AUDIO_CONFIG.FILTER_MIN));
+
+      if (this.bioLockEnabled) {
+        // Breath 0 (Exhale) -> Muffled (-500Hz)
+        // Breath 1 (Inhale) -> Bright (+500Hz)
+        // Center around the stress-based target
+        const breathMod = (this.currentBreathValue - 0.5) * 1000;
+        targetCutoff += breathMod;
+        // Clamp
+        targetCutoff = Math.max(100, Math.min(20000, targetCutoff));
+      }
+
       this.filter.frequency.setTargetAtTime(targetCutoff, now, 0.5);
     }
 
-    // 2. Update Drone Frequencies based on Protocol
+    // 2. Update Drone Frequencies based on Protocol AND Volume (Bio-Lock)
     if (this.drones.length === 3) {
       const config = AUDIO_CONFIG.PROTOCOLS[protocol];
 
@@ -331,15 +386,28 @@ class AudioEngine {
       // Harmonics
       this.drones[1].frequency.setTargetAtTime(config.root * config.harmonics[0], now, rampTime);
       this.drones[2].frequency.setTargetAtTime(config.root * config.harmonics[1], now, rampTime);
+
+      // Volume Modulation
+      if (this.droneGain) {
+          let targetGain = this.droneVolume;
+          if (this.bioLockEnabled) {
+              // Breath 1 -> Swell volume by +0.1
+              targetGain += (this.currentBreathValue * 0.1);
+          }
+          this.droneGain.gain.setTargetAtTime(targetGain, now, 0.2);
+      }
     }
 
     // 3. Update Binaural Beats
-    if (this.binauralLeft && this.binauralRight) {
+    if (this.binauralLeft && this.binauralRight && this.binauralGain) {
         const base = AUDIO_CONFIG.BINAURAL_BASE_FREQ;
         // Left = Base
         this.binauralLeft.frequency.setTargetAtTime(base, now, rampTime);
-        // Right = Base + Entrainment Frequency (e.g. 200 + 10 = 210Hz)
+        // Right = Base + Entrainment Frequency
         this.binauralRight.frequency.setTargetAtTime(base + entrainmentFreq, now, rampTime);
+
+        // Ensure volume is synced
+        this.binauralGain.gain.setTargetAtTime(this.binauralVolume, now, 0.2);
     }
 
     // 4. Update Isochronic Tones
@@ -348,17 +416,22 @@ class AudioEngine {
     }
 
     // 5. Update Noise Levels based on Stress (Atmosphere Density)
-    // Stress 0 -> Min Volume (Calm)
-    // Stress 1 -> Max Volume (Windy/Stormy)
+    // Scaled by User Configured Noise Volume
     if (this.pinkNoiseGain && this.brownNoiseGain) {
-        const pinkTarget = AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN +
+        const pinkBase = AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN +
             (stress * (AUDIO_CONFIG.NOISE.PINK_VOLUME_MAX - AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN));
 
-        const brownTarget = AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN +
+        const brownBase = AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN +
             (stress * (AUDIO_CONFIG.NOISE.BROWN_VOLUME_MAX - AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN));
 
-        this.pinkNoiseGain.gain.setTargetAtTime(pinkTarget, now, rampTime);
-        this.brownNoiseGain.gain.setTargetAtTime(brownTarget, now, rampTime);
+        // Apply Master Noise Volume Multiplier
+        this.pinkNoiseGain.gain.setTargetAtTime(pinkBase * this.noiseVolume, now, rampTime);
+        this.brownNoiseGain.gain.setTargetAtTime(brownBase * this.noiseVolume, now, rampTime);
+    }
+
+    // 6. Update Reverb Level (User Configured)
+    if (this.reverbGain) {
+         this.reverbGain.gain.setTargetAtTime(this.reverbVolume, now, 0.2);
     }
   }
 
