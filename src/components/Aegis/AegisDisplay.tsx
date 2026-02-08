@@ -11,19 +11,24 @@ export const AegisDisplay: React.FC<AegisDisplayProps> = ({ metrics }) => {
     protocol,
     protocolDuration,
     stressVelocity,
-    projectedStress,
     confidence,
     currentStress,
     coherence,
     history,
   } = metrics;
 
+  // Calculate 30s Projection for Tactical Forecast
+  const projected30s = useMemo(() => {
+    const val = currentStress + (stressVelocity * 30);
+    return Math.max(0, Math.min(1, val));
+  }, [currentStress, stressVelocity]);
+
   // Determine System Status
   const systemStatus = useMemo(() => {
-    if (currentStress > 0.9 || projectedStress > 0.9) return 'CRITICAL';
-    if (stressVelocity > 0.05 || currentStress > 0.7) return 'WARNING';
+    if (currentStress > 0.9 || projected30s > 0.9) return 'CRITICAL';
+    if (stressVelocity > 0.05 || currentStress > 0.7 || projected30s > 0.7) return 'WARNING';
     return 'NOMINAL';
-  }, [currentStress, projectedStress, stressVelocity]);
+  }, [currentStress, projected30s, stressVelocity]);
 
   const statusClass = useMemo(() => {
     if (systemStatus === 'CRITICAL') return styles.critical;
@@ -78,17 +83,19 @@ export const AegisDisplay: React.FC<AegisDisplayProps> = ({ metrics }) => {
 
       {/* Bottom Sector */}
       <div className={styles.bottomSector}>
-        {/* Predictive Analytics */}
+        {/* Tactical Forecast */}
         <div className={`${styles.panel} ${statusClass}`}>
-          <span className={styles.label}>PREDICTIVE MODEL (CONF: {Math.round(confidence * 100)}%)</span>
+          <span className={styles.label}>TACTICAL FORECAST (CONF: {Math.round(confidence * 100)}%)</span>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div>
               <span className={styles.label}>VELOCITY</span>
               <div className={styles.value}>{stressVelocity.toFixed(4)} /s</div>
             </div>
             <div>
-               <span className={styles.label}>PROJECTED</span>
-               <div className={styles.value}>{projectedStress.toFixed(2)}</div>
+               <span className={styles.label}>PROJECTED (30s)</span>
+               <div className={styles.value} style={{ color: projected30s > 0.8 ? '#ff4444' : 'inherit' }}>
+                 {projected30s.toFixed(2)}
+               </div>
             </div>
           </div>
         </div>

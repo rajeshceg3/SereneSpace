@@ -1,22 +1,33 @@
 import { create } from 'zustand';
 import type { TelemetryPoint } from '../types';
 
+export interface SpatialPoint {
+  x: number;
+  y: number;
+  z: number;
+  stress: number;
+  timestamp: number;
+}
+
 export interface SessionSummary {
   id: string;
   timestamp: number; // Session end time
   duration: number; // in seconds
   averageStress: number; // 0-1
   coherenceScore: number; // 0-100
+  sessionPath?: SpatialPoint[]; // Optional, as old sessions won't have it
 }
 
 interface TelemetryState {
   sessionData: TelemetryPoint[];
+  sessionPath: SpatialPoint[];
   history: SessionSummary[];
   isRecording: boolean;
   isDebriefOpen: boolean;
 
   // Actions
   logSample: (value: number) => void;
+  logSpatialSample: (x: number, y: number, z: number, stress: number) => void;
   logEvent: (eventName: string, value: number) => void;
   toggleRecording: () => void;
   setDebriefOpen: (isOpen: boolean) => void;
@@ -39,6 +50,7 @@ const getInitialHistory = (): SessionSummary[] => {
 
 export const useTelemetryStore = create<TelemetryState>((set, get) => ({
   sessionData: [],
+  sessionPath: [],
   history: getInitialHistory(),
   isRecording: true,
   isDebriefOpen: false,
@@ -51,6 +63,18 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
           ...state.sessionData,
           { timestamp: Date.now(), value },
         ],
+      };
+    }),
+
+  logSpatialSample: (x: number, y: number, z: number, stress: number) =>
+    set((state) => {
+      if (!state.isRecording) return {};
+      // Append efficiently
+      return {
+        sessionPath: [
+          ...state.sessionPath,
+          { x, y, z, stress, timestamp: Date.now() }
+        ]
       };
     }),
 
@@ -72,10 +96,10 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
     set({ isDebriefOpen: isOpen }),
 
   resetSession: () =>
-    set({ sessionData: [] }),
+    set({ sessionData: [], sessionPath: [] }),
 
   archiveSession: () => {
-    const { sessionData, history } = get();
+    const { sessionData, sessionPath, history } = get();
     if (sessionData.length === 0) return;
 
     const startTime = sessionData[0].timestamp;
@@ -85,19 +109,25 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
     const averageStress = sessionData.reduce((acc, curr) => acc + curr.value, 0) / sessionData.length;
     const coherenceScore = Math.round((1 - averageStress) * 100);
 
+    // Limit path resolution if needed (e.g., keep 1 point per second if too dense)
+    // But for now, we trust the recorder to throttle.
+
     const summary: SessionSummary = {
       id: Math.random().toString(36).substring(7),
       timestamp: Date.now(),
       duration,
       averageStress,
-      coherenceScore
+      coherenceScore,
+      sessionPath: [...sessionPath] // Clone to detach
     };
 
-    const newHistory = [...history, summary];
+    // Keep only last 10 sessions to prevent localStorage overflow
+    const newHistory = [...history, summary].slice(-10);
 
     set({
       history: newHistory,
-      sessionData: [] // Auto-reset after archiving
+      sessionData: [], // Auto-reset after archiving
+      sessionPath: []
     });
 
     if (typeof window !== 'undefined') {

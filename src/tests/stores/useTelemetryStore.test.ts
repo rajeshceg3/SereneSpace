@@ -24,6 +24,7 @@ describe('useTelemetryStore', () => {
     localStorageMock.clear();
     useTelemetryStore.setState({
       sessionData: [],
+      sessionPath: [],
       history: [],
       isRecording: true,
       isDebriefOpen: false,
@@ -62,6 +63,19 @@ describe('useTelemetryStore', () => {
     expect(state.sessionData).toHaveLength(1);
     expect(state.sessionData[0].event).toBe(eventName);
     expect(state.sessionData[0].value).toBe(value);
+  });
+
+  it('should log spatial samples', () => {
+    const { logSpatialSample } = useTelemetryStore.getState();
+
+    logSpatialSample(1, 2, 3, 0.5);
+    logSpatialSample(4, 5, 6, 0.8);
+
+    const { sessionPath } = useTelemetryStore.getState();
+    expect(sessionPath).toHaveLength(2);
+    expect(sessionPath[0]).toMatchObject({ x: 1, y: 2, z: 3, stress: 0.5 });
+    expect(sessionPath[1]).toMatchObject({ x: 4, y: 5, z: 6, stress: 0.8 });
+    expect(sessionPath[0].timestamp).toBeDefined();
   });
 
   it('should not log when recording is paused', () => {
@@ -123,6 +137,26 @@ describe('useTelemetryStore', () => {
       'telemetry_history',
       expect.stringContaining('"coherenceScore":50')
     );
+  });
+
+  it('should archive session with spatial path', () => {
+    const { logSample, logSpatialSample, archiveSession } = useTelemetryStore.getState();
+
+    vi.setSystemTime(1000);
+    logSample(0.5); // Need at least one sample for duration calc
+    logSpatialSample(1, 2, 3, 0.5);
+
+    vi.setSystemTime(2000);
+    logSample(0.6);
+
+    archiveSession();
+
+    const { history, sessionPath } = useTelemetryStore.getState();
+    expect(sessionPath).toHaveLength(0); // Should be cleared
+    expect(history).toHaveLength(1);
+    expect(history[0].sessionPath).toBeDefined();
+    expect(history[0].sessionPath).toHaveLength(1);
+    expect(history[0].sessionPath![0].x).toBe(1);
   });
 
   it('should not archive empty sessions', () => {
