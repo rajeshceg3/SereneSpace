@@ -30,6 +30,9 @@ import { EchoGenerator } from '../components/EchoGenerator';
 import { EchoField } from '../components/EchoField';
 import { LuminaField } from '../components/LuminaField';
 import { InfiniteHorizon } from '../components/InfiniteHorizon';
+import { SpatialTelemetryRecorder } from '../components/SpatialTelemetryRecorder';
+import { ForecastCone } from '../components/ForecastCone';
+import { SessionPath } from '../components/SessionPath';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -69,6 +72,9 @@ const AmbientScene = () => {
       <EchoField />
       <LuminaField />
       <InfiniteHorizon />
+      <SpatialTelemetryRecorder />
+      <ForecastCone />
+      <SessionPath />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />
