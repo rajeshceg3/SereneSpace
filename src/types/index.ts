@@ -1,3 +1,5 @@
+export type BiomeType = 'SANCTUARY' | 'NEXUS' | 'VOID' | 'ZENITH';
+
 export interface Destination {
   id: string;
   name: string;
@@ -5,6 +7,8 @@ export interface Destination {
   ambientColor: string;
   description: string;
   shape?: 'icosahedron' | 'octahedron' | 'sphere' | 'torus';
+  biome?: BiomeType;
+  intensity?: number; // 0-1
 }
 
 export interface TelemetryPoint {

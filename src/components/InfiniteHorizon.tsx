@@ -1,7 +1,10 @@
 import { useThree, useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import { useDestinationStore } from '../stores/useDestinationStore';
-import { Cartographer } from '../services/Cartographer';
+import { useSentinelStore } from '../stores/useSentinelStore';
+import { useResonanceStore } from '../stores/useResonanceStore';
+import { usePredictionStore } from '../stores/usePredictionStore';
+import { SynapticCartographer } from '../services/SynapticCartographer';
 import { INFINITE_HORIZON_CONFIG } from '../constants';
 
 export const InfiniteHorizon = () => {
@@ -34,9 +37,20 @@ export const InfiniteHorizon = () => {
       const newBatch = [];
       let currentLast = lastDest;
 
-      // Generate a batch of new destinations
+      // Capture current state for the batch context
+      const activeProtocol = useSentinelStore.getState().activeProtocol;
+      const currentStress = useResonanceStore.getState().currentStress;
+      const prediction = usePredictionStore.getState().projectedStress;
+
+      const state = {
+        protocol: activeProtocol,
+        stress: currentStress,
+        prediction: prediction
+      };
+
+      // Generate a batch of new destinations using the SynapticCartographer
       for (let i = 0; i < INFINITE_HORIZON_CONFIG.BATCH_SIZE; i++) {
-        const next = Cartographer.generateNextDestination(currentLast);
+        const next = SynapticCartographer.generateNextDestination(currentLast, state);
         newBatch.push(next);
         currentLast = next;
       }
