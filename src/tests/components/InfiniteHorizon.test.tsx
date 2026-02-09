@@ -5,16 +5,18 @@ import { useDestinationStore } from '../../stores/useDestinationStore';
 import { useThree } from '@react-three/fiber';
 import type { Destination } from '../../types';
 
-// Mock Cartographer
-vi.mock('../../services/Cartographer', () => ({
-  Cartographer: {
+// Mock SynapticCartographer
+vi.mock('../../services/SynapticCartographer', () => ({
+  SynapticCartographer: {
     generateNextDestination: (prev: Destination) => ({
       id: 'gen-' + Math.random(),
       coordinates: [0, 0, prev.coordinates[2] - 20],
       name: 'Generated',
       ambientColor: '#fff',
       description: 'Test',
-      shape: 'sphere'
+      shape: 'sphere',
+      biome: 'ZENITH',
+      intensity: 0.5
     })
   }
 }));
