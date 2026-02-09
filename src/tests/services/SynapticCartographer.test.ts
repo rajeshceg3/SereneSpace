@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SynapticCartographer } from '../../services/SynapticCartographer';
-import { Destination } from '../../types';
+import type { Destination } from '../../types';
 
 describe('SynapticCartographer', () => {
   const mockLastDest: Destination = {

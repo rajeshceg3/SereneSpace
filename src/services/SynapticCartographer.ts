@@ -1,4 +1,4 @@
-import { Destination, BiomeType } from '../types';
+import type { Destination, BiomeType } from '../types';
 import { INFINITE_HORIZON_CONFIG } from '../constants';
 
 // Biome Configuration
