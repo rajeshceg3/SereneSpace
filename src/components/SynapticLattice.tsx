@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useTelemetryStore } from '../stores/useTelemetryStore';
@@ -13,9 +13,9 @@ export const SynapticLattice = () => {
 
   const sessionPath = useTelemetryStore((state) => state.sessionPath);
 
-  // Use refs for mutable buffers to avoid React immutability warnings
-  const stressBuffer = useRef(new Float32Array(MAX_INSTANCES));
-  const coherenceBuffer = useRef(new Float32Array(MAX_INSTANCES));
+  // Use state for mutable buffers (stable reference, no re-render on mutation)
+  const [stressBuffer] = useState(() => new Float32Array(MAX_INSTANCES));
+  const [coherenceBuffer] = useState(() => new Float32Array(MAX_INSTANCES));
 
   const lastPosition = useRef(new THREE.Vector3(0, 0, 0));
   const instanceCount = useRef(0);
@@ -43,8 +43,10 @@ export const SynapticLattice = () => {
         meshRef.current.setMatrixAt(idx, tempObj.matrix);
 
         // Attributes
-        stressBuffer.current[idx] = stress;
-        coherenceBuffer.current[idx] = coherence || 50;
+        // eslint-disable-next-line react-hooks/immutability
+        stressBuffer[idx] = stress;
+        // eslint-disable-next-line react-hooks/immutability
+        coherenceBuffer[idx] = coherence || 50;
 
         // Mark updates
         meshRef.current.instanceMatrix.needsUpdate = true;
@@ -87,7 +89,7 @@ export const SynapticLattice = () => {
     }
 
     lastProcessedLength.current = sessionPath.length;
-  }, [sessionPath, tempObj]); // tempObj is stable from useMemo
+  }, [sessionPath, tempObj, stressBuffer, coherenceBuffer]); // buffers are stable from useState
 
   useFrame((state) => {
     if (materialRef.current && materialRef.current.userData.shader) {
@@ -104,12 +106,12 @@ export const SynapticLattice = () => {
       <dodecahedronGeometry args={[0.3, 0]}>
         <instancedBufferAttribute
             attach="attributes-aStress"
-            args={[stressBuffer.current, 1]}
+            args={[stressBuffer, 1]}
             usage={THREE.DynamicDrawUsage}
         />
         <instancedBufferAttribute
             attach="attributes-aCoherence"
-            args={[coherenceBuffer.current, 1]}
+            args={[coherenceBuffer, 1]}
             usage={THREE.DynamicDrawUsage}
         />
       </dodecahedronGeometry>

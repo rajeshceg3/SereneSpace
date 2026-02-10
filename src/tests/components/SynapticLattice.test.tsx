@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { create } from '@react-three/test-renderer';
 import * as THREE from 'three';
 import { SynapticLattice } from '../../components/SynapticLattice';
@@ -12,7 +12,7 @@ vi.mock('../../stores/useTelemetryStore', () => ({
 describe('SynapticLattice', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useTelemetryStore as any).mockImplementation((selector: any) => selector({
+    (useTelemetryStore as unknown as Mock).mockImplementation((selector: (state: unknown) => unknown) => selector({
       sessionPath: []
     }));
   });
@@ -36,7 +36,7 @@ describe('SynapticLattice', () => {
     expect(threeMesh.count).toBe(0);
 
     // Update store mock with points far enough apart
-    (useTelemetryStore as any).mockImplementation((selector: any) => selector({
+    (useTelemetryStore as unknown as Mock).mockImplementation((selector: (state: unknown) => unknown) => selector({
       sessionPath: [
           { x: 0, y: 0, z: 0, stress: 0.5, coherence: 80, timestamp: 1000 },
           { x: 10, y: 0, z: 0, stress: 0.6, coherence: 70, timestamp: 2000 } // Distance 10 > 4
