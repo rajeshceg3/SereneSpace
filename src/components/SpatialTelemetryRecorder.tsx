@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useResonanceStore } from '../stores/useResonanceStore';
 import { useTelemetryStore } from '../stores/useTelemetryStore';
+import { calculateCoherence } from '../utils/math';
 
 const SAMPLE_RATE = 0.2; // Seconds between samples (5Hz)
 
@@ -17,7 +18,12 @@ export const SpatialTelemetryRecorder = () => {
       const stress = useResonanceStore.getState().currentStress;
       const { x, y, z } = camera.position;
 
-      useTelemetryStore.getState().logSpatialSample(x, y, z, stress);
+      // Calculate coherence from recent history (last 20 samples)
+      const recentData = useTelemetryStore.getState().sessionData.slice(-20);
+      const values = recentData.map((d) => d.value);
+      const coherence = calculateCoherence(values);
+
+      useTelemetryStore.getState().logSpatialSample(x, y, z, stress, coherence);
 
       timeSinceLastSample.current = 0;
     }

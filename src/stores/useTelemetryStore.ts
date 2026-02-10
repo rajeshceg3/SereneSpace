@@ -6,6 +6,7 @@ export interface SpatialPoint {
   y: number;
   z: number;
   stress: number;
+  coherence: number;
   timestamp: number;
 }
 
@@ -27,7 +28,7 @@ interface TelemetryState {
 
   // Actions
   logSample: (value: number) => void;
-  logSpatialSample: (x: number, y: number, z: number, stress: number) => void;
+  logSpatialSample: (x: number, y: number, z: number, stress: number, coherence: number) => void;
   logEvent: (eventName: string, value: number) => void;
   toggleRecording: () => void;
   setDebriefOpen: (isOpen: boolean) => void;
@@ -66,14 +67,14 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
       };
     }),
 
-  logSpatialSample: (x: number, y: number, z: number, stress: number) =>
+  logSpatialSample: (x: number, y: number, z: number, stress: number, coherence: number) =>
     set((state) => {
       if (!state.isRecording) return {};
       // Append efficiently
       return {
         sessionPath: [
           ...state.sessionPath,
-          { x, y, z, stress, timestamp: Date.now() }
+          { x, y, z, stress, coherence, timestamp: Date.now() }
         ]
       };
     }),
