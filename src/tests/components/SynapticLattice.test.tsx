@@ -61,7 +61,7 @@ describe('SynapticLattice', () => {
     const mockShader = {
         vertexShader: 'void main() { #include <begin_vertex> }',
         fragmentShader: 'void main() { #include <color_fragment> }',
-        uniforms: {}
+        uniforms: {} as Record<string, THREE.IUniform>
     };
 
     // Trigger callback

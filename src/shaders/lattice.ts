@@ -16,7 +16,13 @@ const NOISE_FUNC = `
   }
 `;
 
-export const latticeOnBeforeCompile = (shader: THREE.Shader) => {
+interface IThreeShader {
+  uniforms: { [uniform: string]: THREE.IUniform };
+  vertexShader: string;
+  fragmentShader: string;
+}
+
+export const latticeOnBeforeCompile = (shader: IThreeShader) => {
   // Inject Uniforms & Attributes
   shader.vertexShader = `
     attribute float aStress;
