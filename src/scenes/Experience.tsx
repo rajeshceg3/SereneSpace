@@ -33,6 +33,7 @@ import { InfiniteHorizon } from '../components/InfiniteHorizon';
 import { SpatialTelemetryRecorder } from '../components/SpatialTelemetryRecorder';
 import { ForecastCone } from '../components/ForecastCone';
 import { SessionPath } from '../components/SessionPath';
+import { SynapticLattice } from '../components/SynapticLattice';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -71,6 +72,7 @@ const AmbientScene = () => {
       <EchoGenerator />
       <EchoField />
       <LuminaField />
+      <SynapticLattice />
       <InfiniteHorizon />
       <SpatialTelemetryRecorder />
       <ForecastCone />

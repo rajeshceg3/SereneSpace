@@ -68,13 +68,13 @@ describe('useTelemetryStore', () => {
   it('should log spatial samples', () => {
     const { logSpatialSample } = useTelemetryStore.getState();
 
-    logSpatialSample(1, 2, 3, 0.5);
-    logSpatialSample(4, 5, 6, 0.8);
+    logSpatialSample(1, 2, 3, 0.5, 90);
+    logSpatialSample(4, 5, 6, 0.8, 40);
 
     const { sessionPath } = useTelemetryStore.getState();
     expect(sessionPath).toHaveLength(2);
-    expect(sessionPath[0]).toMatchObject({ x: 1, y: 2, z: 3, stress: 0.5 });
-    expect(sessionPath[1]).toMatchObject({ x: 4, y: 5, z: 6, stress: 0.8 });
+    expect(sessionPath[0]).toMatchObject({ x: 1, y: 2, z: 3, stress: 0.5, coherence: 90 });
+    expect(sessionPath[1]).toMatchObject({ x: 4, y: 5, z: 6, stress: 0.8, coherence: 40 });
     expect(sessionPath[0].timestamp).toBeDefined();
   });
 
@@ -144,7 +144,7 @@ describe('useTelemetryStore', () => {
 
     vi.setSystemTime(1000);
     logSample(0.5); // Need at least one sample for duration calc
-    logSpatialSample(1, 2, 3, 0.5);
+    logSpatialSample(1, 2, 3, 0.5, 80);
 
     vi.setSystemTime(2000);
     logSample(0.6);

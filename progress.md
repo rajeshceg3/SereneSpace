@@ -122,6 +122,17 @@
 - [x] Terrain Wrapping for Infinite Illusion
 - [x] Integration with Fractal Landscape
 
+#### Feature 18: The Infinite Horizon
+- [x] Procedural Journey Generation (Cartographer)
+- [x] Destination Culling (InfiniteHorizon)
+- [x] Biome Logic (SynapticCartographer)
+
+#### Feature 19: The Chrono-Synaptic Crystalline Architecture
+- [x] Coherence Metric Implementation (Math Utils & Store)
+- [x] Crystalline Shader (Lattice Vertex/Fragment Shaders)
+- [x] Synaptic Lattice Component (InstancedMesh)
+- [x] Integration with Experience
+
 ### 2.3 UI / UX Requirements
 - [x] Full-screen canvas
 - [x] Zero visible borders
