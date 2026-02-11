@@ -41,6 +41,7 @@ describe('DreamWeaver', () => {
 
     // Mock Telemetry Store state since we access getState() directly
     useTelemetryStore.setState({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         history: [{ coherenceScore: 90 } as any], // Mock history
         isRecording: false,
         sessionData: [],
