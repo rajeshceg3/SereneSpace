@@ -1,4 +1,5 @@
 import { AUDIO_CONFIG, SENTINEL_PROTOCOLS } from '../constants';
+import type { NarrativeArc } from '../stores/useNarrativeStore';
 
 type SentinelProtocol = keyof typeof SENTINEL_PROTOCOLS;
 
@@ -19,6 +20,10 @@ class AudioEngine {
   private binauralVolume: number = 0.3;
   private noiseVolume: number = 1.0; // Multiplier for stress-based noise
   private reverbVolume: number = AUDIO_CONFIG.REVERB.MIX;
+
+  // Narrative State
+  private narrativeArc: NarrativeArc = 'INITIATION';
+  private narrativeIntensity: number = 0;
 
   // Bio-Lock State
   private bioLockEnabled: boolean = false;
@@ -354,6 +359,11 @@ class AudioEngine {
     this.currentBreathValue = breathValue;
   }
 
+  public updateNarrative(arc: NarrativeArc, intensity: number) {
+    this.narrativeArc = arc;
+    this.narrativeIntensity = intensity;
+  }
+
   public update(stress: number, protocol: SentinelProtocol, entrainmentFreq: number) {
     if (!this.ctx || !this.isRunning) return;
 
@@ -380,12 +390,22 @@ class AudioEngine {
     // 2. Update Drone Frequencies based on Protocol AND Volume (Bio-Lock)
     if (this.drones.length === 3) {
       const config = AUDIO_CONFIG.PROTOCOLS[protocol];
+      let root = config.root;
+
+      // Narrative Pitch Shift
+      if (this.narrativeArc === 'ASCENSION') {
+          // Shift up by an octave gradually
+          root *= (1.0 + this.narrativeIntensity);
+      } else if (this.narrativeArc === 'DESCENT') {
+          // Shift down by 5th
+          root /= (1.0 + this.narrativeIntensity * 0.5);
+      }
 
       // Root
-      this.drones[0].frequency.setTargetAtTime(config.root, now, rampTime);
+      this.drones[0].frequency.setTargetAtTime(root, now, rampTime);
       // Harmonics
-      this.drones[1].frequency.setTargetAtTime(config.root * config.harmonics[0], now, rampTime);
-      this.drones[2].frequency.setTargetAtTime(config.root * config.harmonics[1], now, rampTime);
+      this.drones[1].frequency.setTargetAtTime(root * config.harmonics[0], now, rampTime);
+      this.drones[2].frequency.setTargetAtTime(root * config.harmonics[1], now, rampTime);
 
       // Volume Modulation
       if (this.droneGain) {
@@ -418,11 +438,22 @@ class AudioEngine {
     // 5. Update Noise Levels based on Stress (Atmosphere Density)
     // Scaled by User Configured Noise Volume
     if (this.pinkNoiseGain && this.brownNoiseGain) {
-        const pinkBase = AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN +
+        let pinkBase = AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN +
             (stress * (AUDIO_CONFIG.NOISE.PINK_VOLUME_MAX - AUDIO_CONFIG.NOISE.PINK_VOLUME_MIN));
 
-        const brownBase = AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN +
+        let brownBase = AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN +
             (stress * (AUDIO_CONFIG.NOISE.BROWN_VOLUME_MAX - AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN));
+
+        // Apply Narrative Mod to Noise Balance
+        if (this.narrativeArc === 'ASCENSION') {
+            // More Pink (Airy), Less Brown (Rumble)
+            pinkBase *= (1.0 + this.narrativeIntensity);
+            brownBase *= (1.0 - this.narrativeIntensity * 0.5);
+        } else if (this.narrativeArc === 'DESCENT') {
+            // More Brown, Less Pink
+            brownBase *= (1.0 + this.narrativeIntensity);
+            pinkBase *= (1.0 - this.narrativeIntensity * 0.5);
+        }
 
         // Apply Master Noise Volume Multiplier
         this.pinkNoiseGain.gain.setTargetAtTime(pinkBase * this.noiseVolume, now, rampTime);

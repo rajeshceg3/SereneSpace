@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 import { useResonanceStore } from '../stores/useResonanceStore';
 import { useRespirationStore } from '../stores/useRespirationStore';
+import { useNarrativeStore } from '../stores/useNarrativeStore'; // Added import
 import { RespirationController } from '../services/RespirationController';
 import { NOISE_GLSL } from '../shaders/noise';
 
@@ -54,6 +55,8 @@ export const VerdantFlora = () => {
       shader.uniforms.uTime = { value: 0 };
       shader.uniforms.uStress = { value: 0 };
       shader.uniforms.uBreath = { value: 0 };
+      shader.uniforms.uNarrative = { value: 0 }; // Added
+      shader.uniforms.uNarrativeIntensity = { value: 0 }; // Added
 
       shaderRef.current = shader;
 
@@ -61,6 +64,8 @@ export const VerdantFlora = () => {
         uniform float uTime;
         uniform float uStress;
         uniform float uBreath;
+        uniform float uNarrative; // Added
+        uniform float uNarrativeIntensity; // Added
         ${NOISE_GLSL}
       ` + shader.vertexShader;
 
@@ -82,6 +87,28 @@ export const VerdantFlora = () => {
 
         float elevation = snoise(vec3(worldX * noiseScale, worldZ * noiseScale, uTime * timeScale));
 
+        // Narrative Modulation (MATCHING FRACTAL LANDSCAPE)
+        float narrativeMod = 0.0;
+
+        if (uNarrative > 0.5 && uNarrative < 1.5) {
+            float spiky = snoise(vec3(worldX * 0.1, worldZ * 0.1, uTime * 0.5));
+            spiky = pow(abs(spiky), 3.0) * sign(spiky);
+            narrativeMod = spiky * 5.0 * uNarrativeIntensity;
+        }
+        else if (uNarrative > 1.5 && uNarrative < 2.5) {
+            float deep = snoise(vec3(worldX * 0.02, worldZ * 0.02, uTime * 0.1));
+            narrativeMod = deep * 4.0 * uNarrativeIntensity;
+            elevation *= (1.0 - uNarrativeIntensity * 0.5);
+        }
+        else if (uNarrative > 2.5) {
+            float stepped = floor(elevation * 5.0) / 5.0;
+            elevation = mix(elevation, stepped, uNarrativeIntensity);
+            float lattice = step(0.9, sin(worldX * 0.5) * sin(worldZ * 0.5));
+            narrativeMod += lattice * uNarrativeIntensity * 2.0;
+        }
+
+        elevation += narrativeMod;
+
         float stressNoise = snoise(vec3(worldX * noiseScale * 4.0, worldZ * noiseScale * 4.0, uTime * timeScale * 2.0));
         float jaggedness = uStress * 3.0;
 
@@ -89,13 +116,17 @@ export const VerdantFlora = () => {
         elevation *= (1.0 + uBreath * 0.5);
 
         // Apply Height Offset to the entire instance
-        // We modify 'transformed' which is local vertex position.
-        // But we want to move the whole instance up/down.
-        // Usually we'd add to transformed.y.
-        // Since base is at y=0, this works.
-        // We multiply by 3.0 because FractalLandscape does elevation * 3.0
-
         float finalY = elevation * 3.0;
+
+        // Narrative Flora Adjustment (Specific to plants)
+        if (uNarrative > 0.5 && uNarrative < 1.5) {
+             // ASCENSION: Taller
+             finalY += 0.5 * uNarrativeIntensity;
+        } else if (uNarrative > 1.5 && uNarrative < 2.5) {
+             // DESCENT: Lower (roots deep)
+             finalY -= 0.2 * uNarrativeIntensity;
+        }
+
         transformed.y += finalY;
 
         // --- Growth / Stress Reaction ---
@@ -106,13 +137,21 @@ export const VerdantFlora = () => {
         float wind = snoise(vec3(worldX * 0.1, worldZ * 0.1, uTime * 0.5));
         float swayAngle = wind * 0.1 * (1.0 + uStress);
 
-        // Simple sway rotation around Z axis (approx)
-        // x' = x cos - y sin
-        // y' = x sin + y cos
-        // We only apply to vertices above y=0 to anchor root?
-        // Actually geometry is translated up, so y > 0.
-        // Let's just rotate the whole thing slightly
+        // Narrative Flora Shape/Sway Adjustment
+        if (uNarrative > 0.5 && uNarrative < 1.5) {
+             // ASCENSION: Taller, Thinner
+             growthFactor *= (1.0 + uNarrativeIntensity * 0.5);
+             transformed.xz *= (1.0 - uNarrativeIntensity * 0.3);
+        } else if (uNarrative > 1.5 && uNarrative < 2.5) {
+             // DESCENT: Shorter, Wider
+             growthFactor *= (1.0 - uNarrativeIntensity * 0.2);
+             transformed.xz *= (1.0 + uNarrativeIntensity * 0.5);
+        } else if (uNarrative > 2.5) {
+             // STASIS: Rigid
+             swayAngle *= (1.0 - uNarrativeIntensity);
+        }
 
+        // Simple sway rotation around Z axis (approx)
         float c = cos(swayAngle);
         float s = sin(swayAngle);
         mat2 rot = mat2(c, -s, s, c);
@@ -150,11 +189,21 @@ export const VerdantFlora = () => {
     const stress = useResonanceStore.getState().currentStress;
     const isBreathActive = useRespirationStore.getState().isActive;
     const breathValue = RespirationController.getValue();
+
+    // Get Narrative State
+    const { currentArc, intensity } = useNarrativeStore.getState();
+    let narrativeIndex = 0.0;
+    if (currentArc === 'ASCENSION') narrativeIndex = 1.0;
+    else if (currentArc === 'DESCENT') narrativeIndex = 2.0;
+    else if (currentArc === 'STASIS') narrativeIndex = 3.0;
+
     const time = clock.getElapsedTime();
 
     shaderRef.current.uniforms.uTime.value = time;
     shaderRef.current.uniforms.uStress.value = stress;
     shaderRef.current.uniforms.uBreath.value = isBreathActive ? breathValue : 0;
+    shaderRef.current.uniforms.uNarrative.value = narrativeIndex;
+    shaderRef.current.uniforms.uNarrativeIntensity.value = intensity;
 
     const camX = camera.position.x;
     const camZ = camera.position.z;

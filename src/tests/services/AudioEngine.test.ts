@@ -313,4 +313,28 @@ describe('AudioEngine', () => {
     const droneGain = (audioEngine as any).droneGain;
     expect(droneGain.gain.setTargetAtTime).toHaveBeenCalledWith(0.6, expect.any(Number), expect.any(Number));
   });
+
+  it('should modulate audio based on narrative arc', async () => {
+    audioEngine.init();
+    await audioEngine.start(0.5);
+
+    // ASCENSION
+    audioEngine.updateNarrative('ASCENSION', 1.0);
+    audioEngine.update(0.5, 'OBSERVER', 10);
+
+    // Check drone frequency shift
+    // Base for OBSERVER is 110Hz.
+    // Ascension 1.0 -> root * 2 = 220Hz.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const drones = (audioEngine as any).drones;
+    expect(drones[0].frequency.setTargetAtTime).toHaveBeenCalledWith(220, expect.any(Number), expect.any(Number));
+
+    // DESCENT
+    audioEngine.updateNarrative('DESCENT', 1.0);
+    audioEngine.update(0.5, 'OBSERVER', 10);
+
+    // Base 110Hz.
+    // Descent 1.0 -> root / 1.5 = 73.33Hz.
+    expect(drones[0].frequency.setTargetAtTime).toHaveBeenCalledWith(expect.closeTo(73.33, 0.1), expect.any(Number), expect.any(Number));
+  });
 });
