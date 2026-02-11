@@ -1,4 +1,4 @@
-import { NarrativeArc } from '../stores/useNarrativeStore';
+import type { NarrativeArc } from '../stores/useNarrativeStore';
 
 export class NarrativeEngine {
   private static instance: NarrativeEngine;

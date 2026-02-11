@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import React from 'react';
 // We don't need test-renderer if we mock useFrame directly for logic testing,
 // but we still need to render the component to trigger the hook.
 import { render } from '@testing-library/react';
