@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useResonanceStore } from '../stores/useResonanceStore';
 import { useRespirationStore } from '../stores/useRespirationStore';
+import { useNarrativeStore } from '../stores/useNarrativeStore'; // Added import
 import { RespirationController } from '../services/RespirationController';
 import { NOISE_GLSL } from '../shaders/noise';
 
@@ -28,6 +29,8 @@ export const FractalLandscape = () => {
       shader.uniforms.uOffsetZ = { value: 0 };
       shader.uniforms.uOffsetX = { value: 0 };
       shader.uniforms.uBreath = { value: 0 };
+      shader.uniforms.uNarrative = { value: 0 }; // Added
+      shader.uniforms.uNarrativeIntensity = { value: 0 }; // Added
 
       shaderRef.current = shader;
 
@@ -38,6 +41,8 @@ export const FractalLandscape = () => {
         uniform float uOffsetZ;
         uniform float uOffsetX;
         uniform float uBreath;
+        uniform float uNarrative; // Added
+        uniform float uNarrativeIntensity; // Added
         ${NOISE_GLSL}
       ` + shader.vertexShader;
 
@@ -56,6 +61,34 @@ export const FractalLandscape = () => {
         float timeScale = 0.2;
 
         float elevation = snoise(vec3(worldX * noiseScale, worldZ * noiseScale, uTime * timeScale));
+
+        // Narrative Modulation
+        float narrativeMod = 0.0;
+
+        // ASCENSION (1.0): Spiky, ethereal peaks
+        if (uNarrative > 0.5 && uNarrative < 1.5) {
+            float spiky = snoise(vec3(worldX * 0.1, worldZ * 0.1, uTime * 0.5));
+            spiky = pow(abs(spiky), 3.0) * sign(spiky); // Sharpen peaks
+            narrativeMod = spiky * 5.0 * uNarrativeIntensity;
+        }
+        // DESCENT (2.0): Smooth, deep valleys
+        else if (uNarrative > 1.5 && uNarrative < 2.5) {
+            float deep = snoise(vec3(worldX * 0.02, worldZ * 0.02, uTime * 0.1));
+            narrativeMod = deep * 4.0 * uNarrativeIntensity;
+            // Flatten base terrain slightly
+            elevation *= (1.0 - uNarrativeIntensity * 0.5);
+        }
+        // STASIS (3.0): Crystalline / Stepped geometry
+        else if (uNarrative > 2.5) {
+            float stepped = floor(elevation * 5.0) / 5.0;
+            // Mix based on intensity: elevation -> stepped
+            elevation = mix(elevation, stepped, uNarrativeIntensity);
+            // Add geometric lattice
+            float lattice = step(0.9, sin(worldX * 0.5) * sin(worldZ * 0.5));
+            narrativeMod += lattice * uNarrativeIntensity * 2.0;
+        }
+
+        elevation += narrativeMod;
 
         // Stress Modulation (Jaggedness)
         // High stress adds high-frequency noise and amplitude
@@ -96,11 +129,20 @@ export const FractalLandscape = () => {
     const isBreathActive = useRespirationStore.getState().isActive;
     const breathValue = RespirationController.getValue();
 
+    // Get Narrative State
+    const { currentArc, intensity } = useNarrativeStore.getState();
+    let narrativeIndex = 0.0;
+    if (currentArc === 'ASCENSION') narrativeIndex = 1.0;
+    else if (currentArc === 'DESCENT') narrativeIndex = 2.0;
+    else if (currentArc === 'STASIS') narrativeIndex = 3.0;
+
     shaderRef.current.uniforms.uTime.value = clock.getElapsedTime();
     shaderRef.current.uniforms.uStress.value = stress;
     shaderRef.current.uniforms.uOffsetZ.value = camera.position.z;
     shaderRef.current.uniforms.uOffsetX.value = camera.position.x;
     shaderRef.current.uniforms.uBreath.value = isBreathActive ? breathValue : 0;
+    shaderRef.current.uniforms.uNarrative.value = narrativeIndex;
+    shaderRef.current.uniforms.uNarrativeIntensity.value = intensity;
   });
 
   return (
