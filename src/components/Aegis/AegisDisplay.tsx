@@ -70,6 +70,7 @@ export const AegisDisplay: React.FC<AegisDisplayProps> = ({ metrics }) => {
         <div className={`${styles.panel} ${statusClass}`} style={{ textAlign: 'right' }}>
            <span className={styles.label}>SYSTEM STATUS</span>
            <div className={styles.value}>{systemStatus}</div>
+           <div style={{ fontSize: '0.6rem', marginTop: '5px', opacity: 0.7 }}>[M] NEURAL ATLAS</div>
         </div>
       </div>
 
