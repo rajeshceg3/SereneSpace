@@ -1,32 +1,64 @@
 from playwright.sync_api import sync_playwright
+import time
 
-def verify(page):
-    print("Navigating...")
-    page.goto("http://localhost:4173")
+def verify_neural_atlas():
+    with sync_playwright() as p:
+        # Use SwiftShader for headless WebGL support
+        browser = p.chromium.launch(
+            headless=True,
+            args=['--use-gl=swiftshader']
+        )
+        page = browser.new_page()
 
-    print("Waiting for app...")
-    page.wait_for_selector('[data-testid="app-container"]', timeout=30000)
+        try:
+            print("Navigating to app...")
+            page.goto("http://localhost:4173")
 
-    # Wait for Fade In
-    page.wait_for_timeout(3000)
+            # Wait for app to load (fade in)
+            print("Waiting for app load...")
+            page.wait_for_selector('canvas', state='visible', timeout=20000)
+            time.sleep(5) # Wait for fade in and initial render
 
-    print("Pressing H...")
-    page.keyboard.press("h")
+            # 1. Verify Aegis HUD text
+            print("Pressing H to open HUD...")
+            page.keyboard.press('h')
+            time.sleep(1)
 
-    print("Waiting for TACTICAL FORECAST...")
-    page.wait_for_selector("text=TACTICAL FORECAST", timeout=5000)
+            print("Taking screenshot of HUD...")
+            page.screenshot(path="verification_aegis.png")
 
-    print("Taking screenshot...")
-    page.screenshot(path="verification_aegis.png")
-    print("Done.")
+            # Check for text "[M] NEURAL ATLAS"
+            content = page.content()
+            if "[M] NEURAL ATLAS" in content:
+                print("SUCCESS: Found '[M] NEURAL ATLAS' in HUD.")
+            else:
+                print("FAILURE: Did not find '[M] NEURAL ATLAS' in HUD.")
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    page = browser.new_page()
-    try:
-        verify(page)
-    except Exception as e:
-        print(f"Error: {e}")
-        page.screenshot(path="error.png")
-    finally:
-        browser.close()
+            # 2. Verify Atlas Overlay
+            print("Pressing M to open Atlas...")
+            page.keyboard.press('m')
+            time.sleep(2) # Wait for render
+
+            print("Taking screenshot of Atlas...")
+            page.screenshot(path="verification_atlas.png")
+
+            # Check for "NEURAL ATLAS" title in overlay
+            if "NEURAL ATLAS" in page.content():
+                print("SUCCESS: Found 'NEURAL ATLAS' title in overlay.")
+            else:
+                 print("FAILURE: Did not find 'NEURAL ATLAS' title in overlay.")
+
+            # Check for "CLOSE ATLAS" button
+            if "CLOSE ATLAS" in page.content():
+                 print("SUCCESS: Found 'CLOSE ATLAS' button.")
+            else:
+                 print("FAILURE: Did not find 'CLOSE ATLAS' button.")
+
+        except Exception as e:
+            print(f"Error: {e}")
+            page.screenshot(path="verification_error.png")
+        finally:
+            browser.close()
+
+if __name__ == "__main__":
+    verify_neural_atlas()

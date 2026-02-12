@@ -35,6 +35,8 @@ import { SpatialTelemetryRecorder } from '../components/SpatialTelemetryRecorder
 import { ForecastCone } from '../components/ForecastCone';
 import { SessionPath } from '../components/SessionPath';
 import { SynapticLattice } from '../components/SynapticLattice';
+import { AtlasTracker } from '../components/AtlasTracker';
+import { NeuralAtlas } from '../components/NeuralAtlas';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -79,6 +81,8 @@ const AmbientScene = () => {
       <SpatialTelemetryRecorder />
       <ForecastCone />
       <SessionPath />
+      <AtlasTracker />
+      <NeuralAtlas />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
       <Atmosphere />

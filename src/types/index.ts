@@ -16,3 +16,19 @@ export interface TelemetryPoint {
   value: number; // 0 to 1 (stress level)
   event?: string; // Optional label for specific events (e.g., "Destination Arrived")
 }
+
+export interface AtlasNode extends Destination {
+  visitedAt: number;
+  stressLevel: number;
+  coherenceScore: number;
+  notes?: string;
+}
+
+export interface AtlasState {
+  nodes: AtlasNode[];
+  isOpen: boolean;
+  addNode: (node: AtlasNode) => void;
+  toggleAtlas: () => void;
+  setOpen: (isOpen: boolean) => void;
+  jumpToNode: (nodeId: string) => void;
+}
