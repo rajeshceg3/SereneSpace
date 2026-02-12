@@ -14,7 +14,8 @@ describe('AtlasService', () => {
 
     // Reset singleton state if needed (lastTrackedId is private, so we can't easily,
     // but we can rely on creating distinct destinations)
-    // Actually, lastTrackedId persists. We might need to cast to any to reset it or just use unique IDs.
+    // Reset private state (using type assertion for test access)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (atlasService as any).lastTrackedId = null;
   });
 

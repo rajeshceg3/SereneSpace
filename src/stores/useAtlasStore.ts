@@ -16,7 +16,7 @@ export const useAtlasStore = create<AtlasState>()(
       }),
       toggleAtlas: () => set((state) => ({ isOpen: !state.isOpen })),
       setOpen: (isOpen: boolean) => set({ isOpen }),
-      jumpToNode: (_nodeId: string) => {
+      jumpToNode: () => {
         // Logic will be handled by subscribers
         set({ isOpen: false });
       },
