@@ -54,6 +54,13 @@ class AudioEngine {
   private convolver: ConvolverNode | null = null;
   private reverbGain: GainNode | null = null;
 
+  // Mnemosyne Layer (The River of Memory)
+  private mnemosyneGain: GainNode | null = null;
+  private mnemosyneSource: OscillatorNode | null = null;
+  private mnemosyneFilter: BiquadFilterNode | null = null;
+  private mnemosyneLFO: OscillatorNode | null = null;
+  private mnemosyneLFOGain: GainNode | null = null;
+
   // Spatial Audio
   private positionalSources: Map<string, PositionalSource> = new Map();
 
@@ -94,6 +101,7 @@ class AudioEngine {
       this.setupIsochronicLayer();
       this.setupReverb(); // Must be before Noise so Noise can route to it if desired
       this.setupNoiseLayer();
+      this.setupMnemosyneLayer();
 
       return true;
     } catch (e) {
@@ -198,6 +206,49 @@ class AudioEngine {
     // Route: Convolver -> ReverbGain -> Master
     this.convolver.connect(this.reverbGain);
     this.reverbGain.connect(this.masterGain);
+  }
+
+  private setupMnemosyneLayer() {
+    if (!this.ctx || !this.masterGain) return;
+
+    // Chain: Source -> Filter -> Gain -> Master + Reverb
+    this.mnemosyneGain = this.ctx.createGain();
+    this.mnemosyneGain.gain.setValueAtTime(0, this.ctx.currentTime); // Start silent
+    this.mnemosyneGain.connect(this.masterGain);
+    if (this.convolver) {
+       this.mnemosyneGain.connect(this.convolver);
+    }
+
+    // Filter (Bandpass with high Q for "singing" wind)
+    this.mnemosyneFilter = this.ctx.createBiquadFilter();
+    this.mnemosyneFilter.type = 'bandpass';
+    this.mnemosyneFilter.Q.value = 10;
+    this.mnemosyneFilter.frequency.setValueAtTime(800, this.ctx.currentTime);
+    this.mnemosyneFilter.connect(this.mnemosyneGain);
+
+    // Source (Sawtooth for rich harmonics)
+    this.mnemosyneSource = this.ctx.createOscillator();
+    this.mnemosyneSource.type = 'sawtooth';
+    this.mnemosyneSource.frequency.setValueAtTime(110, this.ctx.currentTime); // Low drone base
+    this.mnemosyneSource.start();
+    this.mnemosyneSource.connect(this.mnemosyneFilter);
+
+    // LFO for Filter Frequency (Spectral Movement)
+    this.mnemosyneLFOGain = this.ctx.createGain();
+    this.mnemosyneLFOGain.gain.setValueAtTime(500, this.ctx.currentTime); // Modulate by +/- 500Hz
+    this.mnemosyneLFOGain.connect(this.mnemosyneFilter.frequency);
+
+    this.mnemosyneLFO = this.ctx.createOscillator();
+    this.mnemosyneLFO.type = 'sine';
+    this.mnemosyneLFO.frequency.setValueAtTime(0.2, this.ctx.currentTime); // Slow sweep (5s)
+    this.mnemosyneLFO.start();
+    this.mnemosyneLFO.connect(this.mnemosyneLFOGain);
+  }
+
+  public setMnemosyneVolume(volume: number) {
+    if (!this.ctx || !this.mnemosyneGain) return;
+    const now = this.ctx.currentTime;
+    this.mnemosyneGain.gain.setTargetAtTime(volume, now, 0.5); // Smooth fade
   }
 
   private setupNoiseLayer() {

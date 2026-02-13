@@ -37,6 +37,7 @@ import { SessionPath } from '../components/SessionPath';
 import { SynapticLattice } from '../components/SynapticLattice';
 import { AtlasTracker } from '../components/AtlasTracker';
 import { NeuralAtlas } from '../components/NeuralAtlas';
+import { MnemosyneStream } from '../components/MnemosyneStream';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -88,6 +89,7 @@ const AmbientScene = () => {
       <Atmosphere />
       <FractalLandscape />
       <VerdantFlora />
+      <MnemosyneStream />
 
       <group position={[0, -2, 0]}>
         <MnemonicProjector />
