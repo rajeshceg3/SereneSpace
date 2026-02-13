@@ -26,6 +26,7 @@ const mockOscillatorNode = {
 
 const mockBiquadFilterNode = {
   frequency: { ...mockAudioParam },
+  Q: { ...mockAudioParam },
   connect: vi.fn(),
   type: 'lowpass',
 };
@@ -92,7 +93,7 @@ const mockListener = {
 class MockAudioContext {
   createGain = vi.fn(() => ({ ...mockGainNode, gain: { ...mockAudioParam } })); // Return fresh objects
   createOscillator = vi.fn(() => ({ ...mockOscillatorNode, frequency: { ...mockAudioParam } }));
-  createBiquadFilter = vi.fn(() => ({ ...mockBiquadFilterNode, frequency: { ...mockAudioParam } }));
+  createBiquadFilter = vi.fn(() => ({ ...mockBiquadFilterNode, frequency: { ...mockAudioParam }, Q: { ...mockAudioParam } }));
   createStereoPanner = vi.fn(() => mockStereoPannerNode);
   createPanner = vi.fn(() => ({ ...mockPannerNode, positionX: { ...mockAudioParam }, positionY: { ...mockAudioParam }, positionZ: { ...mockAudioParam } }));
   createBufferSource = vi.fn(() => ({ ...mockBufferSourceNode }));
@@ -179,8 +180,8 @@ describe('AudioEngine', () => {
     audioEngine.init();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ctx = (audioEngine as any).ctx;
-    // 3 drones + 2 binaural + 1 isoCarrier + 1 isoModulator = 7 oscillators
-    expect(ctx.createOscillator).toHaveBeenCalledTimes(7);
+    // 3 drones + 2 binaural + 1 isoCarrier + 1 isoModulator + 1 Mnemosyne Source + 1 Mnemosyne LFO = 9 oscillators
+    expect(ctx.createOscillator).toHaveBeenCalledTimes(9);
     expect(ctx.createConstantSource).toHaveBeenCalled();
   });
 
