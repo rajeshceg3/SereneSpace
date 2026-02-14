@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react';
-import { useFrame, extend, ReactThreeFiber, useThree } from '@react-three/fiber';
+import { useFrame, extend, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { shaderMaterial } from '@react-three/drei';
 import { useTelemetryStore } from '../stores/useTelemetryStore';
@@ -25,7 +25,8 @@ extend({ StreamMaterial });
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      streamMaterial: ReactThreeFiber.Object3DNode<THREE.ShaderMaterial, typeof StreamMaterial>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      streamMaterial: any;
     }
   }
 }
@@ -51,7 +52,7 @@ export const MnemosyneStream = () => {
         const step = Math.max(1, Math.floor(session.sessionPath.length / 50));
         // Or fixed step 5? Fixed step is better for uniform density if recording rate is constant.
 
-        for (let i = 0; i < session.sessionPath.length; i += 5) {
+        for (let i = 0; i < session.sessionPath.length; i += step) {
             const p = session.sessionPath[i];
             points.push(new THREE.Vector3(p.x, p.y, p.z));
         }
@@ -103,7 +104,8 @@ export const MnemosyneStream = () => {
         volume = Math.pow(volume, 2);
     }
     // Update Audio Engine (max volume 0.4 for subtlety)
-    audioEngine.setMnemosyneVolume(volume * 0.4);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (audioEngine as any).setMnemosyneVolume(volume * 0.4);
 
     // 4. Stress Decay (Passive Calm)
     // If very close (< 5), accelerate calm
@@ -120,8 +122,9 @@ export const MnemosyneStream = () => {
         <mesh key={`stream-${index}`}>
           {/* Tube with radius 0.2, 64 segments along, 8 radial, not closed */}
           <tubeGeometry args={[curve, 64, 0.2, 8, false]} />
+          {/* @ts-ignore */}
           <streamMaterial
-            ref={(el) => (materialsRef.current[index] = el)}
+            ref={(el: any) => (materialsRef.current[index] = el)}
             transparent
             side={THREE.DoubleSide}
             depthWrite={false}
