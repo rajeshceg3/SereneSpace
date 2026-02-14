@@ -46,6 +46,7 @@ interface BluetoothRemoteGATTCharacteristic extends EventTarget {
   writeValue(value: BufferSource): Promise<void>;
   startNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;
   stopNotifications(): Promise<BluetoothRemoteGATTCharacteristic>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   oncharacteristicvaluechanged: (this: this, ev: Event) => any;
 }
 
@@ -76,6 +77,7 @@ interface BluetoothDevice extends EventTarget {
   watchAdvertisements(): Promise<void>;
   unwatchAdvertisements(): void;
   readonly watchingAdvertisements: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ongattserverdisconnected: (this: this, ev: Event) => any;
 }
 

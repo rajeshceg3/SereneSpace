@@ -10,16 +10,20 @@ describe('BioLinkService', () => {
   } as unknown as BluetoothRemoteGATTCharacteristic;
 
   const mockService = {
-    getCharacteristic: vi.fn().mockResolvedValue(mockCharacteristic),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getCharacteristic: vi.fn().mockResolvedValue(mockCharacteristic as any),
   } as unknown as BluetoothRemoteGATTService;
 
   const mockServer = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     connect: vi.fn().mockImplementation(function(this: any) {
         this.connected = true;
         return Promise.resolve(this);
     }),
-    getPrimaryService: vi.fn().mockResolvedValue(mockService),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getPrimaryService: vi.fn().mockResolvedValue(mockService as any),
     connected: false,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     disconnect: vi.fn().mockImplementation(function(this: any) {
         this.connected = false;
     }),
@@ -71,7 +75,9 @@ describe('BioLinkService', () => {
 
     // Simulate notification
     // Need to trigger the event listener passed to addEventListener
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const calls = (mockCharacteristic.addEventListener as any).mock.calls;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const callback = calls.find((call: any) => call[0] === 'characteristicvaluechanged')?.[1];
 
     expect(callback).toBeDefined();
@@ -98,6 +104,7 @@ describe('BioLinkService', () => {
     // but here we might need to simulate it or check if disconnect calls it?
     // BioLinkService adds event listener for 'gattserverdisconnected'.
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const disconnectHandler = (mockDevice.addEventListener as any).mock.calls.find((call: any) => call[0] === 'gattserverdisconnected')?.[1];
     disconnectHandler(); // Simulate event
 

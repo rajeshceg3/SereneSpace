@@ -2,17 +2,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { ResonanceSystem } from '../../components/ResonanceSystem';
 
-const decayStressMock = vi.fn();
+const { decayStressMock } = vi.hoisted(() => {
+  return { decayStressMock: vi.fn() };
+});
 
-vi.mock('../../stores/useResonanceStore', () => ({
+vi.mock('../../stores/useResonanceStore', () => {
+  const state = {
+    decayStress: decayStressMock,
+    currentStress: 0.5,
+    setStress: vi.fn(),
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  useResonanceStore: (selector: (state: any) => any) => {
-    const state = {
-      decayStress: decayStressMock,
-    };
-    return selector(state);
-  },
-}));
+  const store = (selector: (state: any) => any) => selector(state);
+  store.getState = () => state;
+  return { useResonanceStore: store };
+});
 
 describe('ResonanceSystem', () => {
   beforeEach(() => {

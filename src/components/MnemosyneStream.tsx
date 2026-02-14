@@ -23,6 +23,7 @@ extend({ StreamMaterial });
 
 // Add type definition for the new JSX element
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,8 +123,9 @@ export const MnemosyneStream = () => {
         <mesh key={`stream-${index}`}>
           {/* Tube with radius 0.2, 64 segments along, 8 radial, not closed */}
           <tubeGeometry args={[curve, 64, 0.2, 8, false]} />
-          {/* @ts-ignore */}
+          {/* @ts-expect-error - Custom shader material JSX element */}
           <streamMaterial
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ref={(el: any) => (materialsRef.current[index] = el)}
             transparent
             side={THREE.DoubleSide}
