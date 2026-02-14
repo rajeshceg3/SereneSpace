@@ -84,8 +84,6 @@ describe('AudioEngine - Mnemosyne Feature', () => {
 
   it('should initialize the Mnemosyne layer', () => {
     audioEngine.init();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ctx = (audioEngine as any).ctx;
 
     // Check if layer components exist
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

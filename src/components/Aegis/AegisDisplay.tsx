@@ -1,12 +1,16 @@
 import React, { useMemo } from 'react';
 import styles from './Aegis.module.css';
 import type { AegisMetrics } from './types';
+import { useBioLinkStore } from '../../stores/useBioLinkStore';
+import { bioLinkService } from '../../services/BioLinkService';
 
 interface AegisDisplayProps {
   metrics: AegisMetrics;
 }
 
 export const AegisDisplay: React.FC<AegisDisplayProps> = ({ metrics }) => {
+  const { isConnected, isConnecting, heartRate, hrv, signalQuality } = useBioLinkStore();
+
   const {
     protocol,
     protocolDuration,
@@ -67,10 +71,48 @@ export const AegisDisplay: React.FC<AegisDisplayProps> = ({ metrics }) => {
           </div>
         </div>
 
-        <div className={`${styles.panel} ${statusClass}`} style={{ textAlign: 'right' }}>
-           <span className={styles.label}>SYSTEM STATUS</span>
-           <div className={styles.value}>{systemStatus}</div>
-           <div style={{ fontSize: '0.6rem', marginTop: '5px', opacity: 0.7 }}>[M] NEURAL ATLAS</div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
+          <div className={`${styles.panel} ${statusClass}`} style={{ textAlign: 'right' }}>
+             <span className={styles.label}>SYSTEM STATUS</span>
+             <div className={styles.value}>{systemStatus}</div>
+             <div style={{ fontSize: '0.6rem', marginTop: '5px', opacity: 0.7 }}>[M] NEURAL ATLAS</div>
+          </div>
+
+          {/* Bio-Link Panel */}
+          <div className={`${styles.panel} ${statusClass}`} style={{ textAlign: 'right', pointerEvents: 'auto' }}>
+             <span className={styles.label}>BIO-LINK INTERFACE</span>
+             {!isConnected ? (
+               <button
+                 onClick={() => bioLinkService.connect()}
+                 disabled={isConnecting}
+                 style={{
+                   background: 'transparent',
+                   border: '1px solid currentColor',
+                   color: 'inherit',
+                   padding: '5px 10px',
+                   fontFamily: 'inherit',
+                   cursor: 'pointer',
+                   opacity: isConnecting ? 0.5 : 1
+                 }}
+               >
+                 {isConnecting ? 'SEARCHING...' : 'CONNECT SENSOR'}
+               </button>
+             ) : (
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <span className={styles.label} style={{fontSize: '0.6rem'}}>HR (BPM)</span>
+                    <div className={styles.value}>{heartRate}</div>
+                  </div>
+                  <div>
+                    <span className={styles.label} style={{fontSize: '0.6rem'}}>HRV (MS)</span>
+                    <div className={styles.value}>{hrv}</div>
+                  </div>
+                  <div style={{ gridColumn: 'span 2', fontSize: '0.6rem', opacity: 0.7 }}>
+                    SIGNAL: {signalQuality}%
+                  </div>
+               </div>
+             )}
+          </div>
         </div>
       </div>
 
