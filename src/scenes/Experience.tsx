@@ -12,7 +12,7 @@ import {
 } from '../constants';
 import { UserInput } from '../components/UserInput';
 import { ResonanceSystem } from '../components/ResonanceSystem';
-import { SentinelSystem } from '../components/SentinelSystem';
+import { SentinelDefenseSystem } from '../components/SentinelDefenseSystem';
 import { DreamWeaver } from '../components/DreamWeaver';
 import { CameraManager } from '../components/CameraManager';
 import { FPSMonitor } from '../components/FPSMonitor';
@@ -66,7 +66,7 @@ const AmbientScene = () => {
     <>
       <UserInput />
       <ResonanceSystem />
-      <SentinelSystem />
+      <SentinelDefenseSystem />
       <DreamWeaver />
       <BloomSystem />
       <EntrainmentSystem />

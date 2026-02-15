@@ -67,6 +67,10 @@ class AudioEngine {
   // State Tracking
   private isRunning = false;
 
+  // Intervention State (Sentinel Mk.II)
+  private interventionMode: 'NONE' | 'GROUNDING' | 'PATTERN_INTERRUPT' = 'NONE';
+  private interventionExpiry: number = 0;
+
   private constructor() {}
 
   public static getInstance(): AudioEngine {
@@ -415,25 +419,43 @@ class AudioEngine {
     this.narrativeIntensity = intensity;
   }
 
+  public triggerIntervention(type: 'GROUNDING' | 'PATTERN_INTERRUPT', duration: number = 2000) {
+    if (!this.ctx || !this.isRunning) return;
+    this.interventionMode = type;
+    this.interventionExpiry = this.ctx.currentTime + (duration / 1000);
+  }
+
+  public stabilize() {
+    this.interventionMode = 'NONE';
+    this.interventionExpiry = 0;
+  }
+
   public update(stress: number, protocol: SentinelProtocol, entrainmentFreq: number) {
     if (!this.ctx || !this.isRunning) return;
 
     const now = this.ctx.currentTime;
     const rampTime = 2.0; // Smooth transitions
 
+    // Check Intervention Status
+    if (now > this.interventionExpiry) {
+        this.interventionMode = 'NONE';
+    }
+
+    const isGrounding = this.interventionMode === 'GROUNDING';
+    const isInterrupt = this.interventionMode === 'PATTERN_INTERRUPT';
+
     // 1. Update Filter based on Stress AND Breath (Bio-Lock)
     if (this.filter) {
       let targetCutoff = AUDIO_CONFIG.FILTER_MAX - (stress * (AUDIO_CONFIG.FILTER_MAX - AUDIO_CONFIG.FILTER_MIN));
 
       if (this.bioLockEnabled) {
-        // Breath 0 (Exhale) -> Muffled (-500Hz)
-        // Breath 1 (Inhale) -> Bright (+500Hz)
-        // Center around the stress-based target
         const breathMod = (this.currentBreathValue - 0.5) * 1000;
         targetCutoff += breathMod;
-        // Clamp
         targetCutoff = Math.max(100, Math.min(20000, targetCutoff));
       }
+
+      // Intervention Override
+      if (isGrounding) targetCutoff = 200; // Deep Muffle
 
       this.filter.frequency.setTargetAtTime(targetCutoff, now, 0.5);
     }
@@ -445,12 +467,13 @@ class AudioEngine {
 
       // Narrative Pitch Shift
       if (this.narrativeArc === 'ASCENSION') {
-          // Shift up by an octave gradually
           root *= (1.0 + this.narrativeIntensity);
       } else if (this.narrativeArc === 'DESCENT') {
-          // Shift down by 5th
           root /= (1.0 + this.narrativeIntensity * 0.5);
       }
+
+      // Intervention Override
+      if (isGrounding) root = 55; // Force Sub-bass
 
       // Root
       this.drones[0].frequency.setTargetAtTime(root, now, rampTime);
@@ -462,7 +485,6 @@ class AudioEngine {
       if (this.droneGain) {
           let targetGain = this.droneVolume;
           if (this.bioLockEnabled) {
-              // Breath 1 -> Swell volume by +0.1
               targetGain += (this.currentBreathValue * 0.1);
           }
           this.droneGain.gain.setTargetAtTime(targetGain, now, 0.2);
@@ -472,10 +494,19 @@ class AudioEngine {
     // 3. Update Binaural Beats
     if (this.binauralLeft && this.binauralRight && this.binauralGain) {
         const base = AUDIO_CONFIG.BINAURAL_BASE_FREQ;
+        let targetRightFreq = base + entrainmentFreq;
+
+        // Intervention Override
+        if (isInterrupt) {
+             // Sweep effect handled by LFO would be better, but simple detune works
+             // Wobble the frequency
+             targetRightFreq = base + entrainmentFreq + (Math.sin(now * 10) * 20);
+        }
+
         // Left = Base
         this.binauralLeft.frequency.setTargetAtTime(base, now, rampTime);
         // Right = Base + Entrainment Frequency
-        this.binauralRight.frequency.setTargetAtTime(base + entrainmentFreq, now, rampTime);
+        this.binauralRight.frequency.setTargetAtTime(targetRightFreq, now, 0.1); // Fast update for wobble
 
         // Ensure volume is synced
         this.binauralGain.gain.setTargetAtTime(this.binauralVolume, now, 0.2);
@@ -495,15 +526,20 @@ class AudioEngine {
         let brownBase = AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN +
             (stress * (AUDIO_CONFIG.NOISE.BROWN_VOLUME_MAX - AUDIO_CONFIG.NOISE.BROWN_VOLUME_MIN));
 
-        // Apply Narrative Mod to Noise Balance
         if (this.narrativeArc === 'ASCENSION') {
-            // More Pink (Airy), Less Brown (Rumble)
             pinkBase *= (1.0 + this.narrativeIntensity);
             brownBase *= (1.0 - this.narrativeIntensity * 0.5);
         } else if (this.narrativeArc === 'DESCENT') {
-            // More Brown, Less Pink
             brownBase *= (1.0 + this.narrativeIntensity);
             pinkBase *= (1.0 - this.narrativeIntensity * 0.5);
+        }
+
+        // Intervention Override
+        if (isGrounding) {
+            brownBase = 0.5; // Massive Rumble
+            pinkBase = 0.0;
+        } else if (isInterrupt) {
+            pinkBase = 0.3 + (Math.sin(now * 15) * 0.2); // Harsh pulsing
         }
 
         // Apply Master Noise Volume Multiplier

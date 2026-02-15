@@ -16,6 +16,7 @@ import { AcousticField } from './components/AcousticField';
 import { AudioControls } from './components/AudioControls';
 import { RespirationControls } from './components/RespirationControls';
 import { AegisSystem } from './components/Aegis/AegisSystem';
+import { DefenseOverlay } from './components/DefenseOverlay';
 import { analytics } from './services/AnalyticsService';
 
 // Lazy load the Experience component
@@ -77,6 +78,7 @@ function App() {
       <SessionDebrief />
       <TelemetryControls />
       <HorizonIndicator />
+      <DefenseOverlay />
       <AegisSystem />
       <AcousticField />
       <AudioControls />
