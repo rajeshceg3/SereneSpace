@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { RespirationController } from '../../services/RespirationController';
 import { useRespirationStore, BreathPhase } from '../../stores/useRespirationStore';
 import { audioEngine } from '../../services/AudioEngine';
@@ -16,8 +16,8 @@ const mockAnalyser = {
   smoothingTimeConstant: 0.8,
   frequencyBinCount: 128,
   getByteTimeDomainData: vi.fn((array) => {
-    // Fill with some data
-    for(let i=0; i<array.length; i++) array[i] = 128 + 10; // Slight offset
+    // Default silence
+    for(let i=0; i<array.length; i++) array[i] = 128;
   }),
 };
 
@@ -48,12 +48,16 @@ Object.defineProperty(globalThis.navigator, 'mediaDevices', {
 });
 
 describe('RespirationController', () => {
+  let currentTime = 0;
+
   beforeEach(() => {
     useRespirationStore.setState({
       isActive: false,
       inputMode: 'PROCEDURAL',
       currentPhase: BreathPhase.INHALE,
-      selectedPatternId: 'COHERENCE'
+      selectedPatternId: 'COHERENCE',
+      coherence: 0,
+      breathRate: 0
     });
     vi.clearAllMocks();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,6 +72,21 @@ describe('RespirationController', () => {
     (RespirationController as any).analyser = null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (RespirationController as any).micSource = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (RespirationController as any).breathIntervals = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (RespirationController as any).lastBreathTime = 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (RespirationController as any).isBreathing = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (RespirationController as any).currentValue = 0;
+
+    currentTime = 1000;
+    vi.spyOn(performance, 'now').mockImplementation(() => currentTime);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should initialize with 0 value', () => {
@@ -96,24 +115,58 @@ describe('RespirationController', () => {
     expect(mockContext.createAnalyser).toHaveBeenCalled();
   });
 
-  it('should update value from microphone data', async () => {
+  it('should calculate high coherence for consistent breath', async () => {
+    // Setup
     useRespirationStore.getState().toggleActive();
     useRespirationStore.getState().setInputMode('MICROPHONE');
 
-    // Init
+    // Trigger Init
     RespirationController.update(0.1);
     await new Promise(resolve => setTimeout(resolve, 10));
 
-    // Update again to read data
-    RespirationController.update(0.1);
+    // Helper to simulate frames with specific amplitude
+    // Runs multiple frames to ensure smoothed value settles
+    const simulateFrames = (amplitude: number, count = 50) => {
+        mockAnalyser.getByteTimeDomainData.mockImplementation((array: Uint8Array) => {
+           for(let j=0; j<array.length; j++) array[j] = 128 + amplitude;
+        });
+        for(let i=0; i<count; i++) {
+            currentTime += 16; // Advance 16ms per frame
+            RespirationController.update(0.016);
+        }
+    };
 
-    expect(mockAnalyser.getByteTimeDomainData).toHaveBeenCalled();
-    // With our mock data (138), rms should be > 0.
-    // (138-128)/128 = 10/128 approx 0.078
-    // RMS approx 0.078
-    // Target 0.078 * 5 = 0.39
-    // Value moves from 0 towards 0.39
-    expect(RespirationController.getValue()).toBeGreaterThan(0);
+    // 1. First Breath ON (Start Baseline)
+    simulateFrames(30); // High amp -> Trigger Breath ON. CurrentTime increases by ~800ms.
+
+    // Advance 5 seconds (Silence)
+    currentTime += 5000;
+
+    // Turn OFF (Silence) to allow re-trigger
+    // Value must drop below threshold
+    simulateFrames(0);
+
+    // 2. Second Breath ON
+    // Interval = Now (~6.6s) - Last (~1s). Interval ~5.6s
+    simulateFrames(30);
+
+    // Advance 5 seconds
+    currentTime += 5000;
+
+    // Turn OFF
+    simulateFrames(0);
+
+    // 3. Third Breath ON
+    // Interval ~5.6s
+    simulateFrames(30);
+
+    // Check Coherence
+    const state = useRespirationStore.getState();
+    // Two intervals: ~5.6s and ~5.6s. Variance ~0. Coherence ~100.
+    expect(state.coherence).toBeGreaterThan(90);
+    // Rate: 30 / 5.6 ~= 5.3
+    expect(state.breathRate).toBeGreaterThan(4);
+    expect(state.breathRate).toBeLessThan(7);
   });
 
   it('should stop microphone when switching back to procedural', async () => {
