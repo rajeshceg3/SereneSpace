@@ -181,3 +181,43 @@ export const INFINITE_HORIZON_CONFIG = {
   DESTINATION_GAP: 20, // Average Z distance between destinations
   BATCH_SIZE: 3, // Number of destinations to generate at once
 };
+
+// --- SENTINEL MK.II (DEFENSE GRID) ---
+export const THREAT_LEVELS = {
+  SAFE: {
+    id: 'SAFE',
+    color: 'transparent',
+    vignette: 0,
+    desaturation: 0,
+  },
+  CAUTION: {
+    id: 'CAUTION',
+    color: 'rgba(255, 200, 100, 0.1)', // Subtle Yellow
+    vignette: 0.3, // Slight darkening of edges
+    desaturation: 0.2, // Mild color loss
+  },
+  WARNING: {
+    id: 'WARNING',
+    color: 'rgba(255, 100, 50, 0.2)', // Orange
+    vignette: 0.6, // Heavy darkening
+    desaturation: 0.5, // Significant color loss
+  },
+  CRITICAL: {
+    id: 'CRITICAL',
+    color: 'rgba(255, 0, 0, 0.2)', // Red
+    vignette: 0.9, // Tunnel vision
+    desaturation: 0.9, // Near B&W
+  },
+} as const;
+
+export const THREAT_THRESHOLDS = {
+  ACUTE_VELOCITY: 0.2, // Stress rising > 0.2 units/sec (Panic Spike)
+  CHRONIC_DURATION: 5000, // 5 seconds of sustained stress > 0.6
+  STAGNATION_VARIANCE: 0.01, // Very low variance implies zoning out
+};
+
+export const COUNTER_MEASURES = {
+  VISUAL_DAMPENERS: 'VISUAL_DAMPENERS', // Vignette + Desaturation
+  AUDIO_GROUNDING: 'AUDIO_GROUNDING', // Boost Brown Noise, Drop Pitch
+  AUDIO_INTERRUPT: 'AUDIO_INTERRUPT', // Pulse Pink Noise
+} as const;
