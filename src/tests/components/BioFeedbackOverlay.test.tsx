@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BioFeedbackOverlay } from '../../components/BioFeedbackOverlay';
 import { useRespirationStore } from '../../stores/useRespirationStore';
-import { RespirationController } from '../../services/RespirationController';
 
 // Mock Canvas context
 HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
@@ -44,7 +43,7 @@ describe('BioFeedbackOverlay', () => {
         useRespirationStore.setState({ inputMode: 'MICROPHONE' });
 
         // Spy on requestAnimationFrame to prevent infinite loop
-        vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => {
             return 1;
         });
 
