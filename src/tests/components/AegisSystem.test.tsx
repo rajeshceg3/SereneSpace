@@ -33,7 +33,6 @@ const mockMetrics = {
   threatLevel: 'SAFE',
 };
 
-// @ts-expect-error Mocking hook return value with partial/custom object
 vi.spyOn(useAegisDataHook, 'useAegisData').mockReturnValue(mockMetrics);
 
 describe('AegisSystem', () => {
