@@ -49,12 +49,16 @@ interface RespirationState {
   inputMode: 'PROCEDURAL' | 'MICROPHONE';
   selectedPatternId: string;
   currentPhase: BreathPhase;
+  coherence: number; // 0-100 score of rhythmic consistency
+  breathRate: number; // Breaths per minute
 
   // Actions
   toggleActive: () => void;
   setInputMode: (mode: 'PROCEDURAL' | 'MICROPHONE') => void;
   setPattern: (patternId: string) => void;
   setPhase: (phase: BreathPhase) => void; // Called by the Controller/System
+  setCoherence: (val: number) => void;
+  setBreathRate: (val: number) => void;
 }
 
 export const useRespirationStore = create<RespirationState>((set) => ({
@@ -62,9 +66,13 @@ export const useRespirationStore = create<RespirationState>((set) => ({
   inputMode: 'PROCEDURAL',
   selectedPatternId: 'COHERENCE',
   currentPhase: BreathPhase.INHALE,
+  coherence: 80, // Default to high coherence for new users
+  breathRate: 6, // Default to 6bpm
 
   toggleActive: () => set((state) => ({ isActive: !state.isActive })),
   setInputMode: (mode) => set({ inputMode: mode }),
+  setCoherence: (val: number) => set({ coherence: val }),
+  setBreathRate: (val: number) => set({ breathRate: val }),
   setPattern: (patternId) => {
     if (BREATH_PATTERNS[patternId]) {
       set({ selectedPatternId: patternId });

@@ -4,6 +4,7 @@ import { useResonanceStore } from '../stores/useResonanceStore';
 import { usePredictionStore } from '../stores/usePredictionStore';
 import { useNarrativeStore } from '../stores/useNarrativeStore';
 import { useTelemetryStore } from '../stores/useTelemetryStore'; // Added import
+import { useRespirationStore } from '../stores/useRespirationStore';
 import { narrativeEngine } from '../services/NarrativeEngine';
 import { audioEngine } from '../services/AudioEngine';
 
@@ -27,7 +28,10 @@ export const DreamWeaver = () => {
         ? history.reduce((acc, curr) => acc + curr.coherenceScore, 0) / history.length
         : 80; // Default baseline for new users
 
-      const result = narrativeEngine.determineArc(currentArc, stress, stressVelocity, coherence);
+      // Get real-time breath coherence
+      const breathCoherence = useRespirationStore.getState().coherence;
+
+      const result = narrativeEngine.determineArc(currentArc, stress, stressVelocity, coherence, breathCoherence);
 
       if (result.arc !== currentArc) {
           setArc(result.arc);

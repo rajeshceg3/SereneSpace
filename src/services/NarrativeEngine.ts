@@ -17,7 +17,8 @@ export class NarrativeEngine {
     currentArc: NarrativeArc,
     stress: number,
     velocity: number, // Stress change per second
-    coherence: number // User's historical coherence (0-100)
+    sessionCoherence: number, // User's historical coherence (0-100)
+    breathCoherence: number = 80 // New: Real-time breath coherence (0-100). Default to 80 (High) for backward compatibility
   ): { arc: NarrativeArc; intensity: number } {
     let nextArc = currentArc;
     let targetIntensity = 0;
@@ -29,8 +30,11 @@ export class NarrativeEngine {
     }
 
     // 2. High Coherence + Low Stress -> Trigger ASCENSION (Exploration)
-    if (coherence > 70 && stress < 0.2 && velocity < 0.01) {
-        return { arc: 'ASCENSION', intensity: Math.min(1, (coherence - 70) / 30) };
+    // Requires both session coherence (history) and breath coherence (now)
+    if (sessionCoherence > 70 && breathCoherence > 60 && stress < 0.2 && velocity < 0.01) {
+        // Intensity is boosted by breath coherence
+        const boost = (breathCoherence - 60) / 40; // 0 to 1
+        return { arc: 'ASCENSION', intensity: Math.min(1, ((sessionCoherence - 70) / 30) + boost * 0.2) };
     }
 
     // 3. Very Low Stress + Zero Velocity -> Trigger STASIS (Deep Flow)
@@ -40,8 +44,11 @@ export class NarrativeEngine {
 
     // 4. Default: INITIATION (Baseline) if nothing else triggers
     // But maintain current arc if conditions are borderline to prevent flickering (Hysteresis)
-    if (currentArc === 'ASCENSION' && stress > 0.4) {
-        nextArc = 'INITIATION'; // Fall back
+    if (currentArc === 'ASCENSION') {
+        // Dropping out of Ascension requires significant stress or loss of coherence
+        if (stress > 0.4 || breathCoherence < 40) {
+             nextArc = 'INITIATION';
+        }
     } else if (currentArc === 'DESCENT' && stress < 0.3) {
         nextArc = 'INITIATION'; // Stabilized
     } else if (currentArc === 'STASIS' && stress > 0.2) {

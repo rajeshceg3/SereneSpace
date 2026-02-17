@@ -35,6 +35,11 @@ To close the sensory feedback loop, allowing users to "hear" their cognitive sta
 - **Bio-Rhythm Lock:** Use microphone input (if permitted) to detect breathing rate and sync the drone swelling to the user's breath.
 
 ## Phase 4: Tactical Control (Q1 2025)
+**"The Aetheric Bio-Link" (Bio-Acoustic Resonance Protocol)**
+- **Strategic Bio-Feedback:** Real-time analysis of breath coherence to gate narrative progression.
+- **Visual Feedback HUD:** Oscilloscope-style visualization of respiration dynamics (`BioFeedbackOverlay`).
+- **Coherence Tracking:** Calculation of rhythmic consistency score (0-100) to enforce cognitive stability.
+
 **"Oculus Insight Interface"**
 - **User Configuration:** expose mixing controls (Drone vs. Binaural balance).
 - **Custom Protocols:** Allow users to define their own frequency maps.

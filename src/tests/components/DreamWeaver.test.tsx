@@ -7,6 +7,7 @@ import { useResonanceStore } from '../../stores/useResonanceStore';
 import { usePredictionStore } from '../../stores/usePredictionStore';
 import { useNarrativeStore } from '../../stores/useNarrativeStore';
 import { useTelemetryStore } from '../../stores/useTelemetryStore';
+import { useRespirationStore } from '../../stores/useRespirationStore';
 import { narrativeEngine } from '../../services/NarrativeEngine';
 import { audioEngine } from '../../services/AudioEngine';
 import * as R3F from '@react-three/fiber';
@@ -37,6 +38,7 @@ describe('DreamWeaver', () => {
     useResonanceStore.setState({ currentStress: 0.5 });
     usePredictionStore.setState({ stressVelocity: 0.1, projectedStress: 0.6, confidence: 0.8 });
     useNarrativeStore.setState({ currentArc: 'INITIATION', intensity: 0 });
+    useRespirationStore.setState({ coherence: 80 });
 
     // Mock Telemetry Store state since we access getState() directly
     useTelemetryStore.setState({
@@ -77,8 +79,8 @@ describe('DreamWeaver', () => {
     expect(narrativeEngine.determineArc).toHaveBeenCalled();
 
     // Verify arguments passed to engine (should use coherence from store = 90)
-    // determineArc(currentArc, stress, velocity, coherence)
-    expect(narrativeEngine.determineArc).toHaveBeenCalledWith('INITIATION', 0.5, 0.1, 90);
+    // determineArc(currentArc, stress, velocity, sessionCoherence, breathCoherence)
+    expect(narrativeEngine.determineArc).toHaveBeenCalledWith('INITIATION', 0.5, 0.1, 90, 80);
 
     expect(useNarrativeStore.getState().currentArc).toBe('ASCENSION');
     expect(useNarrativeStore.getState().intensity).toBe(0.8);

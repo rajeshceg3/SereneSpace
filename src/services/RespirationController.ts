@@ -13,6 +13,14 @@ class RespirationControllerService {
   private micBuffer: Uint8Array | null = null;
   private isInitializingMic: boolean = false;
 
+  // Coherence State
+  private lastBreathTime: number = 0;
+  private breathIntervals: number[] = [];
+  private readonly MAX_HISTORY = 10;
+  private isBreathing: boolean = false;
+  private breathThresholdHigh = 0.05; // Trigger ON
+  private breathThresholdLow = 0.02;  // Trigger OFF
+
   public update(deltaTime: number): void {
     const state = useRespirationStore.getState();
 
@@ -106,6 +114,11 @@ class RespirationControllerService {
     }
     // Don't disconnect analyser as we might reuse context? Actually node creation is cheap.
     this.analyser = null;
+
+    // Reset Coherence State
+    this.breathIntervals = [];
+    this.lastBreathTime = 0;
+    this.isBreathing = false;
   }
 
   private updateFromMicrophone() {
@@ -129,6 +142,62 @@ class RespirationControllerService {
 
     // Smooth transition
     this.currentValue += (target - this.currentValue) * 0.1;
+
+    // --- Breath Detection Logic ---
+    const now = performance.now();
+
+    if (!this.isBreathing && this.currentValue > this.breathThresholdHigh) {
+        // Breath Start (Inhale/Exhale Pulse)
+        this.isBreathing = true;
+
+        if (this.lastBreathTime > 0) {
+            const interval = (now - this.lastBreathTime) / 1000; // Seconds
+            // Filter noise: Breaths are rarely faster than 1s (60bpm) or slower than 15s (4bpm)
+            if (interval > 1.0 && interval < 15.0) {
+                this.addBreathInterval(interval);
+            }
+        }
+        this.lastBreathTime = now;
+    } else if (this.isBreathing && this.currentValue < this.breathThresholdLow) {
+        // Breath End
+        this.isBreathing = false;
+    }
+  }
+
+  private addBreathInterval(interval: number) {
+      this.breathIntervals.push(interval);
+      if (this.breathIntervals.length > this.MAX_HISTORY) {
+          this.breathIntervals.shift();
+      }
+      this.calculateCoherence();
+  }
+
+  private calculateCoherence() {
+      if (this.breathIntervals.length < 2) return;
+
+      // Calculate Mean Interval
+      const mean = this.breathIntervals.reduce((a, b) => a + b, 0) / this.breathIntervals.length;
+
+      // Calculate Variance
+      const variance = this.breathIntervals.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / this.breathIntervals.length;
+      const stdDev = Math.sqrt(variance);
+
+      // Coherence Score: Consistency of rhythm
+      // CV = stdDev / mean
+      const cv = stdDev / mean;
+      // Formula: 100 * (1 - cv*2) clamped. (CV of 0.5 -> 0 score)
+      const score = Math.max(0, Math.min(100, 100 * (1 - cv * 2)));
+
+      // Breath Rate (BPM) estimation
+      // Assuming intervals are "Half-Cycles" (Inhale... Exhale...), Full Cycle = 2 * Mean
+      // BPM = 60 / (Mean * 2) = 30 / Mean
+      // If intervals are Full Cycles (continuous breathing), BPM = 60 / Mean.
+      // Given the microphone gap logic, it's safer to assume pulses.
+      // Let's assume 30 / Mean for now as a conservative estimate.
+      const bpm = Math.round(30 / mean);
+
+      useRespirationStore.getState().setCoherence(score);
+      useRespirationStore.getState().setBreathRate(bpm);
   }
 
   private getDuration(pattern: BreathPattern, phase: BreathPhase): number {
