@@ -210,6 +210,8 @@ export const THREAT_LEVELS = {
   },
 } as const;
 
+export type ThreatLevel = keyof typeof THREAT_LEVELS;
+
 export const THREAT_THRESHOLDS = {
   ACUTE_VELOCITY: 0.2, // Stress rising > 0.2 units/sec (Panic Spike)
   CHRONIC_DURATION: 5000, // 5 seconds of sustained stress > 0.6

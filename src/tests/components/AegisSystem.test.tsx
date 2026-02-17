@@ -28,8 +28,12 @@ const mockMetrics = {
   coherence: 85,
   history: [0.3, 0.35, 0.3],
   isRecording: true,
+  isManualOverride: false,
+  manualAudioMode: false,
+  threatLevel: 'SAFE',
 };
 
+// @ts-expect-error Mocking hook return value with partial/custom object
 vi.spyOn(useAegisDataHook, 'useAegisData').mockReturnValue(mockMetrics);
 
 describe('AegisSystem', () => {
@@ -39,7 +43,7 @@ describe('AegisSystem', () => {
 
   it('is hidden by default', () => {
     render(<AegisSystem />);
-    const text = screen.queryByText('SENTINEL PROTOCOL');
+    const text = screen.queryByText('SENTINEL COMMAND INTERFACE');
     expect(text).toBeNull();
   });
 
@@ -50,9 +54,8 @@ describe('AegisSystem', () => {
         fireEvent.keyDown(window, { code: 'KeyH' });
     });
 
-    // Check for a known text element from AegisDisplay
-    // Since AegisDisplay renders "SENTINEL PROTOCOL", we look for that
-    expect(screen.getByText('SENTINEL PROTOCOL')).toBeInTheDocument();
+    // Check for a known text element from AegisCommandCenter
+    expect(screen.getByText('SENTINEL COMMAND INTERFACE')).toBeInTheDocument();
     expect(screen.getByText('OBSERVER')).toBeInTheDocument();
   });
 
@@ -62,11 +65,11 @@ describe('AegisSystem', () => {
     act(() => {
         fireEvent.keyDown(window, { code: 'KeyH' });
     });
-    expect(screen.getByText('SENTINEL PROTOCOL')).toBeInTheDocument();
+    expect(screen.getByText('SENTINEL COMMAND INTERFACE')).toBeInTheDocument();
 
     act(() => {
         fireEvent.keyDown(window, { code: 'KeyH' });
     });
-    expect(screen.queryByText('SENTINEL PROTOCOL')).toBeNull();
+    expect(screen.queryByText('SENTINEL COMMAND INTERFACE')).toBeNull();
   });
 });

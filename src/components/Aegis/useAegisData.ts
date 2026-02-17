@@ -3,6 +3,7 @@ import { useSentinelStore } from '../../stores/useSentinelStore';
 import { usePredictionStore } from '../../stores/usePredictionStore';
 import { useResonanceStore } from '../../stores/useResonanceStore';
 import { useTelemetryStore } from '../../stores/useTelemetryStore';
+import { useAudioStore } from '../../stores/useAudioStore';
 import type { AegisMetrics } from './types';
 
 export const useAegisData = (): AegisMetrics => {
@@ -10,6 +11,7 @@ export const useAegisData = (): AegisMetrics => {
   const prediction = usePredictionStore();
   const resonance = useResonanceStore();
   const telemetry = useTelemetryStore();
+  const audio = useAudioStore();
 
   const [metrics, setMetrics] = useState<AegisMetrics>({
     protocol: 'OBSERVER',
@@ -21,6 +23,9 @@ export const useAegisData = (): AegisMetrics => {
     coherence: 100,
     history: [],
     isRecording: false,
+    isManualOverride: false,
+    manualAudioMode: false,
+    threatLevel: 'SAFE',
   });
 
   useEffect(() => {
@@ -55,11 +60,14 @@ export const useAegisData = (): AegisMetrics => {
         coherence: Math.round(coherence),
         history: historyValues,
         isRecording: telemetry.isRecording,
+        isManualOverride: sentinel.isManualOverride,
+        manualAudioMode: audio.manualMode,
+        threatLevel: sentinel.threatLevel,
       });
     }, 100);
 
     return () => clearInterval(interval);
-  }, [sentinel, prediction, resonance, telemetry]);
+  }, [sentinel, prediction, resonance, telemetry, audio]);
 
   return metrics;
 };

@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useAegisData } from './useAegisData';
-import { AegisDisplay } from './AegisDisplay';
-import { AegisAudio } from './AegisAudio';
+import { AegisCommandCenter } from './AegisCommandCenter';
 import { useAtlasStore } from '../../stores/useAtlasStore';
 
 export const AegisSystem = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const metrics = useAegisData();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -22,7 +19,7 @@ export const AegisSystem = () => {
     };
 
     // Log instruction for the user (Mission Control style)
-    console.log('[AEGIS] System Standby. Press "H" to toggle Tactical HUD, "M" for Neural Atlas.');
+    console.log('[AEGIS] System Standby. Press "H" to toggle SENTINEL COMMAND INTERFACE, "M" for Neural Atlas.');
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -32,8 +29,7 @@ export const AegisSystem = () => {
 
   return (
     <>
-      <AegisDisplay metrics={metrics} />
-      <AegisAudio />
+      <AegisCommandCenter />
     </>
   );
 };

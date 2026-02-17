@@ -83,7 +83,10 @@ export const SentinelDefenseSystem = () => {
     // 2. Threat Analysis (New Defense Grid)
     threatAnalyzer.addSample(stress, now);
     // Throttle threat checks to avoid thrashing (every 500ms)
-    if (now - lastThreatCheck.current > 500) {
+    // SKIP IF MANUAL OVERRIDE IS ACTIVE
+    const isManualOverride = useSentinelStore.getState().isManualOverride;
+
+    if (now - lastThreatCheck.current > 500 && !isManualOverride) {
         const signature = threatAnalyzer.detectSignature();
         const threat = threatAnalyzer.assessThreat(signature, stress);
         setThreatLevel(threat);
