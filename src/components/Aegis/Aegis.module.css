@@ -113,3 +113,63 @@
   padding: 20px 40px;
   background: rgba(0,0,0,0.7);
 }
+
+/* CRT EFFECTS */
+.scanline {
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0,0,0,0.1) 50%,
+    rgba(0,0,0,0.1)
+  );
+  background-size: 100% 4px;
+  animation: scanlineScroll 0.2s linear infinite;
+}
+
+@keyframes scanlineScroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 4px; }
+}
+
+.flicker {
+  animation: crtFlicker 0.15s infinite;
+}
+
+@keyframes crtFlicker {
+  0% { opacity: 0.95; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+/* TACTICAL COMPONENTS */
+.tacticalButton {
+  background: transparent;
+  border: 1px solid rgba(0,255,255,0.3);
+  color: cyan;
+  font-family: 'Courier New', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.tacticalButton:hover:not(:disabled) {
+  background: rgba(0,255,255,0.1);
+  box-shadow: 0 0 10px rgba(0,255,255,0.3);
+  border-color: rgba(0,255,255,0.8);
+}
+
+.tacticalButton:active:not(:disabled) {
+  background: rgba(0,255,255,0.3);
+  transform: translateY(1px);
+}
+
+.tacticalButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.3);
+}
