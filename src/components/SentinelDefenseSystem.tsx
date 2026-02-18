@@ -65,6 +65,10 @@ export const SentinelDefenseSystem = () => {
   }, [activateCounterMeasure, deactivateCounterMeasure]);
 
   useFrame((_, delta) => {
+    // TACTICAL OVERRIDE CHECK
+    const isSimulationPaused = useSentinelStore.getState().isSimulationPaused;
+    if (isSimulationPaused) return;
+
     const stress = useResonanceStore.getState().currentStress;
     const activeProtocol = useSentinelStore.getState().activeProtocol;
     const setDecayRate = useResonanceStore.getState().setDecayRate;
@@ -93,7 +97,24 @@ export const SentinelDefenseSystem = () => {
         lastThreatCheck.current = now;
     }
 
-    // 3. Protocol Switching (Original Sentinel Logic)
+    // 3. Protocol Switching Logic
+
+    // TACTICAL LOCK CHECK
+    const lockedProtocol = useSentinelStore.getState().lockedProtocol;
+    if (lockedProtocol) {
+        if (activeProtocol !== lockedProtocol) {
+            setProtocol(lockedProtocol);
+            analytics.track('Sentinel Protocol Locked', { protocol: lockedProtocol });
+            // Apply protocol settings immediately
+            if (setDecayRate) setDecayRate(SENTINEL_PROTOCOLS[lockedProtocol].decayRate);
+            setEntrainmentFreq(SENTINEL_ENTRAINMENT_MAP[lockedProtocol]);
+        }
+        return; // Bypass all automated switching
+    }
+
+    // SKIP AUTOMATION IF MANUAL OVERRIDE IS ACTIVE (Fixes Legacy Logic Gap)
+    if (isManualOverride) return;
+
     const isProjectedHigh = projected > 0.8 && confidence > 0.7;
 
     if (stress > 0.8 || isProjectedHigh) {

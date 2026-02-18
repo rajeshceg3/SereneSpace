@@ -55,7 +55,8 @@ describe('AegisSystem', () => {
 
     // Check for a known text element from AegisCommandCenter
     expect(screen.getByText('SENTINEL COMMAND INTERFACE')).toBeInTheDocument();
-    expect(screen.getByText('OBSERVER')).toBeInTheDocument();
+    // Use getAllByText because "OBSERVER" appears in both Status and Protocol Lock sections
+    expect(screen.getAllByText('OBSERVER').length).toBeGreaterThan(0);
   });
 
   it('toggles off when H is pressed again', () => {

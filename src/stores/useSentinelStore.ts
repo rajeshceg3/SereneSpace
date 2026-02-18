@@ -13,9 +13,15 @@ interface SentinelState {
   activeCounterMeasures: CounterMeasure[];
   isManualOverride: boolean;
 
+  // New Tactical Controls
+  lockedProtocol: Protocol | null;
+  isSimulationPaused: boolean;
+
   setProtocol: (protocol: Protocol) => void;
   setThreatLevel: (level: ThreatLevel) => void;
   setManualOverride: (enabled: boolean) => void;
+  setLockedProtocol: (protocol: Protocol | null) => void;
+  setSimulationPaused: (paused: boolean) => void;
   activateCounterMeasure: (measure: CounterMeasure) => void;
   deactivateCounterMeasure: (measure: CounterMeasure) => void;
   reset: () => void;
@@ -28,6 +34,9 @@ export const useSentinelStore = create<SentinelState>((set) => ({
   threatLevel: 'SAFE',
   activeCounterMeasures: [],
   isManualOverride: false,
+
+  lockedProtocol: null,
+  isSimulationPaused: false,
 
   setProtocol: (protocol) => set((state) => {
     if (state.activeProtocol === protocol) return state;
@@ -43,6 +52,10 @@ export const useSentinelStore = create<SentinelState>((set) => ({
   }),
 
   setManualOverride: (enabled) => set({ isManualOverride: enabled }),
+
+  setLockedProtocol: (protocol) => set({ lockedProtocol: protocol }),
+
+  setSimulationPaused: (paused) => set({ isSimulationPaused: paused }),
 
   activateCounterMeasure: (measure) => set((state) => {
     if (state.activeCounterMeasures.includes(measure)) return state;

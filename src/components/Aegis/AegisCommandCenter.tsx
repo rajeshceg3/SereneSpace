@@ -4,17 +4,30 @@ import { useAegisData } from './useAegisData';
 import { useSentinelStore } from '../../stores/useSentinelStore';
 import { useAudioStore } from '../../stores/useAudioStore';
 import { useNarrativeStore } from '../../stores/useNarrativeStore';
-import { THREAT_LEVELS } from '../../constants';
+import { useBioLinkStore } from '../../stores/useBioLinkStore';
+import { bioLinkService } from '../../services/BioLinkService';
+import { THREAT_LEVELS, SENTINEL_PROTOCOLS } from '../../constants';
 
 // Import Types
 import type { ThreatLevel } from '../../constants';
 import type { NarrativeArc } from '../../stores/useNarrativeStore';
 
+type Protocol = keyof typeof SENTINEL_PROTOCOLS;
+
 export const AegisCommandCenter = () => {
   const metrics = useAegisData();
-  const { setManualOverride, setThreatLevel, isManualOverride } = useSentinelStore();
+  const {
+    setManualOverride,
+    setThreatLevel,
+    isManualOverride,
+    lockedProtocol,
+    setLockedProtocol,
+    isSimulationPaused,
+    setSimulationPaused
+  } = useSentinelStore();
   const { setManualMode, setManualFrequency, manualMode, layerVolumes, setLayerVolume } = useAudioStore();
   const { setArc } = useNarrativeStore();
+  const { isConnected, isConnecting, heartRate, hrv, deviceName } = useBioLinkStore();
 
   const {
     protocol,
@@ -48,7 +61,7 @@ export const AegisCommandCenter = () => {
   }, [history]);
 
   return (
-    <div className={styles.container} style={{ pointerEvents: 'none' }}>
+    <div className={`${styles.container} ${styles.scanline} ${styles.flicker}`} style={{ pointerEvents: 'none' }}>
       {/* HEADER */}
       <div style={{
           position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)',
@@ -67,7 +80,9 @@ export const AegisCommandCenter = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
                 <span className={styles.label}>PROTOCOL</span>
-                <div className={styles.value}>{protocol}</div>
+                <div className={styles.value} style={{ color: lockedProtocol ? '#ffaa00' : 'inherit' }}>
+                    {lockedProtocol ? `${lockedProtocol} [LOCKED]` : protocol}
+                </div>
             </div>
             <div>
                 <span className={styles.label}>THREAT</span>
@@ -98,10 +113,94 @@ export const AegisCommandCenter = () => {
           </div>
         </div>
 
+        {/* BIO-LINK NODE (NEW) */}
+        <div className={styles.panel}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+               <span className={styles.label}>BIO-LINK NODE</span>
+               <button
+                  onClick={() => isConnected ? bioLinkService.disconnect() : bioLinkService.connect()}
+                  disabled={isConnecting}
+                  className={styles.tacticalButton}
+                  style={{
+                      color: isConnected ? '#00ff00' : (isConnecting ? '#ffff00' : 'cyan'),
+                      borderColor: isConnected ? '#00ff00' : (isConnecting ? '#ffff00' : 'cyan')
+                  }}
+               >
+                   {isConnecting ? 'SCANNING...' : (isConnected ? 'DISCONNECT' : 'LINK SENSOR')}
+               </button>
+           </div>
+
+           {isConnected ? (
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                   <div>
+                       <span className={styles.label}>HEART RATE</span>
+                       <div className={styles.value}>{heartRate} <span style={{fontSize: '0.6rem'}}>BPM</span></div>
+                   </div>
+                   <div>
+                       <span className={styles.label}>HRV (RMSSD)</span>
+                       <div className={styles.value}>{hrv} <span style={{fontSize: '0.6rem'}}>MS</span></div>
+                   </div>
+                   <div style={{ gridColumn: 'span 2', fontSize: '0.6rem', opacity: 0.7, marginTop: '5px' }}>
+                       DEVICE: {deviceName}
+                   </div>
+               </div>
+           ) : (
+               <div style={{ fontSize: '0.7rem', opacity: 0.5, fontStyle: 'italic', textAlign: 'center', padding: '10px 0' }}>
+                   NO BIOMETRIC FEED LINKED
+               </div>
+           )}
+        </div>
+
       </div>
 
       {/* RIGHT COLUMN: CONTROLS */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'flex-end', pointerEvents: 'auto' }}>
+
+        {/* TACTICAL OVERRIDE (NEW) */}
+        <div className={styles.panel}>
+            <span className={styles.label}>TACTICAL OVERRIDE</span>
+
+            <div style={{ marginBottom: '15px' }}>
+                <button
+                    onClick={() => setSimulationPaused(!isSimulationPaused)}
+                    className={styles.tacticalButton}
+                    style={{
+                        width: '100%',
+                        background: isSimulationPaused ? 'rgba(255, 50, 50, 0.2)' : 'transparent',
+                        borderColor: isSimulationPaused ? '#ff3333' : 'cyan',
+                        color: isSimulationPaused ? '#ff3333' : 'cyan'
+                    }}
+                >
+                    {isSimulationPaused ? '⚠ SIMULATION FROZEN ⚠' : 'PAUSE SIMULATION'}
+                </button>
+            </div>
+
+            <span className={styles.label}>PROTOCOL LOCK</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginTop: '5px' }}>
+                 <button
+                    onClick={() => setLockedProtocol(null)}
+                    className={styles.tacticalButton}
+                    style={{ opacity: !lockedProtocol ? 1 : 0.5, background: !lockedProtocol ? 'rgba(0,255,255,0.2)' : 'transparent' }}
+                 >
+                     AUTO
+                 </button>
+                 {Object.keys(SENTINEL_PROTOCOLS).map(p => (
+                     <button
+                        key={p}
+                        onClick={() => setLockedProtocol(p as Protocol)}
+                        className={styles.tacticalButton}
+                        style={{
+                            opacity: lockedProtocol === p ? 1 : 0.5,
+                            background: lockedProtocol === p ? 'rgba(255, 170, 0, 0.2)' : 'transparent',
+                            borderColor: lockedProtocol === p ? '#ffaa00' : 'rgba(0,255,255,0.3)',
+                            color: lockedProtocol === p ? '#ffaa00' : 'rgba(0,255,255,0.8)'
+                        }}
+                     >
+                         {p}
+                     </button>
+                 ))}
+            </div>
+        </div>
 
         {/* DEFENSE OVERRIDE */}
         <div className={styles.panel}>
@@ -109,11 +208,10 @@ export const AegisCommandCenter = () => {
                <span className={styles.label}>DEFENSE OVERRIDE</span>
                <button
                   onClick={() => setManualOverride(!isManualOverride)}
+                  className={styles.tacticalButton}
                   style={{
                       background: isManualOverride ? 'cyan' : 'transparent',
                       color: isManualOverride ? '#000' : 'cyan',
-                      border: '1px solid cyan',
-                      cursor: 'pointer', fontSize: '0.7rem', padding: '2px 8px'
                   }}
                >
                    {isManualOverride ? 'ACTIVE' : 'STANDBY'}
@@ -125,10 +223,11 @@ export const AegisCommandCenter = () => {
                    <button
                        key={level}
                        onClick={() => isManualOverride && setThreatLevel(level as ThreatLevel)}
+                       className={styles.tacticalButton}
                        style={{
                            background: threatLevel === level ? 'rgba(0,255,255,0.3)' : 'transparent',
                            border: '1px solid rgba(0,255,255,0.3)',
-                           color: 'inherit', fontSize: '0.6rem', padding: '5px', cursor: isManualOverride ? 'pointer' : 'default'
+                           cursor: isManualOverride ? 'pointer' : 'default'
                        }}
                    >
                        {level}
@@ -145,12 +244,8 @@ export const AegisCommandCenter = () => {
                     <button
                         key={arc}
                         onClick={() => setArc(arc as NarrativeArc)}
-                        style={{
-                            background: 'transparent',
-                            border: '1px solid rgba(200,200,255,0.3)',
-                            color: 'rgba(200,200,255,0.8)',
-                            fontSize: '0.6rem', padding: '5px', flex: 1, cursor: 'pointer'
-                        }}
+                        className={styles.tacticalButton}
+                        style={{ flex: 1 }}
                     >
                         {arc}
                     </button>
@@ -164,11 +259,10 @@ export const AegisCommandCenter = () => {
                <span className={styles.label}>SONIC MANIPULATION</span>
                <button
                   onClick={() => setManualMode(!manualMode)}
+                  className={styles.tacticalButton}
                   style={{
                       background: manualMode ? 'cyan' : 'transparent',
                       color: manualMode ? '#000' : 'cyan',
-                      border: '1px solid cyan',
-                      cursor: 'pointer', fontSize: '0.7rem', padding: '2px 8px'
                   }}
                >
                    {manualMode ? 'MANUAL' : 'AUTO'}
