@@ -18,6 +18,7 @@ interface AudioState {
   // New State
   layerVolumes: LayerVolumes;
   bioLockEnabled: boolean;
+  manualMode: boolean;
 
   toggleMute: () => void;
   setVolume: (volume: number) => void;
@@ -27,6 +28,8 @@ interface AudioState {
   // New Actions
   setLayerVolume: (layer: keyof LayerVolumes, volume: number) => void;
   setBioLock: (enabled: boolean) => void;
+  setManualMode: (enabled: boolean) => void;
+  setManualFrequency: (layer: 'drone' | 'binaural', frequency: number) => void;
 }
 
 export const useAudioStore = create<AudioState>((set) => ({
@@ -42,6 +45,7 @@ export const useAudioStore = create<AudioState>((set) => ({
     reverb: AUDIO_CONFIG.REVERB.MIX,
   },
   bioLockEnabled: false,
+  manualMode: false,
 
   toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
   setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
@@ -59,5 +63,14 @@ export const useAudioStore = create<AudioState>((set) => ({
   setBioLock: (enabled) => {
     set({ bioLockEnabled: enabled });
     audioEngine.setBioLock(enabled);
+  },
+
+  setManualMode: (enabled) => {
+    set({ manualMode: enabled });
+    audioEngine.setManualMode(enabled);
+  },
+
+  setManualFrequency: (layer, frequency) => {
+    audioEngine.setManualFrequency(layer, frequency);
   },
 }));

@@ -71,6 +71,11 @@ class AudioEngine {
   private interventionMode: 'NONE' | 'GROUNDING' | 'PATTERN_INTERRUPT' = 'NONE';
   private interventionExpiry: number = 0;
 
+  // Manual Override (Sentinel Command Interface)
+  private manualMode: boolean = false;
+  private manualDroneFreq: number = 110;
+  private manualBinauralFreq: number = 10;
+
   private constructor() {}
 
   public static getInstance(): AudioEngine {
@@ -430,6 +435,18 @@ class AudioEngine {
     this.interventionExpiry = 0;
   }
 
+  public setManualMode(enabled: boolean) {
+    this.manualMode = enabled;
+  }
+
+  public setManualFrequency(layer: 'drone' | 'binaural', frequency: number) {
+    if (layer === 'drone') {
+        this.manualDroneFreq = frequency;
+    } else if (layer === 'binaural') {
+        this.manualBinauralFreq = frequency;
+    }
+  }
+
   public update(stress: number, protocol: SentinelProtocol, entrainmentFreq: number) {
     if (!this.ctx || !this.isRunning) return;
 
@@ -463,17 +480,19 @@ class AudioEngine {
     // 2. Update Drone Frequencies based on Protocol AND Volume (Bio-Lock)
     if (this.drones.length === 3) {
       const config = AUDIO_CONFIG.PROTOCOLS[protocol];
-      let root = config.root;
+      let root = this.manualMode ? this.manualDroneFreq : config.root;
 
-      // Narrative Pitch Shift
-      if (this.narrativeArc === 'ASCENSION') {
-          root *= (1.0 + this.narrativeIntensity);
-      } else if (this.narrativeArc === 'DESCENT') {
-          root /= (1.0 + this.narrativeIntensity * 0.5);
+      if (!this.manualMode) {
+          // Narrative Pitch Shift
+          if (this.narrativeArc === 'ASCENSION') {
+              root *= (1.0 + this.narrativeIntensity);
+          } else if (this.narrativeArc === 'DESCENT') {
+              root /= (1.0 + this.narrativeIntensity * 0.5);
+          }
+
+          // Intervention Override
+          if (isGrounding) root = 55; // Force Sub-bass
       }
-
-      // Intervention Override
-      if (isGrounding) root = 55; // Force Sub-bass
 
       // Root
       this.drones[0].frequency.setTargetAtTime(root, now, rampTime);
@@ -494,13 +513,15 @@ class AudioEngine {
     // 3. Update Binaural Beats
     if (this.binauralLeft && this.binauralRight && this.binauralGain) {
         const base = AUDIO_CONFIG.BINAURAL_BASE_FREQ;
-        let targetRightFreq = base + entrainmentFreq;
+        let targetRightFreq = base + (this.manualMode ? this.manualBinauralFreq : entrainmentFreq);
 
-        // Intervention Override
-        if (isInterrupt) {
-             // Sweep effect handled by LFO would be better, but simple detune works
-             // Wobble the frequency
-             targetRightFreq = base + entrainmentFreq + (Math.sin(now * 10) * 20);
+        if (!this.manualMode) {
+             // Intervention Override
+             if (isInterrupt) {
+                  // Sweep effect handled by LFO would be better, but simple detune works
+                  // Wobble the frequency
+                  targetRightFreq = base + entrainmentFreq + (Math.sin(now * 10) * 20);
+             }
         }
 
         // Left = Base
@@ -514,7 +535,8 @@ class AudioEngine {
 
     // 4. Update Isochronic Tones
     if (this.isochronicModulator) {
-        this.isochronicModulator.frequency.setTargetAtTime(entrainmentFreq, now, rampTime);
+        const targetFreq = this.manualMode ? this.manualBinauralFreq : entrainmentFreq;
+        this.isochronicModulator.frequency.setTargetAtTime(targetFreq, now, rampTime);
     }
 
     // 5. Update Noise Levels based on Stress (Atmosphere Density)

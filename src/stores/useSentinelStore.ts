@@ -11,9 +11,11 @@ interface SentinelState {
 
   threatLevel: ThreatLevel;
   activeCounterMeasures: CounterMeasure[];
+  isManualOverride: boolean;
 
   setProtocol: (protocol: Protocol) => void;
   setThreatLevel: (level: ThreatLevel) => void;
+  setManualOverride: (enabled: boolean) => void;
   activateCounterMeasure: (measure: CounterMeasure) => void;
   deactivateCounterMeasure: (measure: CounterMeasure) => void;
   reset: () => void;
@@ -25,6 +27,7 @@ export const useSentinelStore = create<SentinelState>((set) => ({
 
   threatLevel: 'SAFE',
   activeCounterMeasures: [],
+  isManualOverride: false,
 
   setProtocol: (protocol) => set((state) => {
     if (state.activeProtocol === protocol) return state;
@@ -38,6 +41,8 @@ export const useSentinelStore = create<SentinelState>((set) => ({
     if (state.threatLevel === level) return state;
     return { threatLevel: level };
   }),
+
+  setManualOverride: (enabled) => set({ isManualOverride: enabled }),
 
   activateCounterMeasure: (measure) => set((state) => {
     if (state.activeCounterMeasures.includes(measure)) return state;
@@ -54,5 +59,6 @@ export const useSentinelStore = create<SentinelState>((set) => ({
     lastSwitchTime: Date.now(),
     threatLevel: 'SAFE',
     activeCounterMeasures: [],
+    isManualOverride: false,
   }),
 }));

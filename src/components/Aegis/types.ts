@@ -8,6 +8,9 @@ export interface AegisMetrics {
   coherence: number; // 0-100
   history: number[]; // Last N points for sparkline
   isRecording: boolean;
+  isManualOverride: boolean;
+  manualAudioMode: boolean;
+  threatLevel: string;
 }
 
 export interface AegisState {
