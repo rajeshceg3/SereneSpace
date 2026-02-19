@@ -1,10 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import React from 'react';
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { OculusController } from '../components/Oculus/OculusController';
 import { useOculusStore } from '../stores/useOculusStore';
 import { useResonanceStore } from '../stores/useResonanceStore';
-import * as THREE from 'three';
 
 describe('Oculus System Verification', () => {
   beforeEach(() => {
