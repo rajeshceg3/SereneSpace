@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import React from 'react';
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { OculusController } from '../components/Oculus/OculusController';
 import { useOculusStore } from '../stores/useOculusStore';
