@@ -5,6 +5,10 @@ export interface SpatialPoint {
   x: number;
   y: number;
   z: number;
+  qx?: number; // quaternion x
+  qy?: number; // quaternion y
+  qz?: number; // quaternion z
+  qw?: number; // quaternion w
   stress: number;
   coherence: number;
   timestamp: number;
@@ -28,7 +32,7 @@ interface TelemetryState {
 
   // Actions
   logSample: (value: number) => void;
-  logSpatialSample: (x: number, y: number, z: number, stress: number, coherence: number) => void;
+  logSpatialSample: (x: number, y: number, z: number, stress: number, coherence: number, quaternion?: { x: number; y: number; z: number; w: number }) => void;
   logEvent: (eventName: string, value: number) => void;
   toggleRecording: () => void;
   setDebriefOpen: (isOpen: boolean) => void;
@@ -67,14 +71,21 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
       };
     }),
 
-  logSpatialSample: (x: number, y: number, z: number, stress: number, coherence: number) =>
+  logSpatialSample: (x: number, y: number, z: number, stress: number, coherence: number, quaternion?: { x: number; y: number; z: number; w: number }) =>
     set((state) => {
       if (!state.isRecording) return {};
       // Append efficiently
+      const point: SpatialPoint = { x, y, z, stress, coherence, timestamp: Date.now() };
+      if (quaternion) {
+        point.qx = quaternion.x;
+        point.qy = quaternion.y;
+        point.qz = quaternion.z;
+        point.qw = quaternion.w;
+      }
       return {
         sessionPath: [
           ...state.sessionPath,
-          { x, y, z, stress, coherence, timestamp: Date.now() }
+          point
         ]
       };
     }),
