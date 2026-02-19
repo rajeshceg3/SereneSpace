@@ -1,0 +1,168 @@
+.oculus-hud-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Let clicks pass through to canvas if needed, but UI elements catch them */
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2rem;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 10, 20, 0.4) 100%);
+}
+
+.oculus-hud-container {
+  pointer-events: auto;
+  background: rgba(0, 20, 30, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 255, 200, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 0 30px rgba(0, 255, 200, 0.1);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.oculus-hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.oculus-hud-header h2 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: #00ffcc;
+  margin: 0;
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+}
+
+.oculus-close-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 50, 50, 0.5);
+  color: rgba(255, 100, 100, 0.8);
+  padding: 0.4rem 1rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.oculus-close-btn:hover {
+  background: rgba(255, 50, 50, 0.1);
+  border-color: rgba(255, 100, 100, 0.8);
+  color: #ffcccc;
+  box-shadow: 0 0 10px rgba(255, 50, 50, 0.2);
+}
+
+.oculus-hud-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.oculus-metrics {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.oculus-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.oculus-metric-item label {
+  font-size: 0.7rem;
+  color: rgba(0, 255, 200, 0.6);
+  letter-spacing: 1px;
+}
+
+.oculus-metric-value {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.oculus-speed-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.oculus-speed-btn {
+  background: rgba(0, 255, 200, 0.05);
+  border: 1px solid rgba(0, 255, 200, 0.2);
+  color: rgba(0, 255, 200, 0.6);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.oculus-speed-btn:hover {
+  background: rgba(0, 255, 200, 0.15);
+  color: #fff;
+}
+
+.oculus-speed-btn.active {
+  background: rgba(0, 255, 200, 0.3);
+  border-color: #00ffcc;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(0, 255, 200, 0.3);
+}
+
+.oculus-timeline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.oculus-time {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: rgba(0, 255, 200, 0.8);
+  width: 40px;
+  text-align: center;
+}
+
+.oculus-scrubber {
+  flex: 1;
+  -webkit-appearance: none;
+  background: rgba(0, 255, 200, 0.1);
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.oculus-scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #00ffcc;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.oculus-scrubber::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}

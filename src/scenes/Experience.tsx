@@ -38,6 +38,7 @@ import { SynapticLattice } from '../components/SynapticLattice';
 import { AtlasTracker } from '../components/AtlasTracker';
 import { NeuralAtlas } from '../components/NeuralAtlas';
 import { MnemosyneStream } from '../components/MnemosyneStream';
+import { OculusController } from '../components/Oculus/OculusController';
 
 const AmbientScene = () => {
   const groupRef = useRef<THREE.Group>(null!);
@@ -86,6 +87,7 @@ const AmbientScene = () => {
       <NeuralAtlas />
       <CameraManager groupRef={groupRef} />
       <PerspectiveCamera makeDefault position={[0, 0, CAMERA_INITIAL_Z]} />
+      <OculusController />
       <Atmosphere />
       <FractalLandscape />
       <VerdantFlora />

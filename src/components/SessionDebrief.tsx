@@ -1,3 +1,4 @@
+import { useOculusStore } from '../stores/useOculusStore';
 import { useTelemetryStore } from '../stores/useTelemetryStore';
 import {
   TELEMETRY_GRAPH_WIDTH,
@@ -8,7 +9,8 @@ import {
 import './SessionDebrief.css';
 
 export const SessionDebrief = () => {
-  const { sessionData, isDebriefOpen, setDebriefOpen, archiveSession } = useTelemetryStore();
+  const { sessionData, sessionPath, isDebriefOpen, setDebriefOpen, archiveSession } = useTelemetryStore();
+  const startReplay = useOculusStore((state) => state.startReplay);
 
   if (!isDebriefOpen) return null;
 
@@ -122,6 +124,16 @@ export const SessionDebrief = () => {
         </div>
 
         <div className="session-debrief-actions">
+          <button
+            onClick={() => {
+              startReplay(sessionPath, sessionData);
+              setDebriefOpen(false);
+            }}
+            className="session-debrief-button"
+            style={{ marginRight: '1rem', borderColor: '#00ffcc', color: '#00ffcc' }}
+          >
+            Enter Oculus Replay
+          </button>
           <button
             onClick={() => {
               archiveSession();

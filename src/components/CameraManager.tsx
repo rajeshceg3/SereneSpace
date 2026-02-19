@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useDestinationStore } from '../stores/useDestinationStore';
+import { useOculusStore } from '../stores/useOculusStore';
 import type { Destination } from '../types';
 import {
   CAMERA_LERP_FACTOR,
@@ -23,9 +24,12 @@ export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Gr
     cameraTargetZ,
     reducedMotion,
   } = useDestinationStore();
+  const isReplaying = useOculusStore((state) => state.isReplaying);
   const lastCameraZRef = useRef<number | null>(null);
 
   useFrame((state) => {
+    if (isReplaying) return;
+
     // Smooth camera Z movement
     if (reducedMotion) {
       state.camera.position.z = cameraTargetZ;

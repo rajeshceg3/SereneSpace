@@ -17,13 +17,19 @@ export const SpatialTelemetryRecorder = () => {
       // Access state directly to avoid re-renders of this component
       const stress = useResonanceStore.getState().currentStress;
       const { x, y, z } = camera.position;
+      const quaternion = {
+        x: camera.quaternion.x,
+        y: camera.quaternion.y,
+        z: camera.quaternion.z,
+        w: camera.quaternion.w,
+      };
 
       // Calculate coherence from recent history (last 20 samples)
       const recentData = useTelemetryStore.getState().sessionData.slice(-20);
       const values = recentData.map((d) => d.value);
       const coherence = calculateCoherence(values);
 
-      useTelemetryStore.getState().logSpatialSample(x, y, z, stress, coherence);
+      useTelemetryStore.getState().logSpatialSample(x, y, z, stress, coherence, quaternion);
 
       timeSinceLastSample.current = 0;
     }
