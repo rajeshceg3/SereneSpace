@@ -18,7 +18,9 @@ class AudioEngine {
   // Layer Volumes (User Configurable)
   private droneVolume: number = 0.5;
   private binauralVolume: number = 0.3;
-  private noiseVolume: number = 1.0; // Multiplier for stress-based noise
+  private noiseVolume: number = 1.0; // Master Noise Multiplier
+  private pinkVolume: number = 1.0;  // Individual Pink Noise Level
+  private brownVolume: number = 1.0; // Individual Brown Noise Level
   private reverbVolume: number = AUDIO_CONFIG.REVERB.MIX;
 
   // Narrative State
@@ -384,7 +386,17 @@ class AudioEngine {
     this.masterGain.gain.setTargetAtTime(volume, now, 0.1);
   }
 
-  public setLayerVolume(layer: 'drone' | 'binaural' | 'noise' | 'reverb', volume: number) {
+  public getMixState() {
+    return {
+      drone: this.droneVolume,
+      binaural: this.binauralVolume,
+      pinkNoise: this.pinkVolume,
+      brownNoise: this.brownVolume,
+      reverb: this.reverbVolume
+    };
+  }
+
+  public setLayerVolume(layer: 'drone' | 'binaural' | 'noise' | 'pinkNoise' | 'brownNoise' | 'reverb', volume: number) {
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
     const clamp = (v: number) => Math.max(0, Math.min(1, v));
@@ -402,7 +414,13 @@ class AudioEngine {
         break;
       case 'noise':
         this.noiseVolume = val;
-        // Noise is updated in the loop based on stress, so we just update the multiplier state
+        // Updates master noise multiplier
+        break;
+      case 'pinkNoise':
+        this.pinkVolume = val;
+        break;
+      case 'brownNoise':
+        this.brownVolume = val;
         break;
       case 'reverb':
         this.reverbVolume = val;
@@ -564,9 +582,12 @@ class AudioEngine {
             pinkBase = 0.3 + (Math.sin(now * 15) * 0.2); // Harsh pulsing
         }
 
-        // Apply Master Noise Volume Multiplier
-        this.pinkNoiseGain.gain.setTargetAtTime(pinkBase * this.noiseVolume, now, rampTime);
-        this.brownNoiseGain.gain.setTargetAtTime(brownBase * this.noiseVolume, now, rampTime);
+        // Apply Master Noise Volume Multiplier AND Individual Volumes
+        const finalPink = pinkBase * this.noiseVolume * this.pinkVolume;
+        const finalBrown = brownBase * this.noiseVolume * this.brownVolume;
+
+        this.pinkNoiseGain.gain.setTargetAtTime(finalPink, now, rampTime);
+        this.brownNoiseGain.gain.setTargetAtTime(finalBrown, now, rampTime);
     }
 
     // 6. Update Reverb Level (User Configured)

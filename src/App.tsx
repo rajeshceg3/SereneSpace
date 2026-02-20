@@ -19,6 +19,7 @@ import { AegisSystem } from './components/Aegis/AegisSystem';
 import { DefenseOverlay } from './components/DefenseOverlay';
 import { BioFeedbackOverlay } from './components/BioFeedbackOverlay';
 import { OculusHUD } from './components/Oculus/OculusHUD';
+import { AethericCommandInterface } from './components/AethericCommand/AethericCommandInterface';
 import { analytics } from './services/AnalyticsService';
 
 // Lazy load the Experience component
@@ -87,6 +88,7 @@ function App() {
       <AcousticField />
       <AudioControls />
       <RespirationControls />
+      <AethericCommandInterface />
     </>
   );
 }
