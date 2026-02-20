@@ -151,7 +151,7 @@ export const TacticalDashboard: React.FC = () => {
       ctx.stroke();
 
       // Draw functions
-      const drawLine = (color: string, getValue: (pt: any) => number, max: number) => {
+      const drawLine = (color: string, getValue: (pt: { stress: number; hrv: number; coherence: number }) => number, max: number) => {
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
         ctx.beginPath();

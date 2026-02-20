@@ -1,29 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { audioEngine } from '../../services/AudioEngine';
 import { useAetherStore } from '../../stores/useAetherStore';
 
 export const AudioMixer: React.FC = () => {
-  const [mix, setMix] = useState({
-    drone: 0.5,
-    binaural: 0.3,
-    pinkNoise: 0.5,
-    brownNoise: 0.5,
-    reverb: 0.3
-  });
+  const [mix, setMix] = useState(() => audioEngine.getMixState());
 
   const [presetName, setPresetName] = useState('');
   const savePreset = useAetherStore((state) => state.savePreset);
   const presets = useAetherStore((state) => state.presets);
 
-  useEffect(() => {
-    // Initialize from engine
-    const current = audioEngine.getMixState();
-    setMix(current);
-  }, []);
-
   const handleVolumeChange = (layer: keyof typeof mix, val: number) => {
     setMix(prev => ({ ...prev, [layer]: val }));
-    audioEngine.setLayerVolume(layer as any, val);
+    audioEngine.setLayerVolume(layer, val);
   };
 
   const handleSave = () => {

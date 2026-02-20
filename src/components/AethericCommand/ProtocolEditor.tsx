@@ -158,7 +158,7 @@ export const ProtocolEditor: React.FC = () => {
                             <span style={{ color: '#aaa' }}>IF</span>
                             <select
                                 value={rule.condition.metric}
-                                onChange={(e) => handleUpdateRule(editingProfile.id, rule.id, { metric: e.target.value as any })}
+                                onChange={(e) => handleUpdateRule(editingProfile.id, rule.id, { metric: e.target.value as Rule['condition']['metric'] })}
                                 style={{ background: '#333', color: '#fff', border: 'none' }}
                             >
                                 <option value="STRESS">STRESS</option>
@@ -167,7 +167,7 @@ export const ProtocolEditor: React.FC = () => {
                             </select>
                             <select
                                 value={rule.condition.operator}
-                                onChange={(e) => handleUpdateRule(editingProfile.id, rule.id, { operator: e.target.value as any })}
+                                onChange={(e) => handleUpdateRule(editingProfile.id, rule.id, { operator: e.target.value as Rule['condition']['operator'] })}
                                 style={{ background: '#333', color: '#fff', border: 'none' }}
                             >
                                 <option value=">">&gt;</option>
@@ -194,7 +194,7 @@ export const ProtocolEditor: React.FC = () => {
                             <span style={{ color: '#aaa' }}>THEN</span>
                             <select
                                 value={rule.action.type}
-                                onChange={(e) => handleUpdateRule(editingProfile.id, rule.id, { type: e.target.value as any, target: '' })}
+                                onChange={(e) => handleUpdateRule(editingProfile.id, rule.id, { type: e.target.value as Rule['action']['type'], target: '' })}
                                 style={{ background: '#333', color: '#fff', border: 'none' }}
                             >
                                 <option value="INTERVENTION">TRIGGER INTERVENTION</option>
