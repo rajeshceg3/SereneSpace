@@ -4,6 +4,9 @@ import { useResonanceStore } from '../stores/useResonanceStore';
 import { useSentinelStore } from '../stores/useSentinelStore';
 import { useEntrainmentStore } from '../stores/useEntrainmentStore';
 import { usePredictionStore } from '../stores/usePredictionStore';
+import { useAetherStore } from '../stores/useAetherStore';
+import { useBioLinkStore } from '../stores/useBioLinkStore';
+import { useRespirationStore } from '../stores/useRespirationStore';
 import { PredictiveModel } from '../services/PredictiveModel';
 import { ThreatAnalyzer } from '../services/ThreatAnalyzer';
 import {
@@ -98,6 +101,15 @@ export const SentinelDefenseSystem = () => {
     }
 
     // 3. Protocol Switching Logic
+
+    // AETHERIC COMMAND OVERRIDE
+    const isCustomProfileActive = useAetherStore.getState().isCustomProfileActive;
+    if (isCustomProfileActive) {
+        const hrv = useBioLinkStore.getState().hrv;
+        const coherence = useRespirationStore.getState().coherence;
+        useAetherStore.getState().evaluateRules({ stress, hrv, coherence }, delta * 1000);
+        return; // Bypass hardcoded switching logic
+    }
 
     // TACTICAL LOCK CHECK
     const lockedProtocol = useSentinelStore.getState().lockedProtocol;
