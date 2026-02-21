@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Hud, PerspectiveCamera, Line, Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -9,11 +9,19 @@ import type { AtlasNode } from '../types';
 import { LoomVisualization } from './LoomVisualization';
 import { LoomControls } from './LoomControls';
 
+// Main Component: Handles mounting/unmounting based on store state
 export const NeuralAtlas = () => {
   const isOpen = useAtlasStore((state) => state.isOpen);
+
+  if (!isOpen) return null;
+
+  return <NeuralAtlasContent />;
+};
+
+// Content Component: Holds local state, reset when unmounted
+const NeuralAtlasContent = () => {
   const nodes = useAtlasStore((state) => state.nodes);
   const toggleAtlas = useAtlasStore((state) => state.toggleAtlas);
-
   const sessionPath = useTelemetryStore((state) => state.sessionPath);
 
   // Local State for Loom Mode
@@ -21,23 +29,10 @@ export const NeuralAtlas = () => {
   const [playbackProgress, setPlaybackProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Reset playback when opening atlas or switching modes
-  useEffect(() => {
-    if (isOpen) {
-      // Maybe reset? Or keep state.
-      // Keeping state is better for UX.
-    } else {
-        setIsPlaying(false);
-    }
-  }, [isOpen]);
-
   // Playback Loop
   useFrame((_state, delta) => {
     if (isPlaying && viewMode === 'LOOM') {
-      // Advance progress. Let's say full path takes 30 seconds by default,
-      // or adaptive based on length.
-      // For now, fixed rate: 10% per second is too fast.
-      // Let's say 30 seconds for full playback.
+      // Advance progress. Let's say full path takes 30 seconds by default
       const duration = 30;
       const step = delta / duration;
       setPlaybackProgress((prev) => {
@@ -79,8 +74,6 @@ export const NeuralAtlas = () => {
           };
       });
   }, [sessionPath]);
-
-  if (!isOpen) return null;
 
   return (
     <Hud renderPriority={2}>
