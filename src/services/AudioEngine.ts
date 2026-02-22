@@ -78,6 +78,9 @@ class AudioEngine {
   private manualDroneFreq: number = 110;
   private manualBinauralFreq: number = 10;
 
+  // Echo Chamber Modifiers (Cognitive Echo)
+  private echoDroneOffset: number = 0;
+
   private constructor() {}
 
   public static getInstance(): AudioEngine {
@@ -465,6 +468,17 @@ class AudioEngine {
     }
   }
 
+  // --- Cognitive Echo Interface ---
+
+  public nudgeDroneFrequency(delta: number) {
+    this.echoDroneOffset += delta;
+  }
+
+  public setNoiseTextureBalance(pink: number, brown: number) {
+    this.setLayerVolume('pinkNoise', pink);
+    this.setLayerVolume('brownNoise', brown);
+  }
+
   public update(stress: number, protocol: SentinelProtocol, entrainmentFreq: number) {
     if (!this.ctx || !this.isRunning) return;
 
@@ -510,6 +524,9 @@ class AudioEngine {
 
           // Intervention Override
           if (isGrounding) root = 55; // Force Sub-bass
+
+          // Apply Echo Offset
+          root += this.echoDroneOffset;
       }
 
       // Root

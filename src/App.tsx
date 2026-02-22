@@ -19,8 +19,10 @@ import { AegisSystem } from './components/Aegis/AegisSystem';
 import { DefenseOverlay } from './components/DefenseOverlay';
 import { BioFeedbackOverlay } from './components/BioFeedbackOverlay';
 import { OculusHUD } from './components/Oculus/OculusHUD';
+import { OculusInterface } from './components/Oculus/OculusInterface';
 import { AethericCommandInterface } from './components/AethericCommand/AethericCommandInterface';
 import { analytics } from './services/AnalyticsService';
+import { echoChamber } from './services/EchoChamber';
 
 // Lazy load the Experience component
 const Experience = lazy(() => import('./scenes/Experience').then(module => ({ default: module.Experience })));
@@ -28,12 +30,27 @@ const Experience = lazy(() => import('./scenes/Experience').then(module => ({ de
 function App() {
   const { isLoading, error, fetchDestinations } = useDestinationStore();
   const [visible, setVisible] = useState(false);
+  const [oculusVisible, setOculusVisible] = useState(false);
 
   useEffect(() => {
     analytics.init();
     analytics.track('App Loaded');
     fetchDestinations();
+
+    // Start Echo Chamber
+    echoChamber.start();
+    return () => echoChamber.stop();
   }, [fetchDestinations]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'o' || e.key === 'O') {
+        setOculusVisible(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   const [hasWebGL] = useState(isWebGLSupported);
 
   useEffect(() => {
@@ -84,6 +101,7 @@ function App() {
       <DefenseOverlay />
       <BioFeedbackOverlay />
       <OculusHUD />
+      <OculusInterface visible={oculusVisible} />
       <AegisSystem />
       <AcousticField />
       <AudioControls />
