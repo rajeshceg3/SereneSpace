@@ -16,6 +16,8 @@ export interface EchoSnapshot {
 }
 
 // Legacy Visual Echo Support
+export type Echo = VisualEcho; // Backward compatibility
+
 export interface VisualEcho {
   id: string;
   position: [number, number, number];

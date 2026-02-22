@@ -28,6 +28,7 @@ describe('EchoChamber', () => {
   });
 
   it('should start and stop the optimization loop', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const optimizeSpy = vi.spyOn(echoChamber as any, 'optimize');
     echoChamber.start();
 
