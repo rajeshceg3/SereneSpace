@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
@@ -21,8 +21,21 @@ export const VerdantFlora = () => {
   // Track dummy objects for matrix updates using a ref to avoid recreating it
   const dummyRef = useRef(new THREE.Object3D());
 
-  // Use a ref for the Float32Array to keep it mutable but persistent
-  const positionsRef = useRef<Float32Array>(null!);
+  // Move positions initialization out of the hot path loop.
+  // We use useState with a lazy initializer to hold the mutable array directly,
+  // bypassing the need to mutate a ref during render which trips the linter.
+  const [positions] = useState(() => {
+    const pos = new Float32Array(INSTANCE_COUNT * 2);
+    for (let i = 0; i < INSTANCE_COUNT; i++) {
+        pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
+        pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
+    }
+    return pos;
+  });
+
+  // Keep the ref pattern internally for useFrame to align with previous logic if needed,
+  // or just use the positions array directly since it's a mutable reference.
+  const positionsRef = useRef<Float32Array>(positions);
 
   const geometry = useMemo(() => {
     // 1. Trunk
@@ -57,6 +70,8 @@ export const VerdantFlora = () => {
       shader.uniforms.uBreath = { value: 0 };
       shader.uniforms.uNarrative = { value: 0 }; // Added
       shader.uniforms.uNarrativeIntensity = { value: 0 }; // Added
+      shader.uniforms.uOffsetX = { value: 0 }; // Added for GPU Wrapping
+      shader.uniforms.uOffsetZ = { value: 0 }; // Added for GPU Wrapping
 
       shaderRef.current = shader;
 
@@ -66,6 +81,8 @@ export const VerdantFlora = () => {
         uniform float uBreath;
         uniform float uNarrative; // Added
         uniform float uNarrativeIntensity; // Added
+        uniform float uOffsetX;
+        uniform float uOffsetZ;
         ${NOISE_GLSL}
       ` + shader.vertexShader;
 
@@ -78,8 +95,16 @@ export const VerdantFlora = () => {
         // instanceMatrix column 3 is position
         vec3 instPos = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
 
-        float worldX = instPos.x;
-        float worldZ = instPos.z;
+        // Wrap logic on GPU
+        float halfSize = ${HALF_SIZE.toFixed(1)};
+        float terrainSize = ${TERRAIN_SIZE.toFixed(1)};
+
+        float worldX = mod(instPos.x - uOffsetX + halfSize, terrainSize) - halfSize + uOffsetX;
+        float worldZ = mod(instPos.z - uOffsetZ + halfSize, terrainSize) - halfSize + uOffsetZ;
+
+        // Update transformed to the new wrapped position relative to the local mesh
+        transformed.x += (worldX - instPos.x);
+        transformed.z += (worldZ - instPos.z);
 
         // --- Height Calculation (Must match FractalLandscape) ---
         float noiseScale = 0.05;
@@ -173,19 +198,6 @@ export const VerdantFlora = () => {
   useFrame(({ clock }) => {
     if (!meshRef.current || !shaderRef.current) return;
 
-    // Initialize positions if not ready (inside the loop or via useEffect, doing here ensures order)
-    if (!positionsRef.current) {
-        // We can't use Math.random inside useFrame if we want strict purity in render,
-        // but useFrame is an effect loop (subscription), so side effects like random generation are technically safe here
-        // IF they only happen once.
-        const pos = new Float32Array(INSTANCE_COUNT * 2);
-        for (let i = 0; i < INSTANCE_COUNT; i++) {
-            pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
-            pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
-        }
-        positionsRef.current = pos;
-    }
-
     const stress = useResonanceStore.getState().currentStress;
     const isBreathActive = useRespirationStore.getState().isActive;
     const breathValue = RespirationController.getValue();
@@ -204,65 +216,14 @@ export const VerdantFlora = () => {
     shaderRef.current.uniforms.uBreath.value = isBreathActive ? breathValue : 0;
     shaderRef.current.uniforms.uNarrative.value = narrativeIndex;
     shaderRef.current.uniforms.uNarrativeIntensity.value = intensity;
+    shaderRef.current.uniforms.uOffsetX.value = camera.position.x;
+    shaderRef.current.uniforms.uOffsetZ.value = camera.position.z;
 
-    const camX = camera.position.x;
-    const camZ = camera.position.z;
-    const dummy = dummyRef.current;
-    const pos = positionsRef.current;
-
-    let needsUpdate = false;
-
-    for (let i = 0; i < INSTANCE_COUNT; i++) {
-      let x = pos[i * 2];
-      let z = pos[i * 2 + 1];
-
-      const distX = x - camX;
-      if (distX < -HALF_SIZE) {
-         x += TERRAIN_SIZE;
-         pos[i * 2] = x;
-         needsUpdate = true;
-      } else if (distX > HALF_SIZE) {
-         x -= TERRAIN_SIZE;
-         pos[i * 2] = x;
-         needsUpdate = true;
-      }
-
-      const distZ = z - camZ;
-      if (distZ < -HALF_SIZE) {
-         z += TERRAIN_SIZE;
-         pos[i * 2 + 1] = z;
-         needsUpdate = true;
-      } else if (distZ > HALF_SIZE) {
-         z -= TERRAIN_SIZE;
-         pos[i * 2 + 1] = z;
-         needsUpdate = true;
-      }
-
-      if (needsUpdate) {
-         dummy.position.set(x, 0, z);
-         dummy.rotation.y = i;
-         dummy.updateMatrix();
-         meshRef.current.setMatrixAt(i, dummy.matrix);
-      }
-    }
-
-    if (needsUpdate) {
-      meshRef.current.instanceMatrix.needsUpdate = true;
-    }
+    // GPU wrapping completely handles positions now, no need to update matrices on the CPU.
   });
 
   // Initial placement
   useEffect(() => {
-    // If positionsRef is not yet initialized (e.g. useFrame hasn't run), initialize it here
-    if (!positionsRef.current) {
-        const pos = new Float32Array(INSTANCE_COUNT * 2);
-        for (let i = 0; i < INSTANCE_COUNT; i++) {
-            pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
-            pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
-        }
-        positionsRef.current = pos;
-    }
-
     const dummy = dummyRef.current;
     const pos = positionsRef.current;
     for (let i = 0; i < INSTANCE_COUNT; i++) {
