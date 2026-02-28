@@ -24,6 +24,17 @@ export const VerdantFlora = () => {
   // Use a ref for the Float32Array to keep it mutable but persistent
   const positionsRef = useRef<Float32Array>(null!);
 
+  // Move positions initialization out of the hot path loop.
+  // Generate once and assign to ref.
+  useMemo(() => {
+    const pos = new Float32Array(INSTANCE_COUNT * 2);
+    for (let i = 0; i < INSTANCE_COUNT; i++) {
+        pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
+        pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
+    }
+    positionsRef.current = pos;
+  }, []);
+
   const geometry = useMemo(() => {
     // 1. Trunk
     const trunkGeo = new THREE.CylinderGeometry(0.02, 0.04, 0.5, 5);
@@ -173,19 +184,6 @@ export const VerdantFlora = () => {
   useFrame(({ clock }) => {
     if (!meshRef.current || !shaderRef.current) return;
 
-    // Initialize positions if not ready (inside the loop or via useEffect, doing here ensures order)
-    if (!positionsRef.current) {
-        // We can't use Math.random inside useFrame if we want strict purity in render,
-        // but useFrame is an effect loop (subscription), so side effects like random generation are technically safe here
-        // IF they only happen once.
-        const pos = new Float32Array(INSTANCE_COUNT * 2);
-        for (let i = 0; i < INSTANCE_COUNT; i++) {
-            pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
-            pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
-        }
-        positionsRef.current = pos;
-    }
-
     const stress = useResonanceStore.getState().currentStress;
     const isBreathActive = useRespirationStore.getState().isActive;
     const breathValue = RespirationController.getValue();
@@ -209,6 +207,8 @@ export const VerdantFlora = () => {
     const camZ = camera.position.z;
     const dummy = dummyRef.current;
     const pos = positionsRef.current;
+
+    if (!pos) return;
 
     let needsUpdate = false;
 
@@ -253,16 +253,6 @@ export const VerdantFlora = () => {
 
   // Initial placement
   useEffect(() => {
-    // If positionsRef is not yet initialized (e.g. useFrame hasn't run), initialize it here
-    if (!positionsRef.current) {
-        const pos = new Float32Array(INSTANCE_COUNT * 2);
-        for (let i = 0; i < INSTANCE_COUNT; i++) {
-            pos[i * 2] = (Math.random() - 0.5) * TERRAIN_SIZE;
-            pos[i * 2 + 1] = (Math.random() - 0.5) * TERRAIN_SIZE;
-        }
-        positionsRef.current = pos;
-    }
-
     const dummy = dummyRef.current;
     const pos = positionsRef.current;
     for (let i = 0; i < INSTANCE_COUNT; i++) {

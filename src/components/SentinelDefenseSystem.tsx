@@ -18,6 +18,8 @@ import {
 import { analytics } from '../services/AnalyticsService';
 import { audioEngine } from '../services/AudioEngine';
 
+const sharedBioData = { stress: 0, hrv: 0, coherence: 0 };
+
 export const SentinelDefenseSystem = () => {
   const setProtocol = useSentinelStore((state) => state.setProtocol);
   const setThreatLevel = useSentinelStore((state) => state.setThreatLevel);
@@ -107,7 +109,12 @@ export const SentinelDefenseSystem = () => {
     if (isCustomProfileActive) {
         const hrv = useBioLinkStore.getState().hrv;
         const coherence = useRespirationStore.getState().coherence;
-        useAetherStore.getState().evaluateRules({ stress, hrv, coherence }, delta * 1000);
+        // Avoid recreating object on every frame by passing individual parameters or creating a shared object
+        // However, useAetherStore evaluateRules requires an object. We can create a mutable persistent object.
+        sharedBioData.stress = stress;
+        sharedBioData.hrv = hrv;
+        sharedBioData.coherence = coherence;
+        useAetherStore.getState().evaluateRules(sharedBioData, delta * 1000);
         return; // Bypass hardcoded switching logic
     }
 
