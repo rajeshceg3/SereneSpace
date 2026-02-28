@@ -45,8 +45,11 @@ export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Gr
       let closestDist = Infinity;
       let closestDest: Destination | null = null;
 
+      // Reuse a vector to avoid creating new THREE.Vector3 on every frame
+      const tempVec = new THREE.Vector3();
       for (const dest of destinations) {
-        const dist = state.camera.position.distanceTo(new THREE.Vector3(...dest.coordinates));
+        tempVec.set(...dest.coordinates);
+        const dist = state.camera.position.distanceTo(tempVec);
         if (dist < closestDist) {
           closestDist = dist;
           closestDest = dest;

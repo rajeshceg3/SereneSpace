@@ -5,15 +5,4 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   base: process.env.BASE_URL || '/',
-  build: {
-    chunkSizeWarningLimit: 800,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          three_core: ['three'],
-          three_fiber: ['@react-three/fiber', '@react-three/drei']
-        }
-      }
-    }
-  }
 });

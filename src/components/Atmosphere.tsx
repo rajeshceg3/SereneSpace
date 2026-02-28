@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useTimeStore } from '../stores/useTimeStore';
@@ -38,8 +38,11 @@ export const Atmosphere = () => {
   const targetConfig = ATMOSPHERE_CONFIG[phase];
 
   // Helper vectors/colors for lerping to avoid GC
-  const targetColor = new THREE.Color(targetConfig.color);
-  const targetBgColor = new THREE.Color(targetConfig.backgroundColor);
+  const targetColor = useMemo(() => new THREE.Color(), []);
+  const targetBgColor = useMemo(() => new THREE.Color(), []);
+
+  targetColor.set(targetConfig.color);
+  targetBgColor.set(targetConfig.backgroundColor);
 
   useFrame(() => {
     if (!ambientLightRef.current || !sunLightRef.current) return;
