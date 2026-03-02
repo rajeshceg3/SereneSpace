@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { Sphere } from '@react-three/drei';
 import type { SpatialPoint } from '../stores/useTelemetryStore';
@@ -10,6 +10,9 @@ interface LoomVisualizationProps {
 
 export const LoomVisualization = ({ pathData, progress }: LoomVisualizationProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
+  const ghostMeshRef = useRef<THREE.Mesh>(null);
+  const ghostMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const ghostLightRef = useRef<THREE.PointLight>(null);
 
   // Create curve from points
   const { curve } = useMemo(() => {
@@ -69,21 +72,33 @@ export const LoomVisualization = ({ pathData, progress }: LoomVisualizationProps
     return geom;
   }, [curve, pathData]);
 
-  // Calculate current position for the "Ghost" avatar
-  const ghostPosition = useMemo(() => {
-    if (!curve) return new THREE.Vector3(0, 0, 0);
-    return curve.getPointAt(progress);
-  }, [curve, progress]);
+  const scratchPos = useMemo(() => new THREE.Vector3(), []);
+  const scratchColor = useMemo(() => new THREE.Color(), []);
 
-  // Determine Ghost Color based on current progress
-  const ghostColor = useMemo(() => {
-      if (pathData.length < 2) return 'white';
+  useEffect(() => {
+    if (!curve || !ghostMeshRef.current || !ghostMaterialRef.current || !ghostLightRef.current) return;
+
+    // Update position
+    curve.getPointAt(progress, scratchPos);
+    ghostMeshRef.current.position.copy(scratchPos);
+
+    // Update color
+    if (pathData.length < 2) {
+      scratchColor.set('white');
+    } else {
       const indexFloat = progress * (pathData.length - 1);
       const index = Math.floor(indexFloat);
       const coherence = pathData[index]?.coherence ?? 50;
       const normalized = Math.max(0, Math.min(100, coherence)) / 100;
-      return new THREE.Color().setHSL(normalized * 0.6, 1.0, 0.5);
-  }, [pathData, progress]);
+      scratchColor.setHSL(normalized * 0.6, 1.0, 0.5);
+    }
+
+    ghostMaterialRef.current.color.copy(scratchColor);
+    ghostMaterialRef.current.emissive.copy(scratchColor);
+    ghostLightRef.current.color.copy(scratchColor);
+
+  }, [progress, curve, pathData, scratchPos, scratchColor]);
+
 
   if (!curve || !geometry) return null;
 
@@ -102,13 +117,12 @@ export const LoomVisualization = ({ pathData, progress }: LoomVisualizationProps
       </mesh>
 
       {/* The Ghost Avatar */}
-      <Sphere args={[0.4, 16, 16]} position={ghostPosition}>
+      <Sphere ref={ghostMeshRef} args={[0.4, 16, 16]}>
         <meshStandardMaterial
-            color={ghostColor}
-            emissive={ghostColor}
+            ref={ghostMaterialRef}
             emissiveIntensity={1}
         />
-        <pointLight intensity={1} distance={5} decay={2} color={ghostColor} />
+        <pointLight ref={ghostLightRef} intensity={1} distance={5} decay={2} />
       </Sphere>
     </group>
   );
