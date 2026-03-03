@@ -14,7 +14,7 @@ import {
   PARALLAX_Y_FACTOR,
   PROXIMITY_CHECK_THRESHOLD,
 } from '../constants';
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 
 export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Group> }) => {
   const {
@@ -26,6 +26,7 @@ export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Gr
   } = useDestinationStore();
   const isReplaying = useOculusStore((state) => state.isReplaying);
   const lastCameraZRef = useRef<number | null>(null);
+  const tempVec = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((state) => {
     if (isReplaying) return;
@@ -46,7 +47,6 @@ export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Gr
       let closestDest: Destination | null = null;
 
       // Reuse a vector to avoid creating new THREE.Vector3 on every frame
-      const tempVec = new THREE.Vector3();
       for (const dest of destinations) {
         tempVec.set(...dest.coordinates);
         const dist = state.camera.position.distanceTo(tempVec);
