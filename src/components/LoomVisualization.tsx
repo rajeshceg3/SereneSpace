@@ -23,6 +23,9 @@ export const LoomVisualization = ({ pathData, progress }: LoomVisualizationProps
     return { curve, curvePoints: points };
   }, [pathData]);
 
+  const scratchPos = useMemo(() => new THREE.Vector3(), []);
+  const scratchColor = useMemo(() => new THREE.Color(), []);
+
   // Create geometry and apply vertex colors
   const geometry = useMemo(() => {
     if (!curve) return null;
@@ -62,18 +65,17 @@ export const LoomVisualization = ({ pathData, progress }: LoomVisualizationProps
       // 100 (High) -> Blue (0.2, 0.5, 1) or Gold
       // Let's use HSL for a nice gradient: Red (0) -> Yellow -> Green -> Blue (0.6)
       const normalizedCoherence = Math.max(0, Math.min(100, coherence)) / 100;
-      const color = new THREE.Color().setHSL(normalizedCoherence * 0.6, 1.0, 0.5);
+      // We can compute HSL to RGB manually to avoid new THREE.Color() per iteration
+      // Or just reuse a single color object.
+      scratchColor.setHSL(normalizedCoherence * 0.6, 1.0, 0.5);
 
-      colors.push(color.r, color.g, color.b);
+      colors.push(scratchColor.r, scratchColor.g, scratchColor.b);
     }
 
     geom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
     return geom;
-  }, [curve, pathData]);
-
-  const scratchPos = useMemo(() => new THREE.Vector3(), []);
-  const scratchColor = useMemo(() => new THREE.Color(), []);
+  }, [curve, pathData, scratchColor]);
 
   useEffect(() => {
     if (!curve || !ghostMeshRef.current || !ghostMaterialRef.current || !ghostLightRef.current) return;
