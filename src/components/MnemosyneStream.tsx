@@ -84,9 +84,15 @@ export const MnemosyneStream = () => {
     const camPos = camera.position;
 
     // Check distance to curve control points
-    for (const curve of curves) {
-        for (const point of curve.points) {
-            const distSq = point.distanceToSquared(camPos);
+    // Optimization: avoid nested loops with large point counts every frame
+    // by evaluating only a sample or bounding box if possible.
+    // However, distanceToSquared is fast enough, but we should limit the iteration count.
+    for (let i = 0; i < curves.length; i++) {
+        const points = curves[i].points;
+        // Sample points to reduce loop iterations (e.g. max 10 points per curve)
+        const step = Math.max(1, Math.floor(points.length / 10));
+        for (let j = 0; j < points.length; j += step) {
+            const distSq = points[j].distanceToSquared(camPos);
             if (distSq < minDistanceSq) {
                 minDistanceSq = distSq;
             }
