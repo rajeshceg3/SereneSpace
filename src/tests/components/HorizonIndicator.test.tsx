@@ -57,8 +57,8 @@ describe('HorizonIndicator', () => {
     const container = screen.getByLabelText('Stress Prediction Indicator');
     const bar = container.firstChild as HTMLElement;
 
-    // Orange: rgba(255, 170, 68, 0.8)
-    expect(bar.style.backgroundColor).toBe('rgba(255, 170, 68, 0.8)');
+    // Orange: rgba(255, 100, 50, 0.6)
+    expect(bar.style.backgroundColor).toBe('rgba(255, 100, 50, 0.6)');
   });
 
   it('shows cool color (cyan) for negative velocity (stress falling)', () => {
@@ -72,8 +72,8 @@ describe('HorizonIndicator', () => {
     const container = screen.getByLabelText('Stress Prediction Indicator');
     const bar = container.firstChild as HTMLElement;
 
-    // Cyan: rgba(68, 170, 255, 0.8)
-    expect(bar.style.backgroundColor).toBe('rgba(68, 170, 255, 0.8)');
+    // Cyan: rgba(50, 200, 255, 0.6)
+    expect(bar.style.backgroundColor).toBe('rgba(50, 200, 255, 0.6)');
   });
 
   it('shows neutral color for near-zero velocity', () => {
@@ -87,8 +87,8 @@ describe('HorizonIndicator', () => {
     const container = screen.getByLabelText('Stress Prediction Indicator');
     const bar = container.firstChild as HTMLElement;
 
-    // Neutral: rgba(255, 255, 255, 0.5)
-    expect(bar.style.backgroundColor).toBe('rgba(255, 255, 255, 0.5)');
+    // Neutral: rgba(255, 255, 255, 0.3)
+    expect(bar.style.backgroundColor).toBe('rgba(255, 255, 255, 0.3)');
   });
 
   it('scales based on velocity magnitude', () => {
@@ -102,8 +102,8 @@ describe('HorizonIndicator', () => {
     const container = screen.getByLabelText('Stress Prediction Indicator');
     const bar = container.firstChild as HTMLElement;
 
-    // Formula: scaleX = 1 + Math.min(Math.abs(velocity) * 10, 4)
-    // 0.2 * 10 = 2. 1 + 2 = 3.
-    expect(bar.style.transform).toBe('scaleX(3)');
+    // Formula: intensity = Math.min(Math.abs(velocity) * 10, 4) = 2
+    // scaleX = 1 + (intensity * 0.2) = 1 + 0.4 = 1.4
+    expect(bar.style.transform).toBe('scaleX(1.4)');
   });
 });

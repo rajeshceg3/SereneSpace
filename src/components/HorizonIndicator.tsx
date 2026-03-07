@@ -17,16 +17,19 @@ export const HorizonIndicator = () => {
   // stress falling (good) -> cyan (#44aaff)
   // neutral -> white
 
-  const getColor = (velocity: number) => {
-    if (Math.abs(velocity) < 0.01) return 'rgba(255, 255, 255, 0.5)';
-    return velocity > 0 ? 'rgba(255, 170, 68, 0.8)' : 'rgba(68, 170, 255, 0.8)';
+  const getGlowColor = (velocity: number) => {
+    if (Math.abs(velocity) < 0.01) return 'rgba(255, 255, 255, 0.3)';
+    return velocity > 0 ? 'rgba(255, 100, 50, 0.6)' : 'rgba(50, 200, 255, 0.6)';
   };
 
   // Transform based on velocity magnitude
   // Max expected velocity might be around 0.2 per second?
   // Let's scale it.
-  const scaleX = 1 + Math.min(Math.abs(stressVelocity) * 10, 4);
-  const color = getColor(stressVelocity);
+  const intensity = Math.min(Math.abs(stressVelocity) * 10, 4);
+  const scaleX = 1 + (intensity * 0.2);
+  const color = getGlowColor(stressVelocity);
+  const blurRadius = 20 + (intensity * 20);
+  const spreadRadius = 5 + (intensity * 10);
 
   return (
     <div
@@ -38,6 +41,7 @@ export const HorizonIndicator = () => {
         className="horizon-bar"
         style={{
           backgroundColor: color,
+          boxShadow: `0 0 ${blurRadius}px ${spreadRadius}px ${color}`,
           transform: `scaleX(${scaleX})`
         }}
       />
