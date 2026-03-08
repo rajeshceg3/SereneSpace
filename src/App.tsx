@@ -6,7 +6,7 @@ import { useDestinationStore } from './stores/useDestinationStore';
 import { Loading } from './components/Loading';
 import { ErrorFallback } from './components/ErrorFallback';
 import { NoWebGLFallback } from './components/NoWebGLFallback';
-import { FADE_IN_DELAY, FADE_IN_DURATION } from './constants';
+import { FADE_IN_DELAY } from './constants';
 import { isWebGLSupported } from './utils/webglDetector';
 import { TelemetryRecorder } from './components/TelemetryRecorder';
 import { SessionDebrief } from './components/SessionDebrief';
@@ -79,11 +79,11 @@ function App() {
     <>
       <div
         data-testid="app-container"
+        className={visible ? 'cinematic-entry' : ''}
         style={{
           width: '100%',
           height: '100%',
           opacity: visible ? 1 : 0,
-          transition: `opacity ${FADE_IN_DURATION}ms ease-in-out`,
           backgroundColor: '#000',
         }}
       >
@@ -91,6 +91,13 @@ function App() {
           <Experience />
         </Suspense>
       </div>
+
+      {/* Discovery Cue */}
+      {visible && (
+        <div className="discovery-cue">
+          Scroll to Explore • [H] Aegis • [M] Atlas • [O] Oculus
+        </div>
+      )}
       <DestinationDetails />
       <HoverHint />
 
