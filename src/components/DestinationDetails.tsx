@@ -43,7 +43,7 @@ export const DestinationDetails = () => {
 
   return (
     <div className="destination-ui-container">
-      <h2 className={`destination-name ${isNameVisible ? 'visible' : ''}`}>
+      <h2 className={`destination-name ${isNameVisible ? 'visible' : ''}`} data-testid="destination-name">
         {activeDestinationDetails.name}
       </h2>
       <div className={`destination-details-box ${isDetailsVisible ? 'visible' : ''}`}>

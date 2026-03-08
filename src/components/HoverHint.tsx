@@ -22,13 +22,15 @@ export const HoverHint = () => {
 
   return (
     <div
-      className={`hover-hint ${destination ? 'visible' : ''}`}
+      className="hover-hint-container"
       style={{
-        left: `${position.x + 15}px`,
-        top: `${position.y}px`,
+        transform: `translate(${position.x + 20}px, ${position.y}px)`,
       }}
     >
-      {destination?.name}
+      <div className={`hover-hint-content ${destination ? 'visible' : ''}`}>
+        <span className="hover-hint-text">{destination?.name}</span>
+        <span className="hover-hint-pulse"></span>
+      </div>
     </div>
   );
 };
