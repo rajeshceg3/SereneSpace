@@ -1,19 +1,65 @@
-.hover-hint {
+.hover-hint-container {
   position: fixed;
-  padding: 5px 10px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  border-radius: 4px;
-  font-family: sans-serif;
-  font-size: 14px;
+  top: 0;
+  left: 0;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
   z-index: 100;
+  will-change: transform;
 }
 
-.hover-hint.visible {
+.hover-hint-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(10, 10, 15, 0.4);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: scale(0.95) translateX(-10px);
+  transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.hover-hint-content.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: scale(1) translateX(0);
+}
+
+.hover-hint-text {
+  position: relative;
+  z-index: 2;
+}
+
+.hover-hint-pulse {
+  display: block;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  position: relative;
+}
+
+.hover-hint-pulse::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  animation: pulseRing 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+@keyframes pulseRing {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
 }

@@ -95,7 +95,13 @@ function App() {
       {/* Discovery Cue */}
       {visible && (
         <div className="discovery-cue">
-          Scroll to Explore • [H] Aegis • [M] Atlas • [O] Oculus
+          <div className="scroll-indicator">
+            <div className="scroll-dot" />
+          </div>
+          <div className="cue-text">
+            <span>Scroll to Explore</span>
+            <span className="keyboard-hints">[H] Aegis • [M] Atlas • [O] Oculus</span>
+          </div>
         </div>
       )}
       <DestinationDetails />

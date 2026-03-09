@@ -1,43 +1,83 @@
 /* src/App.css */
 
 .cinematic-entry {
-  animation: cinematicFadeIn 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: cinematicFadeIn 4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes cinematicFadeIn {
   0% {
     opacity: 0;
-    filter: blur(20px) contrast(0.8);
-    transform: scale(1.05);
+    filter: blur(30px) contrast(0.8) saturate(0.5);
+    transform: scale(1.1);
   }
   100% {
     opacity: 1;
-    filter: blur(0px) contrast(1);
+    filter: blur(0px) contrast(1) saturate(1);
     transform: scale(1);
   }
 }
 
 .discovery-cue {
   position: absolute;
-  bottom: 2%;
+  bottom: 4%;
   left: 50%;
   transform: translateX(-50%);
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 0.8rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   pointer-events: none;
   z-index: 5;
-  animation: pulseCue 4s infinite ease-in-out, fadeOutAfterDelay 10s forwards;
+  animation: fadeOutAfterDelay 12s forwards;
+}
+
+.scroll-indicator {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-dot {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  position: absolute;
+  top: -10px;
+  animation: scrollAnim 2s cubic-bezier(0.6, 0.05, 0.4, 1) infinite;
+}
+
+.cue-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  animation: pulseCue 4s infinite ease-in-out;
+}
+
+.keyboard-hints {
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes scrollAnim {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(50px); opacity: 0; }
 }
 
 @keyframes pulseCue {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
 @keyframes fadeOutAfterDelay {
-  0%, 80% { visibility: visible; }
+  0%, 80% { visibility: visible; opacity: 1; }
   100% { visibility: hidden; opacity: 0; }
 }

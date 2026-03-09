@@ -51,16 +51,17 @@ describe('HoverHint', () => {
 
     expect(screen.getByText('Mars')).toBeInTheDocument();
 
-    const hint = screen.getByText('Mars');
-    expect(hint).toHaveClass('visible');
+    const hintContainer = screen.getByText('Mars').closest('.hover-hint-container');
+    const hintContent = screen.getByText('Mars').closest('.hover-hint-content');
+
+    expect(hintContent).toHaveClass('visible');
 
     // Move mouse
     fireEvent.mouseMove(window, { clientX: 100, clientY: 200 });
 
-    // Style should update: left: 115px (100 + 15), top: 200px
-    expect(hint).toHaveStyle({
-      left: '115px',
-      top: '200px',
+    // Style should update: transform: translate(120px, 200px)
+    expect(hintContainer).toHaveStyle({
+      transform: 'translate(120px, 200px)',
     });
   });
 
@@ -71,13 +72,13 @@ describe('HoverHint', () => {
       useDestinationStore.setState({ hoveredDestination: '1' });
     });
 
-    const hint = screen.getByText('Mars');
-    expect(hint).toHaveClass('visible');
+    const hintContent = screen.getByText('Mars').closest('.hover-hint-content');
+    expect(hintContent).toHaveClass('visible');
 
     act(() => {
       useDestinationStore.setState({ hoveredDestination: null });
     });
 
-    expect(hint).not.toHaveClass('visible');
+    expect(hintContent).not.toHaveClass('visible');
   });
 });
