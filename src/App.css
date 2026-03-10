@@ -1,14 +1,14 @@
 /* src/App.css */
 
 .cinematic-entry {
-  animation: cinematicFadeIn 4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: cinematicFadeIn 5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes cinematicFadeIn {
   0% {
     opacity: 0;
-    filter: blur(30px) contrast(0.8) saturate(0.5);
-    transform: scale(1.1);
+    filter: blur(40px) contrast(0.7) saturate(0.4);
+    transform: scale(1.15);
   }
   100% {
     opacity: 1;
@@ -19,13 +19,13 @@
 
 .discovery-cue {
   position: absolute;
-  bottom: 4%;
+  bottom: 6%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   pointer-events: none;
   z-index: 5;
   animation: fadeOutAfterDelay 12s forwards;
@@ -33,43 +33,47 @@
 
 .scroll-indicator {
   width: 1px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.2);
+  height: 60px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.0) 100%);
   position: relative;
   overflow: hidden;
 }
 
 .scroll-dot {
   width: 100%;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.8);
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 100%);
   position: absolute;
-  top: -10px;
-  animation: scrollAnim 2s cubic-bezier(0.6, 0.05, 0.4, 1) infinite;
+  top: -20px;
+  animation: scrollAnim 2.5s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
 }
 
 .cue-text {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.75rem;
-  letter-spacing: 3px;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  font-weight: 300;
+  letter-spacing: 6px;
   text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
-  animation: pulseCue 4s infinite ease-in-out;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+  animation: pulseCue 5s infinite ease-in-out;
 }
 
 .keyboard-hints {
-  font-size: 0.6rem;
-  letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.55rem;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 @keyframes scrollAnim {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(50px); opacity: 0; }
+  0% { transform: translateY(-10px); opacity: 0; }
+  30% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(70px); opacity: 0; }
 }
 
 @keyframes pulseCue {
