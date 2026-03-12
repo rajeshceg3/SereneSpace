@@ -10,28 +10,28 @@
 .hover-hint-content {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 18px;
-  background: rgba(5, 5, 10, 0.6);
-  backdrop-filter: blur(24px) saturate(120%);
-  -webkit-backdrop-filter: blur(24px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  gap: 12px;
+  padding: 10px 22px;
+  background: rgba(5, 5, 10, 0.4);
+  backdrop-filter: blur(30px) saturate(140%);
+  -webkit-backdrop-filter: blur(30px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 40px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   font-family: system-ui, sans-serif;
-  font-weight: 300;
-  font-size: 12px;
-  letter-spacing: 2px;
+  font-weight: 200;
+  font-size: 11px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   opacity: 0;
-  transform: scale(0.9) translateX(-15px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 4px rgba(255, 255, 255, 0.05);
+  transform: scale(0.95);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 1px 6px rgba(255, 255, 255, 0.08);
 }
 
 .hover-hint-content.visible {
   opacity: 1;
-  transform: scale(1) translateX(0);
+  transform: scale(1);
 }
 
 .hover-hint-text {
@@ -51,17 +51,17 @@
 .hover-hint-pulse::after {
   content: '';
   position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   animation: slowBreathingRing 4s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
 }
 
 @keyframes slowBreathingRing {
   0% { transform: scale(0.5); opacity: 0; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1.8); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
 }
