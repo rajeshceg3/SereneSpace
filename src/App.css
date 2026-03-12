@@ -7,8 +7,8 @@
 @keyframes cinematicFadeIn {
   0% {
     opacity: 0;
-    filter: blur(40px) contrast(0.7) saturate(0.4);
-    transform: scale(1.15);
+    filter: blur(30px) contrast(0.7) saturate(0.4);
+    transform: scale(1.1);
   }
   100% {
     opacity: 1;
