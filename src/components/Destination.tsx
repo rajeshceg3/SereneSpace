@@ -96,6 +96,7 @@ export const Destination = ({ destination }: { destination: DestinationType }) =
       <mesh
         ref={meshRef}
         position={destination.coordinates}
+        onClick={() => handleDestinationClick(destination)}
         onPointerOver={() => setHoveredDestination(destination.id)}
         onPointerOut={() => setHoveredDestination(null)}
       >
