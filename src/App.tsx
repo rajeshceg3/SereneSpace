@@ -31,6 +31,7 @@ function App() {
   const { isLoading, error, fetchDestinations } = useDestinationStore();
   const [visible, setVisible] = useState(false);
   const [oculusVisible, setOculusVisible] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     analytics.init();
@@ -63,6 +64,22 @@ function App() {
     }
   }, [isLoading, error]);
 
+  useEffect(() => {
+    const handleInteraction = () => {
+      setHasInteracted(true);
+    };
+
+    window.addEventListener('wheel', handleInteraction, { once: true });
+    window.addEventListener('keydown', handleInteraction, { once: true });
+    window.addEventListener('pointerdown', handleInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
+      window.removeEventListener('pointerdown', handleInteraction);
+    };
+  }, []);
+
   if (!hasWebGL) {
     return <NoWebGLFallback />;
   }
@@ -94,7 +111,7 @@ function App() {
 
       {/* Discovery Cue */}
       {visible && (
-        <div className="discovery-cue">
+        <div className={`discovery-cue ${hasInteracted ? 'fade-out' : ''}`}>
           <div className="scroll-indicator">
             <div className="scroll-dot" />
           </div>
