@@ -1,5 +1,8 @@
 .destination-ui-container {
   position: absolute;
+  /* index.css applies height:100vh to every #root > div; this overlay must size
+     to its content or bottom:12% pushes the name above the viewport. */
+  height: auto;
   bottom: 12%;
   left: 50%;
   transform: translateX(-50%);
