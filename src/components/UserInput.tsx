@@ -74,8 +74,18 @@ export const UserInput = () => {
   // so taps on destination markers and vertical scrolling are unaffected.
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
+  // Input ownership: touches that begin on interactive controls (buttons,
+  // links, form fields, sliders) belong to those controls, not to navigation.
+  const INTERACTIVE_SELECTOR =
+    'button, a, input, textarea, select, [role="button"], [contenteditable]';
+
   const handleTouchStart = useCallback((event: TouchEvent) => {
     if (event.touches.length !== 1) {
+      touchStart.current = null;
+      return;
+    }
+    const target = event.target as HTMLElement | null;
+    if (target && typeof target.closest === 'function' && target.closest(INTERACTIVE_SELECTOR)) {
       touchStart.current = null;
       return;
     }
