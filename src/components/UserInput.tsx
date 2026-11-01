@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDestinationStore } from '../stores/useDestinationStore';
 import { useResonanceStore } from '../stores/useResonanceStore';
 import {
@@ -34,43 +34,82 @@ export const UserInput = () => {
     [cameraTargetZ, setCameraTargetZ, addStress],
   );
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
+  const cycleDestination = useCallback(
+    (direction: 1 | -1) => {
       if (destinations.length === 0) return;
 
       const currentIndex = destinations.findIndex((d) => d.id === activeDestination);
+      const nextIndex =
+        direction === 1
+          ? currentIndex >= 0
+            ? (currentIndex + 1) % destinations.length
+            : 0
+          : currentIndex >= 0
+            ? (currentIndex - 1 + destinations.length) % destinations.length
+            : destinations.length - 1;
 
-      let nextIndex = -1;
-      if (event.key === 'ArrowRight') {
-        nextIndex = currentIndex >= 0 ? (currentIndex + 1) % destinations.length : 0;
-      } else if (event.key === 'ArrowLeft') {
-        nextIndex =
-          currentIndex >= 0 ? (currentIndex - 1 + destinations.length) % destinations.length : destinations.length - 1;
-      }
+      const nextDestination = destinations[nextIndex];
+      setActiveDestination(nextDestination.id);
+      setCameraTargetZ(nextDestination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
 
-      if (nextIndex !== -1) {
-        // Prevent default browser action for Arrow keys to avoid page scroll (though canvas captures it usually)
-        event.preventDefault();
-        const nextDestination = destinations[nextIndex];
-        setActiveDestination(nextDestination.id);
-        setCameraTargetZ(nextDestination.coordinates[2] + CAMERA_POSITION_Z_OFFSET);
-
-        // Add stress on navigation
-        addStress(RESONANCE_KEY_IMPACT);
-      }
+      // Add stress on navigation
+      addStress(RESONANCE_KEY_IMPACT);
     },
     [destinations, activeDestination, setActiveDestination, setCameraTargetZ, addStress],
+  );
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        // Prevent default browser action for Arrow keys to avoid page scroll (though canvas captures it usually)
+        event.preventDefault();
+        cycleDestination(event.key === 'ArrowRight' ? 1 : -1);
+      }
+    },
+    [cycleDestination],
+  );
+
+  // Horizontal swipe mirrors ArrowLeft/Right destination cycling on touch devices.
+  // Thresholds: 50px horizontal travel, max 40px vertical deviation, horizontal-dominant only,
+  // so taps on destination markers and vertical scrolling are unaffected.
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  const handleTouchStart = useCallback((event: TouchEvent) => {
+    if (event.touches.length !== 1) {
+      touchStart.current = null;
+      return;
+    }
+    touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (event: TouchEvent) => {
+      const start = touchStart.current;
+      touchStart.current = null;
+      if (!start || event.changedTouches.length !== 1) return;
+
+      const dx = event.changedTouches[0].clientX - start.x;
+      const dy = event.changedTouches[0].clientY - start.y;
+      if (Math.abs(dx) < 50 || Math.abs(dy) > 40 || Math.abs(dy) >= Math.abs(dx)) return;
+
+      cycleDestination(dx < 0 ? 1 : -1);
+    },
+    [cycleDestination],
   );
 
   useEffect(() => {
     window.addEventListener('wheel', handleWheel);
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [handleWheel, handleKeyDown]);
+  }, [handleWheel, handleKeyDown, handleTouchStart, handleTouchEnd]);
 
   return null; // This component does not render anything
 };
