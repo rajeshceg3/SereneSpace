@@ -96,7 +96,7 @@ function App() {
     <>
       <div
         data-testid="app-container"
-        className={visible ? 'cinematic-entry' : ''}
+        className={visible ? 'app-container cinematic-entry' : 'app-container'}
         style={{
           width: '100%',
           height: '100%',

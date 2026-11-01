@@ -13,7 +13,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body, #root, #root > div, canvas {
+body, #root, #root > .app-container, canvas {
   margin: 0;
   padding: 0;
   width: 100%;
