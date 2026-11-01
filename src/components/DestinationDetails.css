@@ -1,8 +1,5 @@
 .destination-ui-container {
   position: absolute;
-  /* index.css applies height:100vh to every #root > div; this overlay must size
-     to its content or bottom:12% pushes the name above the viewport. */
-  height: auto;
   bottom: 12%;
   left: 50%;
   transform: translateX(-50%);
@@ -104,4 +101,12 @@
     font-size: 1rem;
     line-height: 1.6;
   }
+}
+
+/* index.css sets height:100vh on every #root > div (specificity 1,0,1, beating
+   the class rule above); a full-height overlay makes bottom:12% push its flex
+   content above the viewport top. Override with equal ID-level specificity so
+   the overlay sizes to its content and anchors 12% above the bottom edge. */
+#root > .destination-ui-container {
+  height: auto;
 }
