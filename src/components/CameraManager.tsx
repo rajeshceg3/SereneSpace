@@ -13,6 +13,7 @@ import {
   PARALLAX_X_FACTOR,
   PARALLAX_Y_FACTOR,
   PROXIMITY_CHECK_THRESHOLD,
+  CAMERA_POSITION_Z_OFFSET,
 } from '../constants';
 import { useRef, useMemo } from 'react';
 
@@ -56,15 +57,27 @@ export const CameraManager = ({ groupRef }: { groupRef: React.RefObject<THREE.Gr
         }
       }
 
-      if (closestDest && closestDist < FOCUS_THRESHOLD) {
-        // Avoids setting state on every frame if it's already active
-        if (activeDestination !== closestDest.id) {
-          setActiveDestination(closestDest.id);
-        }
-      } else {
-        // If nothing is in focus, clear the active destination
-        if (activeDestination !== null) {
-          setActiveDestination(null);
+      // Programmatic navigation (arrow keys, swipe, marker tap) sets cameraTargetZ
+      // to exactly a destination's nav target. While that holds, skip proximity
+      // updates so transit past other destinations cannot steal or clear the
+      // programmatic selection - keyboard/swipe nav would otherwise never reveal
+      // off-axis destinations. Wheel scrolling sets arbitrary targets, which
+      // re-enables proximity focus automatically.
+      const programmaticTarget = destinations.some(
+        (d) => cameraTargetZ === d.coordinates[2] + CAMERA_POSITION_Z_OFFSET,
+      );
+
+      if (!programmaticTarget) {
+        if (closestDest && closestDist < FOCUS_THRESHOLD) {
+          // Avoids setting state on every frame if it's already active
+          if (activeDestination !== closestDest.id) {
+            setActiveDestination(closestDest.id);
+          }
+        } else {
+          // If nothing is in focus, clear the active destination
+          if (activeDestination !== null) {
+            setActiveDestination(null);
+          }
         }
       }
     }
