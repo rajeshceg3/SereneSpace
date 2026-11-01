@@ -126,7 +126,7 @@ const AmbientScene = () => {
 export const Experience = () => {
   return (
     <Canvas>
-      <FPSMonitor />
+      {import.meta.env.DEV && <FPSMonitor />}
       <A11y
         role="content"
         description="An immersive 3D travel experience. Use arrow keys or scroll to navigate between destinations."

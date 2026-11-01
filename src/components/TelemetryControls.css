@@ -25,3 +25,10 @@
 .telemetry-controls-button:active {
   transform: translateY(1px);
 }
+
+/* Avoid overlap with the respiration controls (bottom-left) on narrow screens */
+@media (max-width: 480px) {
+  .telemetry-controls-button {
+    bottom: 64px;
+  }
+}
