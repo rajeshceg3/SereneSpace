@@ -2,7 +2,7 @@ import {chromium} from '@playwright/test';
 import {spawn} from 'node:child_process';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
-const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4326'],{stdio:'ignore'});
+const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','4326'],{stdio:'ignore'});
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox']});
 fs.mkdirSync('verification/archive-evidence',{recursive:true});
 try {
