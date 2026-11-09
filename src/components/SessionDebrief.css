@@ -102,3 +102,18 @@
 .session-debrief-button:hover {
   background-color: rgba(0, 255, 204, 0.1);
 }
+
+/* Keep the debrief and its save-failure notice reachable on small screens. */
+.session-debrief-overlay { overflow-y: auto; padding: 16px 0; justify-content: flex-start; }
+.session-debrief-container { margin: auto; flex-shrink: 0; }
+.session-debrief-saving { color: #becbc7; font-size: 14px; line-height: 1.5; }
+.session-debrief-error { color: #ffd0b7; font-size: 16px; line-height: 1.5; padding: 12px; border: 1px solid #bd7658; }
+.session-debrief-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; }
+.session-debrief-button { min-height: 44px; }
+.session-debrief-button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+@media (max-width: 480px) {
+ .session-debrief-container { padding: 16px; }
+ .session-debrief-header { font-size: 20px; overflow-wrap: anywhere; }
+ .session-debrief-stats-grid { grid-template-columns: 1fr; gap: 8px; margin-bottom: 16px; }
+ .session-debrief-button { width: 100%; margin-right: 0 !important; }
+}

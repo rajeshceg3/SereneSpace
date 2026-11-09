@@ -9,7 +9,7 @@ import {
 import './SessionDebrief.css';
 
 export const SessionDebrief = () => {
-  const { sessionData, sessionPath, isDebriefOpen, setDebriefOpen, archiveSession } = useTelemetryStore();
+  const { sessionData, sessionPath, isDebriefOpen, setDebriefOpen, archiveSession, archiveError } = useTelemetryStore();
   const startReplay = useOculusStore((state) => state.startReplay);
 
   if (!isDebriefOpen) return null;
@@ -123,6 +123,8 @@ export const SessionDebrief = () => {
           </svg>
         </div>
 
+        <p className="session-debrief-saving">Archived sessions stay in this browser only. Only the latest 10 are kept. This is not a cloud backup.</p>
+        {archiveError && <p className="session-debrief-error" role="alert">{archiveError}</p>}
         <div className="session-debrief-actions">
           <button
             onClick={() => {
@@ -136,8 +138,7 @@ export const SessionDebrief = () => {
           </button>
           <button
             onClick={() => {
-              archiveSession();
-              setDebriefOpen(false);
+              if (archiveSession()) setDebriefOpen(false);
             }}
             className="session-debrief-button"
           >

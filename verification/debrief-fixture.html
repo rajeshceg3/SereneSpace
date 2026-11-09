@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Synthetic session debrief verification</title><div id="root"></div><script type="module">
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {SessionDebrief} from '/src/components/SessionDebrief.tsx';
+import {useTelemetryStore} from '/src/stores/useTelemetryStore.ts';
+useTelemetryStore.setState({sessionData:[{timestamp:1000,value:.2},{timestamp:4000,value:.5}],sessionPath:[],history:[],isDebriefOpen:true});
+createRoot(document.getElementById('root')).render(React.createElement(SessionDebrief));
+</script></html>
