@@ -29,6 +29,7 @@ interface TelemetryState {
   history: SessionSummary[];
   isRecording: boolean;
   isDebriefOpen: boolean;
+  archiveError: string;
 
   // Actions
   logSample: (value: number) => void;
@@ -37,7 +38,7 @@ interface TelemetryState {
   toggleRecording: () => void;
   setDebriefOpen: (isOpen: boolean) => void;
   resetSession: () => void;
-  archiveSession: () => void;
+  archiveSession: () => boolean;
 }
 
 const STORAGE_KEY = 'telemetry_history';
@@ -59,6 +60,7 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
   history: getInitialHistory(),
   isRecording: true,
   isDebriefOpen: false,
+  archiveError: '',
 
   logSample: (value: number) =>
     set((state) => {
@@ -112,7 +114,10 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
 
   archiveSession: () => {
     const { sessionData, sessionPath, history } = get();
-    if (sessionData.length === 0) return;
+    if (sessionData.length === 0) {
+      set({ archiveError: 'There is no session to archive yet.' });
+      return false;
+    }
 
     const startTime = sessionData[0].timestamp;
     const endTime = sessionData[sessionData.length - 1].timestamp;
@@ -136,18 +141,19 @@ export const useTelemetryStore = create<TelemetryState>((set, get) => ({
     // Keep only last 10 sessions to prevent localStorage overflow
     const newHistory = [...history, summary].slice(-10);
 
-    set({
-      history: newHistory,
-      sessionData: [], // Auto-reset after archiving
-      sessionPath: []
-    });
-
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
-      } catch (e) {
-        console.warn('Failed to save telemetry history', e);
-      }
+    // Commit storage first. A quota/blocked-storage failure must not discard
+    // the only in-memory session or close its debrief as if it was archived.
+    if (typeof window === 'undefined') {
+      set({ archiveError: 'This browser cannot save the session. Your current session is still here.' });
+      return false;
     }
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+    } catch {
+      set({ archiveError: 'The session was not saved. Your current session is still here. Free browser storage or try again before closing this tab.' });
+      return false;
+    }
+    set({ history: newHistory, sessionData: [], sessionPath: [], archiveError: '' });
+    return true;
   }
 }));
